@@ -1,0 +1,14 @@
+<ion-modal-view class="textpostmodal" ng-controller="FeedbackCtrl">
+        <ion-header-bar class="bar bar-header bar-dark">
+         <button class="button button-primary button-clear" ng-click="feedbackmodal.remove()">Annuleren</button>
+          <h1 class="title">Feedback</h1>
+           <button class="button button-primary button-clear" ng-click="post()" ng-disabled="feedbackmodal.posttext==undefined||feedbackmodal.posttext.length<2">Verzend</button>
+        </ion-header-bar>
+        <ion-content>
+        <textarea placeholder="Typ hier je feedback op de app" rows="10" maxlength="500" ng-model="feedbackmodal.posttext">
+        </textarea>
+
+        <p>{{500 - feedbackmodal.posttext.length}} tekens over</p>
+
+      </ion-content>
+</ion-modal-view>

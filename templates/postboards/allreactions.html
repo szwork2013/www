@@ -1,0 +1,60 @@
+<ion-view title="Groep posts" hide-Back-Button="true"  ng-init = "load('group')">
+  <ion-nav-buttons side="left">
+    <button menu-toggle="left" class="button button-icon icon ion-navicon"></button>
+  </ion-nav-buttons>
+
+  <ion-nav-buttons side="right">
+    <button menu-toggle="right" ng-if="loading" class="button button-icon icon ion-loading-d"></button>
+    <button menu-toggle="right" ng-if="noConnection" class="button button-icon icon ion-sad"></button>
+  </ion-nav-buttons>
+
+    <ion-content class="has-header darkbackground">
+
+     <ion-refresher on-refresh="refresh('group')"
+                     pulling-text="Schuif voor verversen"
+                     refreshing-text="Verversen"
+                     refreshing-icon="ion-loading-c" style="color:white;"
+                     ng-if="!noConnection">
+      </ion-refresher>
+    <ion-list class="pinboard">
+
+   <div class="item item-divider item-dark"
+    ng-repeat-start="(date, posts) in posts | orderBy:'date':true">
+          {{posts.date | date:'EEEE, d MMMM'}}
+  </div>
+
+      <div class="card"  ng-repeat="post in posts.posts track by $index">
+         
+
+          <img class="customavatar" fallback-src="./img/dummy.png" ng-src="{{$root.server}}/images/users/{{post.user_pic}}">
+           <div class="item item-avatar" ng-class="{'priklitemavatar': post.prikl_id>0}">
+             
+              <h2>{{post.user_firstname}}&nbsp;{{post.user_lastname}}</h2>
+              <p>{{post.post_date | date:'HH:mm'}}</p>
+            </div>
+
+            <div class="card-body">
+                    <div class= "text" ng-if="post.post_type == 'text'">
+                        <span ng-style="{'font-size': countchars(post.post_text.length), 'line-height': countchars(post.post_text.length)}">{{post.post_text}}</span>
+                     </div>
+      
+                    <div class= "photo" ng-if="post.post_type == 'pic'" data-ng-style="{'background-image':'url({{$root.server}}/posts/images/thumbs/{{post.post_pic}})'}">
+                        <span  >{{post.post_text}}</span>
+                    </div>
+            </div>
+
+      </div>
+
+     <div ng-repeat-end></div>
+    </ion-list>
+    <ion-infinite-scroll ng-if="!noMoreItemsAvailable && !noConnection" on-infinite="loadMore('group')" distance="10%"></ion-infinite-scroll>
+
+  <div class="item item-divider" style="background-color:#333;width:100%;color:white;border:0;text-align:center;" ng-if="noMoreItemsAvailable"><i class=" icon ion-checkmark" ></i></div>
+  <div class="item item-divider" style="background-color:#333;width:100%;color:white;border:0;text-align:center;" ng-if="noConnection">Geen verbinding</div>
+
+  </ion-content>
+
+
+
+</ion-view>
+

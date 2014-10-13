@@ -1,0 +1,37 @@
+<ion-side-menus>
+  <ion-pane ion-side-menu-content drag-content="false">
+    <ion-nav-bar class="bar-dark nav-title-slide-ios7">
+      <ion-nav-back-button class="button-clear"><i class="icon ion-ios7-arrow-back"></i></ion-nav-back-button>
+    </ion-nav-bar>
+    <ion-nav-view name="menuContent" animation="slide-left-right"></ion-nav-view>
+  </ion-pane>
+
+ <ion-side-menu side="left">
+    <header class="bar bar-header bar-royal">
+      <h1 class="title">Menu</h1>
+    </header>
+    <ion-content class="has-header darkbackground">
+      <ion-list>
+        <ion-item nav-clear menu-close class="item-icon-left item-dark" href="#/app/prikls"><i class="icon ion-ios7-lightbulb"></i>PrikL's</ion-item>
+
+        <ion-item nav-clear menu-close class="item-icon-left item-royal" href="#/app/myreactions"><i class="icon ion-camera ion-ios7-person"></i>Mijn posts</ion-item>
+
+        <ion-item nav-clear menu-close class="item-icon-left item-royal" href="#/app/allreactions"><i class="icon ion-camera ion-ios7-people"></i>Groep posts</ion-item>
+
+        <div class="item item-divider item-dark">  Posten  </div>
+
+        <ion-item nav-clear menu-close class="item-icon-left item-royal" ng-click="photo()"><i class="icon ion-camera"></i>Foto</ion-item>
+
+        <ion-item nav-clear menu-close class="item-icon-left item-royal" ng-click="text()"><i class="icon ion-compose"></i>Tekst</ion-item>
+
+        <div class="item item-divider item-dark">  Instellingen  </div>
+
+         <ion-item nav-clear menu-close class="item-icon-left item-royal" ng-click="feedback()"><i class="icon ion-paper-airplane"></i>Feedback versturen </ion-item>
+
+        <ion-item nav-clear menu-close class="item-icon-left item-royal" ng-click="logout()"><i class="icon ion-log-out"></i>Uitloggen</ion-item>
+      </ion-list>
+     <div style="color:white;width:100%;text-align:center;font-size:0.7em;padding:5%;">USERID:{{$root.userid}} </br> GROUPID:{{$root.groupid}} </br>Versie{{$root.version}}</div>
+
+    </ion-content>
+  </ion-side-menu>
+</ion-side-menus>

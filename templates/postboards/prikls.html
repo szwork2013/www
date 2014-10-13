@@ -1,0 +1,25 @@
+<ion-view title="PrikLs" hide-Back-Button="true" class="darkbackground" ng-init = "loadPrikls()">
+  <ion-nav-buttons side="left">
+    <button menu-toggle="left" class="button button-icon icon ion-navicon"></button>
+  </ion-nav-buttons>
+  <ion-nav-buttons side="right">
+    <button menu-toggle="right" ng-if="loading" class="button button-icon icon ion-loading-d"></button>
+    <button menu-toggle="right" ng-if="noConnection" class="button button-icon icon ion-sad"></button>
+  </ion-nav-buttons>
+
+   <ion-slide-box class="priklslidebox" on-slide-changed="slideHasChanged($index)" show-pager="false">
+  <ion-slide ng-repeat="prikl in prikls track by $index ">
+    <div class="priklcontainer">
+        <div class="priklimage" ng-if="prikl.prikl_type == 'pic'" ng-style="{'background-image':'url({{$root.server}}/images/prikls/{{prikl.prikl_file}})'}"></div>
+        <div class="priklimage" ng-if="prikl.prikl_type == 'youtube'" ng-style="{'background-image':'url(http://img.youtube.com/vi/{{prikl.prikl_url}}/0.jpg)'}" ><img src="./img/yt-play.png" ng-click="openyt(prikl.prikl_url)"/></div>
+        <div class="priklcontent">
+          <h2>{{prikl.prikl_title}}</h2>
+          <p>{{prikl.prikl_date | date:'EEEE d MMMM'}}</p>
+         <div style="max-width:70%;min-height:75px;"><span>{{prikl.prikl_content}}</span></div>
+        <button class="button button-icon icon ion-camera" ng-if="prikl.prikl_react_type == 'pic'" ng-click="react(prikl.prikl_react_type,prikl.idprikl)"></button>
+         <button class="button button-icon icon ion-compose" ng-if="prikl.prikl_react_type == 'text'" ng-click="react(prikl.prikl_react_type,prikl.idprikl)"></button></div>
+      
+    </div>
+  </ion-slide>
+</ion-slide-box>
+      </ion-view>

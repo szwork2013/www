@@ -1,0 +1,29 @@
+<ion-view title="Inloggen">
+<div class="bar bar-dark bar-header">
+  <div class="h1 title">Aanmelden</div>
+</div>
+        <ion-content class="has-header darkbackground">
+            <form class="login-form list list-inset" name="loginForm" ng-submit="verifyAccount()" novalidate>
+                 <label class="item item-input item-floating-label">
+                    <span class="input-label">Emailadres</span>
+                    <input type="email" name="email" placeholder="Emailadres" ng-model="loginData.mail" required ng-minlength="4" ng-maxlength="70"/>
+                    <i class="icon ion-happy validationicon" style="color:green;" ng-show="loginForm.email.$valid"></i>
+                    <i class="icon ion-sad validationicon" style="color:red;" ng-hide="loginForm.email.$valid"></i>
+                  </label>
+                 <label class="item item-input item-floating-label">
+                    <span class="input-label">Wachtwoord</span>
+                    <input type="password" name="password" placeholder="Wachtwoord" ng-model="loginData.pw" required ng-minlength="6" ng-maxlength="50"/>
+                      <i class="icon ion-happy validationicon" style="color:green;" ng-show="loginForm.password.$valid"></i>
+                    <i class="icon ion-sad validationicon" style="color:red;" ng-hide="loginForm.password.$valid"></i>
+                  </label>
+                  
+                <label class="item">
+                  <button class="button button-block button-dark" ng-disabled="loginForm.$invalid" type="submit">Log in</button>
+                </label>
+            </form>
+            <div style="padding:8%;text-align:center;color:white;">
+            <p ng-hide="loginForm.email.$valid">Voer een correct e-mailadres in</p>
+            <p ng-hide="loginForm.password.$valid">Voer een wachtwoord langer dan 6 tekens in</p>
+            </div>
+        </ion-content>
+      </ion-view>
