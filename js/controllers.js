@@ -93,28 +93,23 @@ angular.module('prikl.controllers', [])
     }
   }
 
+
+
+
   //Activate account with new password and profilepic
   $scope.activateAccount = function(){
 
-    //Check if user created profilepic
-    if($scope.profilepic == "./img/dummy.png"){
-      showMessage.popUp("Profielfoto","Je hebt nog geen profielfoto gemaakt,"+
-      " weet je zeker dat je wilt doorgaan?",function(yes){
-        if(yes){$scope.profilepic == "dummy.png";}
-      });
-    }
+    var uploadProfilePic = function(){
 
-     
-      if($scope.profilepic != "./img/dummy.png"){
-         showMessage.loading("Account activeren");
-
-         
-         FTP.addFile(true,$scope.profilepic,"image/jpeg",function(filename){
-          
-             var hashedpw = md5.createHash(account.pw);
+      if($scope.profilepic!= "dummy.png"){
+        FTP.addFile(true,$scope.profilepic,"image/jpeg",function(filename){
+            $scope.profilepic = filename;
+        });
+      }
              
-             DB.activateAccount($rootScope.mail,hashedpw,filename,function(response){
-              
+             var hashedpw = md5.createHash(account.pw);
+             DB.activateAccount($rootScope.mail,hashedpw,$scope.profilepic,function(response){
+                 
                   showMessage.loadingHide();
                   
                   if(response.status == "200"){
@@ -126,8 +121,24 @@ angular.module('prikl.controllers', [])
                           showMessage.notify("Fout:<br/>"+response.statusText);
                         }
               });
-            });   
+           
+    }
+
+    //Check if user created profilepic
+    if($scope.profilepic == "./img/dummy.png"){
+      showMessage.popUp("Profielfoto","Je hebt nog geen profielfoto gemaakt,"+
+      " weet je zeker dat je wilt doorgaan?",function(yes){
+        if(yes){
+          $scope.profilepic = "dummy.png";
+          uploadProfilePic();
           }
+      });
+    }else{
+      uploadProfilePic();
+    }
+
+     
+     
   }
 
 
