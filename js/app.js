@@ -8,14 +8,7 @@ angular.module('prikl', ['ionic', 'prikl.services', 'prikl.controllers', 'angula
   $rootScope.server = "http://winspire01.windesheim.nl/";
 
   $ionicPlatform.ready(function() {
-
-    //Get appversion from config.xml
-
-   /*window.cordova.plugins.AppVersion.getAppVersion(function(version) {
-    $rootScope.version = version;
-    });*/
-
-
+    
     //App starts in connecting.html view with LoginCtrl from controller.js where token is checked
     /*Check token when this controller is initialized*/
     //Check localstorage for userid,groupid and token if this is not present go directly to login
@@ -26,6 +19,7 @@ angular.module('prikl', ['ionic', 'prikl.services', 'prikl.controllers', 'angula
       userdevice = angular.fromJson(userdevice);
 
       DB.checkToken(userdevice.userid,userdevice.token,function(response){
+      
         if(response.status == "200"){
           $rootScope.userid = userdevice.userid;
           $rootScope.groupid = userdevice.group_id;
@@ -35,11 +29,22 @@ angular.module('prikl', ['ionic', 'prikl.services', 'prikl.controllers', 'angula
           window.localStorage.removeItem('userdevice');
           $state.go('login');
         }
+
+        //Hide splashscreen
+        if(navigator.splashcreen){
+          navigator.splashscreen.hide();
+        }
       });
     }else{
-      $state.go('login');
+     // $state.go('login');
+       
+        //Hide splashscreen
+      if(navigator.splashcreen){
+        navigator.splashscreen.hide();
+      }
     }
 
+//Register back button
    $ionicPlatform.registerBackButtonAction(function (event) {
    showMessage.confirm("Afsluiten","Wilt u de app afsluiten",function(yes){
     if(yes){navigator.app.exitApp();}
@@ -49,6 +54,13 @@ angular.module('prikl', ['ionic', 'prikl.services', 'prikl.controllers', 'angula
 
     //Initialize PushProcessingservice for both Apple or Google
     PushProcessingService.initialize();
+
+    //Get Appversion
+    if(window.cordova){
+      cordova.getAppVersion(function(version) {
+        $rootScope.version = version;
+      });
+    }
 
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
     // for form inputs)
@@ -121,5 +133,5 @@ angular.module('prikl', ['ionic', 'prikl.services', 'prikl.controllers', 'angula
       }
     });
   // if none of the above states are matched, use this loadscreen as fallback
-  $urlRouterProvider.otherwise('/connecting');
+  $urlRouterProvider.otherwise('/app/prikls');
 });

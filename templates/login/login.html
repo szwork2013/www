@@ -1,6 +1,6 @@
 <ion-view title="Inloggen">
 <div class="bar bar-dark bar-header">
-  <div class="h1 title">Aanmelden</div>
+  <div class="h1 title">Inloggen</div>
 </div>
         <ion-content class="has-header darkbackground">
             <form class="login-form list list-inset" name="loginForm" ng-submit="verifyAccount()" novalidate>
@@ -21,9 +21,9 @@
                   <button class="button button-block button-dark" ng-disabled="loginForm.$invalid" type="submit">Log in</button>
                 </label>
             </form>
-            <div style="padding:8%;text-align:center;color:white;">
-            <p ng-hide="loginForm.email.$valid">Voer een correct e-mailadres in</p>
-            <p ng-hide="loginForm.password.$valid">Voer een wachtwoord langer dan 6 tekens in</p>
+            <div style="padding:1%;text-align:center;color:white;">
+            <p ng-hide="loginForm.email.$valid">Voer het emailadres voor jouw account in</p>
+            <p ng-hide="loginForm.password.$valid">Voer een wachtwoord van minimaal zes tekens in</p>
             </div>
         </ion-content>
       </ion-view>

@@ -257,44 +257,6 @@ angular.module('prikl.services', [])
      
 
    }
-
- 
-
-   this.getPictureSheet = function(title,callback) {
-
-    $ionicActionSheet.show({
-                    buttons: [
-                      { text: 'Camera <i class="icon ion-camera"></i>' },
-                      { text: 'Fotoalbum <i class="icon ion-images"></i>' },
-                    ],
-                    cancelText: 'Annuleren',
-                    buttonClicked: function(index) {
-                      switch(index){
-                        case 0:
-                        //Camera
-                              Camera.getPicture(1).then(function(imageURI) {
-                                  callback(imageURI);
-                          
-                                }, function(err) {
-                                   notify(err);
-                                });
-                        break;
-                        case 1:
-                        //Photoalbum
-                              Camera.getPicture(0).then(function(imageURI) {
-                                    callback(imageURI);
-                                }, function(err) {
-                                  notify(err);
-                                });
-                        break;
-                        default:
-                        break;
-                      }
-                      return true;
-                    }
-       });
-     
-   }
 })
 
 .service('FTP', function($rootScope,showMessage) {

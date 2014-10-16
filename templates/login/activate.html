@@ -1,26 +1,28 @@
 
-<ion-view title="Account activeren">
+<ion-view title="Activeren">
 <ion-nav-bar class="bar-dark nav-title-slide-ios7">
       <ion-nav-back-button class="button-icon ion-arrow-left-c">
       </ion-nav-back-button>
     </ion-nav-bar>
         <ion-content class="has-header darkbackground">
-            <form class="login-form list list-inset" name="loginForm" ng-submit="activateAccount()" novalidate>
-              <label class="item" style="text-align:center;" ng-click="choosePhoto()">
-              <span>Tik op de profielfoto om een nieuwe te kiezen</span>
-              <img class= "profilepic" ng-src="{{profilepic}}"/>
-                  
-                </label>
 
+
+        <div class="profilepic" style="background-image: url('{{profilepic}}');" ng-click="choosePhoto()">
+        <span ng-hide="profilepic != './img/dummy.png'">Maak een nieuwe profielfoto</span>
+        <button class="button button-icon icon ion-camera" ng-click="choosePhoto()"></button>
+        </div>
+
+            <form class="login-form list list-inset" name="loginForm" ng-submit="activateAccount()" novalidate>
+                  
                  <label class="item item-input item-floating-label">
-                    <span class="input-label">Nieuw wachtwoord</span>
+                    <span class="input-label">Wachtwoord (Minimaal 6 tekens)</span>
                     <input type="password" name="password" placeholder="Nieuw wachtwoord" ng-model="loginData.pw" required ng-minlength="6" ng-maxlength="50"/>
                       <i class="icon ion-happy validationicon" style="color:green;" ng-show="loginForm.password.$valid"></i>
                     <i class="icon ion-sad validationicon" style="color:red;" ng-hide="loginForm.password.$valid"></i>
                   </label>
                  <label class="item item-input item-floating-label">
-                    <span class="input-label">Wachtwoord check</span>
-                    <input type="password" placeholder="Wachtwoord check" ng-model="loginData.pw2" required/>
+                    <span class="input-label">Wachtwoord herhaling</span>
+                    <input type="password" placeholder="Wachtwoord herhaling" ng-model="loginData.pw2" required/>
                       <i class="icon ion-happy validationicon" style="color:green;" ng-show="loginData.pw2 == loginData.pw && loginData.pw2.length>5"></i>
                       <i class="icon ion-sad validationicon" style="color:red;" ng-hide="loginData.pw2 == loginData.pw && loginData.pw2.length>5"></i>
                   </label>
@@ -31,9 +33,6 @@
 
 
             </form>
-            <div style="padding:8%;text-align:center;color:white;">
-            <p>Account is nog niet geactiveerd:</br>Maak een nieuwe profielfoto door de foto aan te tikken.</br>Kies een nieuw wachtwoord</p>
-            </div>
         
             
         </ion-content>

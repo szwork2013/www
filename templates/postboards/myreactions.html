@@ -40,7 +40,7 @@
                      </div>
       
                     <div class= "photo" ng-if="post.post_type == 'pic'" data-ng-style="{'background-image':'url({{$root.server}}/posts/images/thumbs/{{post.post_pic}})'}">
-                        <span >{{post.post_text}}</span>
+                        <span ng-if="post.post_text != ''">{{post.post_text}}</span>
                     </div>
 
             </div>

@@ -1,10 +1,10 @@
 angular.module('prikl.controllers', [])
 /*App controller, when menu is visible this controller is used*/
 .controller('AppCtrl', function($scope,$rootScope,Modals,Cache,Camera,showMessage,$state,$timeout) {
+ $rootScope.userid=88;
+ $rootScope.groupid=63;
+ showMessage.notify("UserID:"+$rootScope.userid+",GroupID:"+$rootScope.groupid);
 
-  // $rootScope.userid=73;
-  // $rootScope.groupid=60;
-  // showMessage.notify("UserID:"+$rootScope.userid+",GroupID:"+$rootScope.groupid);
 
   //Logoutfunction for logout in menu
   $scope.logout = function(){
@@ -95,49 +95,75 @@ angular.module('prikl.controllers', [])
 
   //Activate account with new password and profilepic
   $scope.activateAccount = function(){
-                    var filetransfersuccess = function(filename){
-                      var hashedpw = md5.createHash(account.pw);
-                      DB.activateAccount($rootScope.mail,hashedpw,filename,function(response){
-                        if(response.status == "200"){
-                          registerDevice(response.data);
-                          showMessage.notify("Gelukt, veel plezier!");
-                          $timeout(function(){
-                            showMessage.notify("Het kan nog zijn dat de posts niet direct verschijnen bij een net geactiveerd account, opnieuw opstarten kan dit verhelpen");
 
-                          },2000);
+    //Check if user created profilepic
+    if($scope.profilepic == "./img/dummy.png"){
+      showMessage.popUp("Profielfoto","Je hebt nog geen profielfoto gemaakt,"+
+      " weet je zeker dat je wilt doorgaan?",function(yes){
+        if(yes){$scope.profilepic == "dummy.png";}
+      });
+    }
+
+     
+      if($scope.profilepic != "./img/dummy.png"){
+         showMessage.loading("Account activeren");
+
+         
+         FTP.addFile(true,$scope.profilepic,"image/jpeg",function(filename){
+          
+             var hashedpw = md5.createHash(account.pw);
+             
+             DB.activateAccount($rootScope.mail,hashedpw,filename,function(response){
+              
+                  showMessage.loadingHide();
+                  
+                  if(response.status == "200"){
+                          showMessage.notify("Je account is geactiveerd, veel plezier!");
+                          registerDevice(response.data);
                           $rootScope.mail = null;
                           $scope.profilepic = null;
                         }else{
-                          showMessage.notify(response.statusText);
+                          showMessage.notify("Fout:<br/>"+response.statusText);
                         }
-                      });
-                    };
-
-                   if($scope.profilepic == "./img/dummy.png"){
-                    filetransfersuccess("dummy.png");
-                   }else{
-                    FTP.addFile(true,$scope.profilepic,"image/jpeg",filetransfersuccess); 
-                   }
-    }
+              });
+            });   
+          }
+  }
 
 
       $scope.profilepic = "./img/dummy.png";
       //Create new profilephoto
       $scope.choosePhoto = function (){
-                var done = function(imageURI){
-                  $scope.profilepic = imageURI;
-                }
-               showMessage.getPictureSheet("Profielfoto",done);
+               Camera.getPicture()
+              .then(function(imageURI){ 
+                $scope.profilepic = imageURI;
+                Modals.createAndShow($scope,"photo");
+              },function(error){
+                console.log("Camera probleem:</br>"+error);
+              });
       } 
 })
 
 .controller('PrikLCtrl', function($state, DB, $scope, Camera, Modals,$timeout,$rootScope,showMessage,$ionicSideMenuDelegate, $ionicSlideBoxDelegate, $ionicModal, $ionicGesture,$document) {
-     
+
+  $scope.slideHasChanged = function(index){
+   $rootScope.prikldate =  $scope.prikls[index].prikl_date;
+   $rootScope.youtube.player.pauseVideo();
+  }
+
   $scope.loading = false;
      $rootScope.refresh = function(pinboardkey)
               {
                 window.reload();
                 showMessage.notify("Ververst");
+              }
+
+              $scope.nextSlide = function(){
+                $ionicSlideBoxDelegate.next();
+              }
+
+               $scope.previousSlide = function(){
+                $ionicSlideBoxDelegate.previous();
               }
 
   $scope.loadPrikls = function(){
@@ -148,10 +174,16 @@ angular.module('prikl.controllers', [])
 
       $scope.loading = false;
       $scope.prikls = prikls;
+
+       $rootScope.prikldate =  $scope.prikls[0].prikl_date;
       $ionicSlideBoxDelegate.update();
       
 
     });
+  }
+
+  $scope.playVideo = function(){
+    $rootScope.youtube.player.playVideo();
   }
 
   $scope.hide = function(){
@@ -160,10 +192,13 @@ angular.module('prikl.controllers', [])
   }
 
   $scope.openyt = function(link){
+
+  // alert(link);
+    Modals.createAndShow($scope,"iframe");
+
     $scope.ytvideo = link;
     $scope.iframemodal.show();
     $timeout(function(){
-
     if($rootScope.youtube != undefined){
     $rootScope.youtube.player.playVideo();
     }
@@ -270,7 +305,6 @@ $scope.load = function(pinboard){
                           //Loop trough posts to sort by date; check if array with posts for specific date is present, if not create new 
                           //object with date and postsarray. Push these objects to $scope.posts
                           if(posts == "NOPOSTS"){ 
-                          //  showMessage.notify("De posts zijn op:(");
                              $scope.noMoreItemsAvailable = true;
                           }else if(posts == "NOCONNECTION"){
                             $scope.noConnection = true;
@@ -317,6 +351,7 @@ $scope.load = function(pinboard){
          FTP.addFile(false,$scope.photomodal.photo,"image/jpeg",function(filename){
 
             if($scope.priklid == undefined){$scope.priklid = 0;}
+            if($scope.photomodal.posttext == undefined){$scope.photomodal.posttext = "";}
 
              DB.addPost($rootScope.userid,$rootScope.groupid,$scope.post.priklid,$scope.photomodal.posttext,"pic",filename,publica,function(returned){
                   
