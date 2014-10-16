@@ -36,7 +36,7 @@ angular.module('prikl', ['ionic', 'prikl.services', 'prikl.controllers', 'angula
         }
       });
     }else{
-     // $state.go('login');
+     $state.go('login');
        
         //Hide splashscreen
       if(navigator.splashcreen){
@@ -133,5 +133,5 @@ angular.module('prikl', ['ionic', 'prikl.services', 'prikl.controllers', 'angula
       }
     });
   // if none of the above states are matched, use this loadscreen as fallback
-  $urlRouterProvider.otherwise('/app/prikls');
+  $urlRouterProvider.otherwise('/connecting');
 });
