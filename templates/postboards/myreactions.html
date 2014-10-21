@@ -1,4 +1,4 @@
-<ion-view title="Mijn posts" hide-Back-Button="true">
+<ion-view title="Mijn berichten" hide-Back-Button="true">
   <ion-nav-buttons side="left">
     <button menu-toggle="left" class="button button-icon icon ion-navicon"></button>
   </ion-nav-buttons>
@@ -28,22 +28,26 @@
 
                <div class="privatetime" ng-class="{'priklitemavatar': post.prikl_id>0}">
                  <span>{{post.post_date | date:'HH:mm'}}</span>
-                 <div ng-if="post.post_public==1"><i class="icon ion-speakerphone"></i></div>
-                 <div ng-if="post.post_public==0"><i class="icon ion-locked"></i></div>
+                 <div ng-if="post.post_public==1"><i class="icon ion-speakerphone">  Openbaar</i></div>
+                 <div ng-if="post.post_public==0"><i class="icon ion-locked">  Prive</i></div>
              </div>
 
             <div class="card-body">
+
+                    <div style="position:relative;top:0;right:0;background-color:rgba(0,0,0,0.7);color:white;text-align:right;padding:5px;display:block;float:right;" ng-if="post.prikl_id>0">Reactie op PrikL</div>
 
 
                     <div class= "text" ng-if="post.post_type == 'text'">
                         <span ng-style="{'font-size': countchars(post.post_text.length), 'line-height': countchars(post.post_text.length)}">{{post.post_text}}</span>
                      </div>
       
-                    <div class= "photo" ng-if="post.post_type == 'pic'" data-ng-style="{'background-image':'url({{$root.server}}/posts/images/thumbs/{{post.post_pic}})'}">
+                    <div class= "photo" ng-if="post.post_type == 'pic'" data-ng-style="{'background-image':'url({{$root.server}}/posts/images/thumbs/{{post.post_pic}})'}"  ng-click="viewPhoto('/posts/images/',post.post_pic)">
                         <span ng-if="post.post_text != ''">{{post.post_text}}</span>
                     </div>
 
             </div>
+
+             <div style="width:100%;background-color:red;height:20px;text-align:center;" ng-click="deletepost(post.idposts)">Verwijder</div>
 
       </div>
 

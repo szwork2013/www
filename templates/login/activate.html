@@ -7,9 +7,9 @@
         <ion-content class="has-header darkbackground">
 
 
-        <div class="profilepic" style="background-image: url('{{profilepic}}');" ng-click="choosePhoto()">
+        <div class="profilepic" style="background-image: url('{{profilepic}}');" ng-click="createProfilePic()">
         <span ng-hide="profilepic != './img/dummy.png'">Maak een nieuwe profielfoto</span>
-        <button class="button button-icon icon ion-camera" ng-click="choosePhoto()"></button>
+        <button class="button button-icon icon ion-camera"></button>
         </div>
 
             <form class="login-form list list-inset" name="loginForm" ng-submit="activateAccount()" novalidate>

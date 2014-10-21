@@ -10,7 +10,7 @@ angular.module('prikl.services', [])
   .factory('DB', function($http,$timeout,$rootScope,showMessage,transformRequestAsFormPost) {
 
     var jsonpRequest = function(url,cb){
-            $http.jsonp(url)
+                 $http.jsonp(url)
                 .success(function(data) {
                   console.log(data);
                    cb(data);
@@ -81,6 +81,11 @@ angular.module('prikl.services', [])
       }
     }
 
+    var deletePost = function(userid,postid,callback){
+        var url = $rootScope.server + "index.php/serve/deletePost?userid="+userid+"&postid="+postid+"&callback=JSON_CALLBACK";
+      jsonpRequest(url,callback);
+    }
+
   //LOGIN (Functies moeten voor veiligheid met POST aangeroepen worden, na/tjidesn alphafase)
   var verifyAccount = function(mail,pw,callback){
      var url = $rootScope.server + "index.php/serve/verifyAccount";
@@ -138,6 +143,7 @@ angular.module('prikl.services', [])
       getPosts: getPosts,
       getPrikls: getPrikls,
       addPost:addPost,
+      deletePost:deletePost,
       addFeedback:addFeedback
     }
 })
@@ -176,12 +182,12 @@ angular.module('prikl.services', [])
                                 scope.feedbackmodal.show();
                               });
                         break;
-                        case "iframe":
-                              $ionicModal.fromTemplateUrl('templates/modals/iframe.html', {
-                                      scope: scope, focusFirstInput: true
+                        case "photoview":
+                              $ionicModal.fromTemplateUrl('templates/modals/photoview.html', {
+                                      scope: scope, focusFirstInput: true, animation: 'reverse'
                                     }).then(function(modal) {
-                                      scope.iframemodal = modal;
-                                      scope.iframemodal.show();
+                                      scope.photoviewmodal = modal;
+                                      scope.photoviewmodal.show();
                                     });
                               
                         break;

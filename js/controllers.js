@@ -1,8 +1,8 @@
 angular.module('prikl.controllers', [])
 /*App controller, when menu is visible this controller is used*/
 .controller('AppCtrl', function($scope,$rootScope,Modals,Cache,Camera,showMessage,$state,$timeout) {
- // $rootScope.userid=88;
- // $rootScope.groupid=63;
+ // $rootScope.userid=89;
+ // $rootScope.groupid=60;
  // showMessage.notify("UserID:"+$rootScope.userid+",GroupID:"+$rootScope.groupid);
 
 
@@ -100,13 +100,6 @@ angular.module('prikl.controllers', [])
   $scope.activateAccount = function(){
 
     var uploadProfilePic = function(){
-
-      if($scope.profilepic!= "dummy.png"){
-        FTP.addFile(true,$scope.profilepic,"image/jpeg",function(filename){
-            $scope.profilepic = filename;
-        });
-      }
-             
              var hashedpw = md5.createHash(account.pw);
              DB.activateAccount($rootScope.mail,hashedpw,$scope.profilepic,function(response){
                  
@@ -134,7 +127,10 @@ angular.module('prikl.controllers', [])
           }
       });
     }else{
-      uploadProfilePic();
+       FTP.addFile(true,$scope.profilepic,"image/jpeg",function(filename){
+            $scope.profilepic = filename;
+            uploadProfilePic();
+        });
     }
 
      
@@ -144,11 +140,10 @@ angular.module('prikl.controllers', [])
 
       $scope.profilepic = "./img/dummy.png";
       //Create new profilephoto
-      $scope.choosePhoto = function (){
+      $scope.createProfilePic = function (){
                Camera.getPicture()
               .then(function(imageURI){ 
                 $scope.profilepic = imageURI;
-                Modals.createAndShow($scope,"photo");
               },function(error){
                 console.log("Camera probleem:</br>"+error);
               });
@@ -156,20 +151,16 @@ angular.module('prikl.controllers', [])
 })
 
 .controller('PrikLCtrl', function($state, DB, $scope, Camera, Modals,$timeout,$rootScope,showMessage,$ionicSideMenuDelegate, $ionicSlideBoxDelegate, $ionicModal, $ionicGesture,$document) {
-
   $scope.slideHasChanged = function(index){
    $rootScope.prikldate =  $scope.prikls[index].prikl_date;
-   $rootScope.youtube.player.pauseVideo();
+      for (var i = $scope.prikls.length - 1; i >= 0; i--) {
+        if($scope.prikls[i].prikl_type == "youtube"){
+          $scope.prikls[i].youtube.player.pauseVideo();
+        }
+      };
   }
 
-  $scope.loading = false;
-     $rootScope.refresh = function(pinboardkey)
-              {
-                window.reload();
-                showMessage.notify("Ververst");
-              }
-
-              $scope.nextSlide = function(){
+    $scope.nextSlide = function(){
                 $ionicSlideBoxDelegate.next();
               }
 
@@ -177,7 +168,36 @@ angular.module('prikl.controllers', [])
                 $ionicSlideBoxDelegate.previous();
               }
 
+  $scope.viewPhoto = function(serverpath,filename){
+      Modals.createAndShow($scope,"photoview");
+      console.log($rootScope.server + serverpath + filename);
+      $scope.photourl = $rootScope.server + serverpath + filename;
+}
+
+
+  $scope.playerVars = {
+    controls: 1,
+    autoplay: 0,
+    modestbranding: 1,
+    showinfo: 0,
+    iv_load_policy: 3,
+    cc_load_policy:0
+};
+
+  $scope.loading = false;
+            
+
   $scope.loadPrikls = function(){
+
+         //iOS youtubeplayer quickfix
+        try{
+        $scope.hidePlayButton = false;
+        if(device.platform == "Android"){
+            $scope.hidePlayButton = true;
+        }
+      }catch(ex){
+        console.log(ex);
+      }
 
   $scope.loading = true;
    // DB.getPrikls(12,done);
@@ -185,35 +205,15 @@ angular.module('prikl.controllers', [])
 
       $scope.loading = false;
       $scope.prikls = prikls;
-
-       $rootScope.prikldate =  $scope.prikls[0].prikl_date;
+      $rootScope.prikldate =  $scope.prikls[0].prikl_date;
       $ionicSlideBoxDelegate.update();
-      
-
     });
   }
 
-  $scope.playVideo = function(){
-    $rootScope.youtube.player.playVideo();
-  }
 
   $scope.hide = function(){
     $scope.iframemodal.hide();
     $rootScope.youtube.player.pauseVideo();
-  }
-
-  $scope.openyt = function(link){
-
-  // alert(link);
-    Modals.createAndShow($scope,"iframe");
-
-    $scope.ytvideo = link;
-    $scope.iframemodal.show();
-    $timeout(function(){
-    if($rootScope.youtube != undefined){
-    $rootScope.youtube.player.playVideo();
-    }
-  },500);
   }
 
    $scope.openlink = function(link){
@@ -222,18 +222,18 @@ angular.module('prikl.controllers', [])
 
   
   $scope.react = function(reacttype,priklid){
+
+    $scope.priklid = priklid;
     if(reacttype == "pic"){
         Camera.getPicture()
         .then(function(imageURI){ 
           $scope.imageURI = imageURI;
           Modals.createAndShow($scope,"photo");
-          $scope.priklid = priklid;
         },function(error){
           console.log("Camera probleem:</br>"+error);
         });
       }
     else if(reacttype =="text"){
-        $scope.priklid = priklid;
         Modals.createAndShow($scope,"text");
     }
     }
@@ -242,7 +242,7 @@ angular.module('prikl.controllers', [])
 
 
 /*Controller for both private and group pinboards)*/
-.controller('PinboardCtrl', function($scope,$state,$rootScope,$timeout,$ionicModal,DB,Cache,showMessage) {
+.controller('PinboardCtrl', function($scope,$state,$rootScope,$timeout,Modals,DB,Cache,showMessage) {
   $scope.noMoreItemsAvailable = false;
   $scope.noConnection = false;
   $scope.posts = [];
@@ -257,6 +257,44 @@ angular.module('prikl.controllers', [])
        Cache.put("group",$scope.posts);
       }
     });
+
+  $scope.deletepost =function(postid){
+  
+   showMessage.confirm("Bericht verwijderen","Weet je zeker dat je je bericht wilt verwijderen?",function(answer){
+    if(answer){
+      DB.deletePost($rootScope.userid,postid,function(response){
+        showMessage.notify(response.success);
+
+
+
+
+        $timeout(function(){
+          for (var i = $scope.posts.length - 1; i >= 0; i--) {
+          for (var j = $scope.posts[i].posts.length - 1; j >= 0; j--) {
+            if($scope.posts[i].posts[j].idposts == postid){
+              $scope.posts[i].posts.splice(j, 1);
+            }
+          };
+        };
+
+ //Groupposts uit cache verwijderen(moet nog anders)
+        var groupposts = Cache.get("group");
+        for (var i = groupposts.length - 1; i >= 0; i--) {
+          for (var j = groupposts[i].posts.length - 1; j >= 0; j--) {
+            if(groupposts[i].posts[j].idposts == postid){
+              groupposts[i].posts.splice(j, 1);
+            }
+          };
+        };
+         Cache.put("group",groupposts);
+        
+        },500);
+        
+      });
+    }
+   });
+
+  }
   
 //If there are posts in cache load them
 $scope.load = function(pinboard){
@@ -266,6 +304,12 @@ $scope.load = function(pinboard){
         $scope.totalposts += $scope.posts[i].posts.length;
       };
     } 
+}
+
+$scope.viewPhoto = function(serverpath,filename){
+      Modals.createAndShow($scope,"photoview");
+      console.log($rootScope.server + serverpath + filename);
+      $scope.photourl = $rootScope.server + serverpath + filename;
 }
 
     /*Refreshfunction(when user pulls to refresh) check if there are new posts with postid from the newest post, 
@@ -279,7 +323,7 @@ $scope.load = function(pinboard){
           showMessage.notify("Niets nieuws");
         }else{
           showMessage.notify(posts.length + " nieuw");
-                             
+            
           for (var i = 0; i < posts.length; i++){
               var date = new Date(posts[i].post_date);
               date = new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), 0, 0, 0, 0);
@@ -294,6 +338,17 @@ $scope.load = function(pinboard){
                 }
               $scope.totalposts++; 
           }
+           $state.go('app.prikls');
+           $timeout(function(){
+            if(pinboard == "group"){
+           $state.go('app.allreactions');
+            }else{
+           $state.go('app.myreactions');
+
+            }
+           },200);
+
+
         }
         $scope.loading = false;
         $scope.$broadcast('scroll.refreshComplete');
@@ -355,16 +410,17 @@ $scope.load = function(pinboard){
   })
 
   .controller('PhotoPostCtrl', function($scope,$state,$rootScope,showMessage,DB,FTP){
+
    $scope.post = function(){
-     showMessage.popUp("Fotopost","Wil je de fotopost publiek plaatsen?",function(publica){
-      showMessage.loading("Fotopost uploaden");
+     showMessage.popUp("Fotobericht","Wil je de fotobericht publiek plaatsen?",function(publica){
+      showMessage.loading("Fotobericht uploaden");
 
          FTP.addFile(false,$scope.photomodal.photo,"image/jpeg",function(filename){
-
+         
             if($scope.priklid == undefined){$scope.priklid = 0;}
             if($scope.photomodal.posttext == undefined){$scope.photomodal.posttext = "";}
 
-             DB.addPost($rootScope.userid,$rootScope.groupid,$scope.post.priklid,$scope.photomodal.posttext,"pic",filename,publica,function(returned){
+             DB.addPost($rootScope.userid,$rootScope.groupid,$scope.priklid,$scope.photomodal.posttext,"pic",filename,publica,function(returned){
                   
                   if(returned.success){
                     showMessage.loadingHide();
@@ -373,13 +429,13 @@ $scope.load = function(pinboard){
                    if(publica){
                     $state.go('app.allreactions');  $timeout(function(){
                     $rootScope.refresh("group");
-                      showMessage.notify("Fotopost succesvol toegevoegd");
+                      showMessage.notify("Fotobericht succesvol toegevoegd");
                     },500);
                   }else{
                     $state.go('app.myreactions');
                     $timeout(function(){
                     $rootScope.refresh("user");
-                      showMessage.notify("Fotopost succesvol toegevoegd");
+                      showMessage.notify("fotobericht succesvol toegevoegd");
                     },500);
                   }
 
@@ -413,7 +469,7 @@ $scope.load = function(pinboard){
 
   .controller('TextPostCtrl', function($scope,$timeout,$state,$rootScope,showMessage,DB){
        $scope.post = function(){
-            showMessage.popUp("Tekstpost","Iedereen mag het zien",function(publica){
+            showMessage.popUp("Tekstbericht","Iedereen mag het zien",function(publica){
               if($scope.priklid == undefined){$scope.priklid = 0;}
               DB.addPost($rootScope.userid,$rootScope.groupid,$scope.priklid,
                 $scope.textmodal.posttext,"text","",publica,function(returned){
@@ -423,13 +479,13 @@ $scope.load = function(pinboard){
                   if(publica){
                     $state.go('app.allreactions');  $timeout(function(){
                     $rootScope.refresh("group");
-                      showMessage.notify("Tekstpost succesvol toegevoegd");
+                      showMessage.notify("Tekstbericht succesvol toegevoegd");
                     },500);
                   }else{
                     $state.go('app.myreactions');
                     $timeout(function(){
                     $rootScope.refresh("user");
-                      showMessage.notify("Tekstpost succesvol toegevoegd");
+                      showMessage.notify("Tekstbericht succesvol toegevoegd");
                     },500);
                   }
 
