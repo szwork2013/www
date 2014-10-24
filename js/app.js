@@ -9,7 +9,6 @@ angular.module('prikl', ['ionic', 'prikl.services', 'prikl.controllers', 'angula
 
   $ionicPlatform.ready(function() {
     
-    //DIKKE HARDE KAKKAAS
     //App starts in connecting.html view with LoginCtrl from controller.js where token is checked
     /*Check token when this controller is initialized*/
     //Check localstorage for userid,groupid and token if this is not present go directly to login
@@ -25,7 +24,6 @@ angular.module('prikl', ['ionic', 'prikl.services', 'prikl.controllers', 'angula
           $rootScope.userid = userdevice.userid;
           $rootScope.groupid = userdevice.group_id;
           $state.go('app.allreactions');
-          showMessage.notify('BORDJEIGREd');
         }else{ 
           showMessage.notify("Token onjuist, log opnieuw in");
           window.localStorage.removeItem('userdevice');
