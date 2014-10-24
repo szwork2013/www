@@ -36,7 +36,7 @@ angular.module('prikl', ['ionic', 'prikl.services', 'prikl.controllers', 'angula
         }
       });
     }else{
-     // $state.go('login');
+      $state.go('login');
        
         //Hide splashscreen
       if(navigator.splashcreen){

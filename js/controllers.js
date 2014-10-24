@@ -1,9 +1,9 @@
 angular.module('prikl.controllers', [])
 /*App controller, when menu is visible this controller is used*/
 .controller('AppCtrl', function($scope,$rootScope,Modals,Cache,Camera,showMessage,$state,$timeout) {
- $rootScope.userid=130;
- $rootScope.groupid=69;
- showMessage.notify("UserID:"+$rootScope.userid+",GroupID:"+$rootScope.groupid);
+ // $rootScope.userid=130;
+ // $rootScope.groupid=69;
+ // showMessage.notify("UserID:"+$rootScope.userid+",GroupID:"+$rootScope.groupid);
 
 
   //Logoutfunction for logout in menu
