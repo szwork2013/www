@@ -1,9 +1,9 @@
 angular.module('prikl.controllers', [])
 /*App controller, when menu is visible this controller is used*/
 .controller('AppCtrl', function($scope,$rootScope,Modals,Cache,Camera,showMessage,$state,$timeout) {
- // $rootScope.userid=89;
- // $rootScope.groupid=60;
- // showMessage.notify("UserID:"+$rootScope.userid+",GroupID:"+$rootScope.groupid);
+ $rootScope.userid=130;
+ $rootScope.groupid=69;
+ showMessage.notify("UserID:"+$rootScope.userid+",GroupID:"+$rootScope.groupid);
 
 
   //Logoutfunction for logout in menu
@@ -34,9 +34,7 @@ angular.module('prikl.controllers', [])
     Modals.createAndShow($scope,"text");
   }
 
-  $scope.feedback = function(){
-    Modals.createAndShow($scope,"feedback");
-  }
+  
 })
 
 /*Controller with 4 important functions: checkToken, verifyAccount, activateAccount and registerDevice*/
@@ -454,11 +452,26 @@ $scope.viewPhoto = function(serverpath,filename){
     $scope.post = function(){
              DB.addFeedback($rootScope.userid,$rootScope.groupid,$scope.feedbackmodal.posttext, function(returned){
                   if(returned.success){
-                    showMessage.notify("Dank voor je feedback");
+                    showMessage.notify("Bedankt voor je feedback. Je bericht wordt zo spoedig mogelijk in behandeling genomen.");
                     $scope.feedbackmodal.remove();
                   }else{
                     showMessage.notify("Er is iets fout gegaan");
                   }
+              });
+             
+            }
+  })
+
+ .controller('BugCtrl', function($scope,DB,Modals){
+
+    $scope.feedback = function(){
+    Modals.createAndShow($scope,"feedback");
+  }
+
+    $scope.bugs = function(){
+      console.log('indefucniot');
+             DB.getBugs(function(data){
+                  $scope.bugs = data;
               });
              
             }

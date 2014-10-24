@@ -36,7 +36,7 @@ angular.module('prikl', ['ionic', 'prikl.services', 'prikl.controllers', 'angula
         }
       });
     }else{
-     $state.go('login');
+     // $state.go('login');
        
         //Hide splashscreen
       if(navigator.splashcreen){
@@ -109,6 +109,16 @@ angular.module('prikl', ['ionic', 'prikl.services', 'prikl.controllers', 'angula
         'menuContent' :{
           templateUrl: "templates/postboards/prikls.html",
           controller: 'PrikLCtrl'
+        }
+      }
+    })
+
+    .state('app.bugs', {
+      url: "/bugs",
+       views: {
+        'menuContent' :{
+          templateUrl: "templates/postboards/bugs.html",
+          controller: 'BugCtrl'
         }
       }
     })

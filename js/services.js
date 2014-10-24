@@ -57,6 +57,11 @@ angular.module('prikl.services', [])
       jsonpRequest(url,callback);
     }
 
+    var getBugs = function (callback){
+      var url = $rootScope.server + "index.php/serve/getBugs?callback=JSON_CALLBACK";
+      jsonpRequest(url,callback);
+    }
+
     var getNewPosts = function (pinboard,lastpostid,id,callback) {
 
       if(pinboard == "user"){
@@ -146,7 +151,8 @@ angular.module('prikl.services', [])
       getPrikls: getPrikls,
       addPost:addPost,
       deletePost:deletePost,
-      addFeedback:addFeedback
+      addFeedback:addFeedback,
+      getBugs:getBugs
     }
 })
 
