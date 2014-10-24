@@ -6,13 +6,13 @@
             <form class="login-form list list-inset" name="loginForm" ng-submit="verifyAccount()" novalidate>
                  <label class="item item-input item-floating-label">
                     <span class="input-label">Emailadres</span>
-                    <input type="email" name="email" placeholder="Emailadres" ng-model="loginData.mail" required ng-minlength="4" ng-maxlength="70"/>
+                    <input type="email" name="email" placeholder="Emailadres" ng-model="login.mail" required ng-minlength="4" ng-maxlength="70"/>
                     <i class="icon ion-happy validationicon" style="color:green;" ng-show="loginForm.email.$valid"></i>
                     <i class="icon ion-sad validationicon" style="color:red;" ng-hide="loginForm.email.$valid"></i>
                   </label>
                  <label class="item item-input item-floating-label">
                     <span class="input-label">Wachtwoord</span>
-                    <input type="password" name="password" placeholder="Wachtwoord" ng-model="loginData.pw" required ng-minlength="6" ng-maxlength="50"/>
+                    <input type="password" name="password" placeholder="Wachtwoord" ng-model="login.pw" required ng-minlength="6" ng-maxlength="50"/>
                       <i class="icon ion-happy validationicon" style="color:green;" ng-show="loginForm.password.$valid"></i>
                     <i class="icon ion-sad validationicon" style="color:red;" ng-hide="loginForm.password.$valid"></i>
                   </label>
@@ -21,9 +21,9 @@
                   <button class="button button-block button-dark" ng-disabled="loginForm.$invalid" type="submit">Log in</button>
                 </label>
             </form>
-            <div style="padding:1%;text-align:center;color:white;">
-            <p ng-hide="loginForm.email.$valid">Voer het emailadres voor jouw account in</p>
-            <p ng-hide="loginForm.password.$valid">Voer een wachtwoord van minimaal zes tekens in</p>
+            <div class="suggestions">
+                  <p ng-hide="loginForm.email.$valid">Voer het emailadres voor jouw account in</p>
+                  <p ng-hide="loginForm.password.$valid">Voer een wachtwoord van minimaal zes tekens in</p>
             </div>
         </ion-content>
       </ion-view>

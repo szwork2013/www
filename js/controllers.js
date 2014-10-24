@@ -34,7 +34,6 @@ angular.module('prikl.controllers', [])
     Modals.createAndShow($scope,"text");
   }
 
-
   $scope.feedback = function(){
     Modals.createAndShow($scope,"feedback");
   }
@@ -43,7 +42,7 @@ angular.module('prikl.controllers', [])
 /*Controller with 4 important functions: checkToken, verifyAccount, activateAccount and registerDevice*/
 .controller('LoginCtrl', function($scope,$rootScope,Cache,$state,$ionicActionSheet,$ionicModal, DB, FTP, showMessage,Camera,md5) {
   //Userform data
-  var account = $scope.loginData = {};
+  var account = $scope.login = {};
 
   //Verify useraccount mail and passwordword
   $scope.verifyAccount = function(){
@@ -92,8 +91,6 @@ angular.module('prikl.controllers', [])
         });
     }
   }
-
-
 
 
   //Activate account with new password and profilepic

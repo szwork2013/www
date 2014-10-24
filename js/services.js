@@ -22,14 +22,14 @@ angular.module('prikl.services', [])
     }
 
     var postRequest = function(url,data,cb){
-      if(navigator.connection != undefined){
+    /*  if(navigator.connection != undefined){
                       if(checkConnection() == "Geen netwerk")
                       {
                         showMessage.notify(checkConnection());
                       }
                     }else{
                        showMessage.notify("Geen netwerkplugin");
-                    }
+                    }*/
 
       $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
             console.log(url);
@@ -42,8 +42,10 @@ angular.module('prikl.services', [])
             .then(function(response) {
                     // success
                     cb(response);
+                    console.log(response);
                 }, 
                 function(error) { // optional
+                    console.log(error);
                     // failed
                     cb(error);
                 });
@@ -152,7 +154,7 @@ angular.module('prikl.services', [])
 .service('Modals',function($ionicModal){
 
   this.createAndShow = function(scope,modal){
-    //Create modals from template put them in rootscope
+    //Create modals from template put them in a scope
       switch(modal){
                         case "photo":
                           $ionicModal.fromTemplateUrl('templates/modals/photopost.html', {
@@ -199,6 +201,7 @@ angular.module('prikl.services', [])
    }
 })
 
+//Showmessages loadingscreens etc.
 .service('showMessage', function($ionicPopup, $ionicLoading, $ionicActionSheet, Camera, $timeout) {
   this.loading = function(text){
       $ionicLoading.show({
@@ -265,8 +268,9 @@ angular.module('prikl.services', [])
    }
 })
 
+
+//Upload files
 .service('FTP', function($rootScope,showMessage) {
-     
 
                 this.addFile = function(profilepic,fileURI, mimeType,callback) {
      
@@ -353,8 +357,6 @@ angular.module('prikl.services', [])
                                   targetWidth:1000,
                                   targetHeight:1000
                               };
-                      
-                      
 
                     navigator.camera.getPicture(function(result) {
                       q.resolve(result);
@@ -371,6 +373,7 @@ angular.module('prikl.services', [])
 })
 
 
+//Pushprocessing service, gets token from Google's GCM or Apple's APNS
 .factory('PushProcessingService', function(DB,Cache) {
         function onDeviceReady() {
             console.info('NOTIFY  Device is ready.  Registering with GCM server');
@@ -419,74 +422,62 @@ angular.module('prikl.services', [])
         }
 })
 
+//Transform request as form post
 .factory("transformRequestAsFormPost",function() {
 // I prepare the request data for the form post.
-function transformRequest( data, getHeaders ) {
- 
-var headers = getHeaders();
- 
-headers[ "Content-type" ] = "application/x-www-form-urlencoded; charset=utf-8";
- 
-return( serializeData( data ) );
- 
-}
- 
- 
-// Return the factory value.
-return( transformRequest );
- 
- 
-// ---
-// PRVIATE METHODS.
-// ---
- 
- 
-// I serialize the given Object into a key-value pair string. This
-// method expects an object and will default to the toString() method.
-// --
-// NOTE: This is an atered version of the jQuery.param() method which
-// will serialize a data collection for Form posting.
-// --
-// https://github.com/jquery/jquery/blob/master/src/serialize.js#L45
-function serializeData( data ) {
- 
-// If this is not an object, defer to native stringification.
-if ( ! angular.isObject( data ) ) {
- 
-return( ( data == null ) ? "" : data.toString() );
- 
-}
- 
-var buffer = [];
- 
-// Serialize each key in the object.
-for ( var name in data ) {
- 
-if ( ! data.hasOwnProperty( name ) ) {
- 
-continue;
- 
-}
- 
-var value = data[ name ];
- 
-buffer.push(
-encodeURIComponent( name ) +
-"=" +
-encodeURIComponent( ( value == null ) ? "" : value )
-);
- 
-}
- 
-// Serialize the buffer and clean it up for transportation.
-var source = buffer
-.join( "&" )
-.replace( /%20/g, "+" )
-;
- 
-return( source );
- 
-}
+    function transformRequest( data, getHeaders ) {
+     
+    var headers = getHeaders();
+     
+    headers[ "Content-type" ] = "application/x-www-form-urlencoded; charset=utf-8";
+     
+    return( serializeData( data ) );
+     
+    }
+     
+     
+    // Return the factory value.
+    return( transformRequest );
+
+    function serializeData( data ) {
+     
+    // If this is not an object, defer to native stringification.
+    if ( ! angular.isObject( data ) ) {
+     
+    return( ( data == null ) ? "" : data.toString() );
+     
+    }
+     
+    var buffer = [];
+     
+    // Serialize each key in the object.
+    for ( var name in data ) {
+     
+    if ( ! data.hasOwnProperty( name ) ) {
+     
+    continue;
+     
+    }
+     
+    var value = data[ name ];
+     
+    buffer.push(
+    encodeURIComponent( name ) +
+    "=" +
+    encodeURIComponent( ( value == null ) ? "" : value )
+    );
+     
+    }
+     
+    // Serialize the buffer and clean it up for transportation.
+    var source = buffer
+    .join( "&" )
+    .replace( /%20/g, "+" )
+    ;
+     
+    return( source );
+     
+    }
  
 });
 
@@ -586,7 +577,7 @@ checkConnection = function() {
     states[Connection.NONE]     = 'Geen netwerk';
 
     return states[networkState];
-    };
+};
 
 
 
