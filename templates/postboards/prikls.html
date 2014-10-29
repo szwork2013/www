@@ -1,46 +1,45 @@
-<ion-view title="{{$root.prikldate | date:'EEEE d MMMM'}}" hide-Back-Button="true" class="darkbackground" ng-init = "loadPrikls()">
+<ion-view title="{{$root.prikldate | date:'EEEE d MMMM'}}" hide-Back-Button="true" class="darkbackground" ng-init="loadPrikls()">
   <ion-nav-buttons side="left">
     <button menu-toggle="left" class="button button-icon icon ion-navicon"></button>
   </ion-nav-buttons>
-  <ion-nav-buttons side="right">
-
-    <button menu-toggle="right" ng-if="loading" class="button button-icon icon ion-loading-d"></button>
-    <button menu-toggle="right" ng-if="noConnection" class="button button-icon icon ion-sad"></button>
-
+    <ion-nav-buttons side="right">
+    <i ng-if="loading" class="loadingheadericon icon ion-ios7-reloading"></i>
   </ion-nav-buttons>
+
+
  <i class="icon slide-next ion-arrow-right-b" ng-click="nextSlide()"></i>
  <i class="icon slide-previous ion-arrow-left-b" ng-click="previousSlide()"></i>
    <ion-slide-box class="priklslidebox" on-slide-changed="slideHasChanged($index)" show-pager="false">
   <ion-slide ng-repeat="prikl in prikls track by $index ">
 
         <div class="priklpic" ng-if="prikl.prikl_type == 'pic'" ng-style="{'background-image':'url({{$root.server}}/images/prikls/{{prikl.prikl_file}})'}" ng-click="viewPhoto('/images/prikls/',prikl.prikl_file)" >
-          <div class="priklcontent">
-              <h2>{{prikl.prikl_title}}</h2>
-              <div style="max-width:70%;min-height:75px;"><span>{{prikl.prikl_content}}</span></div>
-         </div>
         </div>
+
+
+        
+              <i class="icon ion-play priklbutton" ng-if="prikl.prikl_type == 'youtube'" ng-hide="prikl.youtube.player.getPlayerState() == 1 || prikl.youtube.player.getPlayerState() == 3 || hidePlayButton" ng-click="prikl.youtube.player.playVideo()"></i>
+               <i ng-if="prikl.prikl_type == 'url'" class="icon ion-link priklbutton" ng-click="openlink(prikl.prikl_url)"></i>
         
         <div class="priklyt" ng-if="prikl.prikl_type == 'youtube'" ng-style="{'background-image':'url(http://img.youtube.com/vi/{{prikl.prikl_url}}/0.jpg)'}" ng-click="prikl.youtube.player.playVideo()">
-        
               <youtube-video video-id="prikl.prikl_url" player="prikl.youtube.player" player-vars="playerVars">
-              </youtube-video>     <i class="icon ion-play" ng-hide="prikl.youtube.player.getPlayerState() == 1 || prikl.youtube.player.getPlayerState() == 3 || hidePlayButton"></i>
+              </youtube-video>     
         </div> 
 
         <div class="priklurl" ng-if="prikl.prikl_type == 'url'" ng-style="{'background-image':'url({{$root.server}}/images/prikls/{{prikl.prikl_file}})'}">
-            <i class="icon ion-link" ng-click="openlink(prikl.prikl_url)"></i>
+            
         </div>
+           
 
          <div class="prikltextstyle" ng-if="prikl.prikl_type == 'text'">
          <div class="textje">
            <h1>{{prikl.prikl_title}}</h1>
-           <p>{{prikl.prikl_content}}</p></div>
-         </div>
+           <p>{{prikl.prikl_content}}</p>
+         </div></div>
 
 
          <div class="priklcontent"  ng-if="prikl.prikl_type == 'youtube' || prikl.prikl_type == 'pic' || prikl.prikl_type == 'url'">
-
                 <h2>{{prikl.prikl_title}}</h2>
-                <div style="max-width:70%;min-height:75px;"><span>{{prikl.prikl_content}}</span></div>
+                <div><span>{{prikl.prikl_content}}</span></div>
          </div>
 
       

@@ -1,40 +1,34 @@
-
-<ion-view title="Activeren">
+<ion-view title="Account activeren">
 <ion-nav-bar class="bar-dark nav-title-slide-ios7">
-      <ion-nav-back-button class="button-icon ion-arrow-left-c">
-      </ion-nav-back-button>
-    </ion-nav-bar>
-        <ion-content class="has-header darkbackground">
+<ion-nav-back-button class="button-icon ion-arrow-left-c">
+</ion-nav-back-button>
+</ion-nav-bar>
+<ion-content class="has-header darkbackground">
 
 
-        <div class="profilepic" style="background-image: url('{{profilepic}}');" ng-click="createProfilePic()">
-        <span ng-hide="profilepic != './img/dummy.png'">Maak een nieuwe profielfoto</span>
-        <button class="button button-icon icon ion-camera"></button>
-        </div>
+<div class="profilepic" style="background-image: url('{{userinfo.profilepic}}');" ng-click="getPhoto()">
+  <span>{{userinfo.userfirstname}} {{userinfo.userlastname}}</span>
+  <button class="button button-icon icon ion-camera"></button>
+</div>
 
-            <form class="login-form list list-inset" name="loginForm" ng-submit="activateAccount()" novalidate>
-                  
-                 <label class="item item-input item-floating-label">
-                    <span class="input-label">Wachtwoord (Minimaal 6 tekens)</span>
-                    <input type="password" name="password" placeholder="Nieuw wachtwoord" ng-model="loginData.pw" required ng-minlength="6" ng-maxlength="50"/>
-                      <i class="icon ion-happy validationicon" style="color:green;" ng-show="loginForm.password.$valid"></i>
-                    <i class="icon ion-sad validationicon" style="color:red;" ng-hide="loginForm.password.$valid"></i>
-                  </label>
-                 <label class="item item-input item-floating-label">
-                    <span class="input-label">Wachtwoord herhaling</span>
-                    <input type="password" placeholder="Wachtwoord herhaling" ng-model="loginData.pw2" required/>
-                      <i class="icon ion-happy validationicon" style="color:green;" ng-show="loginData.pw2 == loginData.pw && loginData.pw2.length>5"></i>
-                      <i class="icon ion-sad validationicon" style="color:red;" ng-hide="loginData.pw2 == loginData.pw && loginData.pw2.length>5"></i>
-                  </label>
-                  
-                <label class="item">
-                  <button class="button button-block button-dark" ng-disabled="loginData.pw2==undefined || loginData.pw==undefined || loginData.pw2 != loginData.pw" type="submit">Aanmelden</button>
-                </label>
+<form class="login" name="loginForm" ng-submit="activateAccount()" novalidate>
+ <div class="list list-inset">
+   <label class="item item-input">
+    <input type="password" name="password" placeholder="Nieuw wachtwoord" ng-model="credentials.pw" required ng-minlength="6" ng-maxlength="50"/>
+    <i class="icon validationicon" ng-class="loginForm.password.$valid ? 'ion-happy' : 'ion-sad'"></i>
+  </label>
 
+  <label class="item item-input">
+    <input type="password" placeholder="Wachtwoord herhaling" ng-model="credentials.pw2" required/>
+    <i class="icon validationicon" ng-class="credentials.pw2 == credentials.pw && credentials.pw2.length>5 ? 'ion-happy' : 'ion-sad'"></i>
+  </label>
+</div>
 
-            </form>
-        
-            
-        </ion-content>
-      </ion-view>
+   <div class="submitbutton">
+    <button class="button button-block button-energized" ng-disabled="credentials.pw2==undefined || credentials.pw==undefined || credentials.pw2 != credentials.pw" type="submit">Aanmelden</button>
+  </div>
+
+</form>
+</ion-content>
+</ion-view>
 

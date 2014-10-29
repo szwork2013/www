@@ -1,151 +1,188 @@
-angular.module('prikl.controllers', [])
-/*App controller, when menu is visible this controller is used*/
-.controller('AppCtrl', function($scope,$rootScope,Modals,Cache,Camera,showMessage,$state,$timeout) {
- // $rootScope.userid=130;
- // $rootScope.groupid=69;
- // showMessage.notify("UserID:"+$rootScope.userid+",GroupID:"+$rootScope.groupid);
+angular.module('prikl.controllers', ['youtube-embed'])
 
+.controller('AppCtrl', function($scope,$rootScope, $state, Modals, Camera,Message) {
 
-  //Logoutfunction for logout in menu
-  $scope.logout = function(){
-    var callback = function(answer){
-      if(answer){
-        showMessage.notify("Uitgelogd");
-      //  DB.unregisterDevice()
-        window.localStorage.removeItem('userdevice');
-        $state.go('login');
-      }
-    }
-   showMessage.confirm("Uitloggen","Weet je zeker dat je wilt uitloggen?",callback);
+   if($rootScope.userid == undefined && $rootScope.groupid == undefined){
+    $rootScope.userid = 156;
+    $rootScope.groupid = 69;
   }
+
+    //Logoutfunction for logout in menu
+    $scope.logout = function(){
+        Message.question("Uitloggen","Weet je zeker dat je wilt uitloggen?",function(answer){
+             if(answer){
+                  Message.notify("Uitgelogd");
+                  //  DB.unregisterDevice()
+                  window.localStorage.removeItem('userdevice');
+                  $state.go('login');
+                }
+        });
+      }
 
   //Functions for new posts
   $scope.photo = function(){
    Camera.getPicture()
-    .then(function(imageURI){ 
-      $scope.imageURI = imageURI;
-      Modals.createAndShow($scope,"photo");
-    },function(error){
-      console.log("Camera probleem:</br>"+error);
-    });
-  }
+   .then(function(imageURI){ 
+    $scope.imageURI = imageURI;
+    Modals.createAndShow($scope,"photo");
+  },function(error){
+    console.log("Camera probleem:</br>"+error);
+  });
+ }
 
-  $scope.text = function(){
-    Modals.createAndShow($scope,"text");
-  }
+ $scope.text = function(){
+  Modals.createAndShow($scope,"text");
+}
 
-  
 })
 
-/*Controller with 4 important functions: checkToken, verifyAccount, activateAccount and registerDevice*/
-.controller('LoginCtrl', function($scope,$rootScope,Cache,$state,$ionicActionSheet,$ionicModal, DB, FTP, showMessage,Camera,md5) {
-  //Userform data
-  var account = $scope.login = {};
+//Controller for Login/Activate/RegisterDevice/Tokencheck
+.controller('LoginCtrl', function($scope,$rootScope,$state,AuthenticationService,FileTransferService,Camera,Message) {
+  
+  $scope.credentials = AuthenticationService.credentials;
+  $scope.userinfo = AuthenticationService.userinfo;
+  $scope.deviceinfo = AuthenticationService.deviceinfo;
 
-  //Verify useraccount mail and passwordword
-  $scope.verifyAccount = function(){
-    //Hash PW
-    var hashedpw = md5.createHash(account.pw);
-    DB.verifyAccount(account.mail,hashedpw,function(response){
-      if(response.status == "200")
-      {
-        registerDevice(response.data.iduser);
-      }
-      else if(response.status == "462")
-      {
-       $rootScope.mail = account.mail;
-        showMessage.notify(response.statusText);
-        $state.go("activate");
-      }
-      else 
-      {
-        showMessage.notify(response.statusText);
-      }
-    });
-  }
-
-  //Register device (when user login is OK)
-  registerDevice = function(userid){
-     //DeviceID from Apple's APNS or Google's GCM, requested in PushNotifcationsService in services.js 
-     var deviceinfo = Cache.get('pushnotification');
-     if(deviceinfo == undefined){
-      //Browsers and devices won't get a DeviceID
+  $scope.checkToken = function(){
+    var userdevice = window.localStorage.getItem('userdevice');
+    if(userdevice != undefined){
+      //If token-userid pair matches DB, go to pinboard and set userid + groupid
+      //If token mismatches remove it from localstorage and go to login
+      userdevice = angular.fromJson(userdevice);
+      AuthenticationService.checkToken(userdevice.userid,userdevice.token)
+      .then(function(response){
+        $rootScope.userid = userdevice.userid;
+        $rootScope.groupid = userdevice.group_id;
         $state.go('app.allreactions');
-        showMessage.notify("Geen PushID ontvangen");
-     }else{
-      //Registerdevice, send DeviceID(Google's or Apple's) to server and save it there, save the received
-      //token from server in localstorage
-  	  DB.registerDevice(userid,deviceinfo.device_id,deviceinfo.platform,function(response){
-        if(response.status == "200"){
-          window.localStorage.setItem('userdevice', JSON.stringify(response.data));
-          var userdevice = angular.fromJson(window.localStorage.getItem('userdevice'));
-          $rootScope.userid = userdevice.userid;
-          $rootScope.groupid = userdevice.group_id;
-          showMessage.notify("Apparaat geregistreerd");
-          $state.go('app.allreactions');
-        }else{
-          showMessage.notify(response.statusText);
-        }
-        });
+      },function(error){
+        //token mismatch 
+        Message.notify("Error:</br>"+error);
+        window.localStorage.removeItem('userdevice');
+      });
+    }else{
+      $state.go('login');
     }
   }
 
+  //Verify useraccount mail and password
+  $scope.verifyAccount = function(){
+    Message.loading("Inloggen");
+    AuthenticationService.verifyAccount($scope.credentials)
+    .then(function(response){
+     Message.loadingHide().then(function(){
+
+      AuthenticationService.userinfo.userid = response.data.iduser;
+      AuthenticationService.userinfo.groupid = response.data.groupid;
+      AuthenticationService.userinfo.userfirstname= response.data.firstname;
+      AuthenticationService.userinfo.userlastname = response.data.lastname;
+
+      if(response.status == "200"){
+          //Account already activated -> register device
+          $scope.registerDevice();
+        }else{
+          //Account not activated -> activate
+          $scope.credentials.pw = "";
+          $state.go('activate');
+        }
+      });
+   }, function(error){
+    Message.loadingHide().then(function(){
+      Message.notify(error);
+    });
+  });
+  }
+
+  $scope.registerDevice = function(){
+   if(AuthenticationService.deviceinfo.pushid == ''){
+      //Browsers and devices won't get a DeviceID
+      $rootScope.userid = AuthenticationService.userinfo.userid;
+      $rootScope.groupid = AuthenticationService.userinfo.groupid;
+      Message.notify("No Push ID <br/> User:"+$rootScope.userid+",Group:"+$rootScope.groupid);
+      $state.go('app.allreactions');
+    }else{
+      //Registerdevice, send DeviceID(From Googles/Apples Cloud Messaging Service) to server,
+      //server generates token, device stores this token in localstorage
+ 
+      AuthenticationService.registerDevice($scope.userinfo, $scope.deviceinfo)
+      .then(function(response){
+        window.localStorage.setItem('userdevice', JSON.stringify(response.data));
+        var userdevice = angular.fromJson(window.localStorage.getItem('userdevice'));
+        $state.go('app.allreactions');
+      },function(error){
+        Message.notify(error);
+      });
+    }
+  }
 
   //Activate account with new password and profilepic
   $scope.activateAccount = function(){
+    var activate = function(profilepic){
+      Message.loading("Account activeren");
 
-    var uploadProfilePic = function(){
-             var hashedpw = md5.createHash(account.pw);
-             DB.activateAccount($rootScope.mail,hashedpw,$scope.profilepic,function(response){
-                 
-                  showMessage.loadingHide();
-                  
-                  if(response.status == "200"){
-                          showMessage.notify("Je account is geactiveerd, veel plezier!");
-                          registerDevice(response.data);
-                          $rootScope.mail = null;
-                          $scope.profilepic = null;
-                        }else{
-                          showMessage.notify("Fout:<br/>"+response.statusText);
-                        }
-              });
-           
+      AuthenticationService.activateAccount($scope.credentials,profilepic)
+      .then(function(response){
+       Message.loadingHide().then(function(){
+        //Account activated -> register device
+        AuthenticationService.userinfo.userid = response.data.iduser;
+        AuthenticationService.userinfo.groupid = response.data.groupid;
+        $scope.registerDevice();
+      });
+     }, function(error){
+      Message.loadingHide().then(function(){
+        Message.notify(error);
+      });
+    });
     }
 
     //Check if user created profilepic
-    if($scope.profilepic == "./img/dummy.png"){
-      showMessage.popUp("Profielfoto","Je hebt nog geen profielfoto gemaakt,"+
-      " weet je zeker dat je wilt doorgaan?",function(yes){
-        if(yes){
-          $scope.profilepic = "dummy.png";
-          uploadProfilePic();
+    if($scope.userinfo.profilepic == "./img/dummy.png"){
+      Message.question("Profielfoto","Je hebt nog geen profielfoto gemaakt,"+
+        " weet je zeker dat je wilt doorgaan?",function(answer){
+          if(answer){
+            activate("dummy.png");
           }
-      });
-    }else{
-       FTP.addFile(true,$scope.profilepic,"image/jpeg",function(filename){
-            $scope.profilepic = filename;
-            uploadProfilePic();
         });
-    }
-
-     
-     
+    }else{
+      Message.loading("Profielfoto uploaden");
+      FileTransferService.uploadProfilePic($scope.userinfo.profilepic)
+      .then(function(filename){
+        Message.loadingHide().then(function(){
+          activate(filename);
+        })
+      },function(error){
+        Message.loadingHide().then(function(){
+          Message.notify(error);
+        });
+        console.log("uploaderror");
+        console.log(error);
+      });
+    }  
   }
 
 
-      $scope.profilepic = "./img/dummy.png";
-      //Create new profilephoto
-      $scope.createProfilePic = function (){
-               Camera.getPicture()
-              .then(function(imageURI){ 
-                $scope.profilepic = imageURI;
-              },function(error){
-                console.log("Camera probleem:</br>"+error);
-              });
-      } 
+  //Create new profilephoto
+  $scope.getPhoto = function (){
+   Camera.getPicture()
+   .then(function(imageURI){ 
+    $scope.userinfo.profilepic = imageURI;
+  },function(error){
+    console.log("Camera probleem:</br>"+error);
+  });
+ } 
 })
 
-.controller('PrikLCtrl', function($state, DB, $scope, Camera, Modals,$timeout,$rootScope,showMessage,$ionicSideMenuDelegate, $ionicSlideBoxDelegate, $ionicModal, $ionicGesture,$document) {
+.controller('PrikLCtrl', function($state, $scope, Camera, Modals,$timeout,PostService,$rootScope,Message, $ionicSideMenuDelegate,$ionicSlideBoxDelegate) {
+   
+   $scope.prikls = [];
+   $ionicSideMenuDelegate.canDragContent(false);
+   $scope.$on('$stateChangeStart', 
+    function(event, toState, toParams, fromState, fromParams){ 
+      if(fromState.name == "app.prikls"){
+          $ionicSideMenuDelegate.canDragContent(true);
+     }
+   });
+
+
   $scope.slideHasChanged = function(index){
    $rootScope.prikldate =  $scope.prikls[index].prikl_date;
       for (var i = $scope.prikls.length - 1; i >= 0; i--) {
@@ -155,7 +192,7 @@ angular.module('prikl.controllers', [])
       };
   }
 
-    $scope.nextSlide = function(){
+             $scope.nextSlide = function(){
                 $ionicSlideBoxDelegate.next();
               }
 
@@ -184,7 +221,7 @@ angular.module('prikl.controllers', [])
 
   $scope.loadPrikls = function(){
 
-         //iOS youtubeplayer quickfix
+  //iOS BUG Iframe hides when user changes slide -> Quickfix custom playbutton + youtubeimage as image background
         try{
         $scope.hidePlayButton = false;
         if(device.platform == "Android"){
@@ -195,20 +232,17 @@ angular.module('prikl.controllers', [])
       }
 
   $scope.loading = true;
-   // DB.getPrikls(12,done);
-    DB.getPrikls($rootScope.groupid,function(prikls){
-
-      $scope.loading = false;
-      $scope.prikls = prikls;
-      $rootScope.prikldate =  $scope.prikls[0].prikl_date;
-      $ionicSlideBoxDelegate.update();
-    });
-  }
-
-
-  $scope.hide = function(){
-    $scope.iframemodal.hide();
-    $rootScope.youtube.player.pauseVideo();
+    PostService.getPrikls().then(
+      function(prikls){
+        console.log(prikls);
+       $scope.loading = false;
+       $scope.prikls = prikls;
+       $rootScope.prikldate =  $scope.prikls[0].prikl_date;
+       $ionicSlideBoxDelegate.update();
+      },function(error){
+        Message.notify(error);
+      }
+    );
   }
 
    $scope.openlink = function(link){
@@ -235,44 +269,133 @@ angular.module('prikl.controllers', [])
   
 })
 
-
-/*Controller for both private and group pinboards)*/
-.controller('PinboardCtrl', function($scope,$state,$rootScope,$timeout,Modals,DB,Cache,showMessage) {
+.controller('PinboardCtrl',function($scope,$rootScope,$timeout,PostService,Cache,Message,Modals){
   $scope.noMoreItemsAvailable = false;
   $scope.noConnection = false;
   $scope.posts = [];
   $scope.loading = false;
-  $scope.totalposts = 0; 
+  $scope.posts.total = 0; 
 
+ 
+
+  
   $scope.$on('$stateChangeStart', 
-      function(event, toState, toParams, fromState, fromParams){ 
+    function(event, toState, toParams, fromState, fromParams){ 
       if(fromState.name == "app.myreactions"){
        Cache.put("private",$scope.posts);
-      }else if(fromState.name == "app.allreactions"){
+     }else if(fromState.name == "app.allreactions"){
        Cache.put("group",$scope.posts);
+     }
+   });
+
+  //If there are posts in cache load them
+  $scope.load = function(pinboard){
+   if(Cache.get(pinboard) != null) {
+    $scope.posts = Cache.get(pinboard);
+    for (var i = $scope.posts.length - 1; i >= 0; i--) {
+      $scope.totalposts += $scope.posts[i].posts.length;
+    };
+  } 
+}
+    /*Refreshfunction(when user pulls to refresh) check if there are new posts with postid from the newest post, 
+    if there are create new date object with date-month-year and check if an array exists with this date, if not
+      create an new array for these or this post and put it in front of the array(unshift)*/
+    $rootScope.refresh = function(pinboard){    
+      $scope.loading = true;
+      PostService.getNewPosts(pinboard,$scope.posts[0].posts[0].idposts)
+      .then(function(posts){
+       if(posts == "NOPOSTS"){ 
+        Message.notify("Geen nieuwe posts");
+      }else{
+        for (var i = 0; i < posts.length; i++){
+          var date = new Date(posts[i].post_date);
+          date = new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), 0, 0, 0, 0);
+          var firstdate = $scope.posts[0].date;
+          
+          if(firstdate.toString() == date.toString()){
+            $scope.posts[0].posts.unshift(posts[i]);
+          }else{
+            var newarr = [posts[i]];
+            var datePosts = {'date':date,'posts':newarr};
+            $scope.posts.unshift(datePosts);    
+          }
+          $scope.totalposts++; 
+        }
+        $state.go('app.prikls');
+        $timeout(function(){
+          if(pinboard == "group"){
+           $state.go('app.allreactions');
+         }else{
+           $state.go('app.myreactions');
+
+         }
+       },200);
       }
+      $scope.loading = false;
+      $scope.$broadcast('scroll.refreshComplete');
+    },function(error){
+
+      Message.notify(error);
     });
+}
 
-  $scope.deletepost =function(postid){
-  
-   showMessage.confirm("Bericht verwijderen","Weet je zeker dat je je bericht wilt verwijderen?",function(answer){
-    if(answer){
-      DB.deletePost($rootScope.userid,postid,function(response){
-        showMessage.notify(response.success);
+$scope.loadMore = function(pinboard) { 
+  if(!$scope.noMoreItemsAvailable && !$scope.loading && !$scope.noConnection){
+   $scope.loading = true;
 
+   PostService.getPosts(pinboard,$scope.posts.total,10)
+   .then(function(posts){
+                        //Divide posts per date, for every post create new dateobject with time 00:00:00, check
+                        //if there is a object with same date, if there is not create a object with an array for this date
+                        //"posts":[ { date : "12 october 2014" , posts : [post,post,post,post] },
+                        // { date : "13 october 2014" , posts : [post,post] }, { date : "14 october 2014" , posts : [post,post,post] } ]
+                        if(posts == "NOPOSTS"){
+                          $scope.noMoreItemsAvailable = true;
+                        }
+                        else{
+                          for (var i = 0; i < posts.length; i++){
+                            var date = new Date(posts[i].post_date);
+                            date = new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), 0, 0, 0, 0);
+                            var lastdate;
+                            if($scope.posts.length >0){
+                              lastdate = $scope.posts[$scope.posts.length-1].date;
+                            }
+                            if(lastdate == date.toString()){
+                              $scope.posts[$scope.posts.length-1].posts.push(posts[i]);
+                            }else{
+                              var newarr = [];
+                              newarr.push(posts[i]);
+                              var newDateArray = {'date':date,'posts':newarr};
+                              $scope.posts.push(newDateArray);    
+                            }
+                            $scope.posts.total++;
+                          }
+                        }
+                        $scope.loading = false;
+                        $scope.$broadcast('scroll.infiniteScrollComplete');
+                        $scope.$broadcast('scroll.resize');
+                      },function(error){
+                        Message.notify("Error:</br>"+error);
+                      });
+}
+}
 
-
-
+$scope.deletepost =function(postid){
+ Message.question("Bericht verwijderen","Weet je zeker dat je je bericht wilt verwijderen?",function(answer){
+  if(answer){
+    PostService.deletePost(postid)
+    .then(function(){
+        //Delete from posts
         $timeout(function(){
           for (var i = $scope.posts.length - 1; i >= 0; i--) {
-          for (var j = $scope.posts[i].posts.length - 1; j >= 0; j--) {
-            if($scope.posts[i].posts[j].idposts == postid){
-              $scope.posts[i].posts.splice(j, 1);
-            }
+            for (var j = $scope.posts[i].posts.length - 1; j >= 0; j--) {
+              if($scope.posts[i].posts[j].idposts == postid){
+                $scope.posts[i].posts.splice(j, 1);
+              }
+            };
           };
-        };
 
- //Groupposts uit cache verwijderen(moet nog anders)
+        //Delete from groupposts in cache 
         var groupposts = Cache.get("group");
         for (var i = groupposts.length - 1; i >= 0; i--) {
           for (var j = groupposts[i].posts.length - 1; j >= 0; j--) {
@@ -281,240 +404,132 @@ angular.module('prikl.controllers', [])
             }
           };
         };
-         Cache.put("group",groupposts);
-        
-        },500);
-        
+        Cache.put("group",groupposts);
+      },500);
+      },function(error){
+        Message.notify(error);
       });
-    }
-   });
-
   }
-  
-//If there are posts in cache load them
-$scope.load = function(pinboard){
-   if(Cache.get(pinboard) != null) {
-      $scope.posts = Cache.get(pinboard);
-      for (var i = $scope.posts.length - 1; i >= 0; i--) {
-        $scope.totalposts += $scope.posts[i].posts.length;
-      };
-    } 
+});
 }
 
-$scope.viewPhoto = function(serverpath,filename){
-      Modals.createAndShow($scope,"photoview");
-      console.log($rootScope.server + serverpath + filename);
-      $scope.photourl = $rootScope.server + serverpath + filename;
-}
-
-    /*Refreshfunction(when user pulls to refresh) check if there are new posts with postid from the newest post, 
-    if there are create new date object with date-month-year and check if an array exists with this date, if not
-    create an new array for these or this post and put it in front of the array(unshift)*/
-     $rootScope.refresh = function(pinboard){    
-      $scope.loading = true;
-      if(pinboard == "group"){var id = $rootScope.groupid;}else if(pinboard == "user"){var id = $rootScope.userid;}
-      DB.getNewPosts(pinboard,$scope.posts[0].posts[0].idposts,id,function(posts){
-        if(posts == "NOPOSTS"){ 
-          showMessage.notify("Niets nieuws");
-        }else{
-          showMessage.notify(posts.length + " nieuw");
-            
-          for (var i = 0; i < posts.length; i++){
-              var date = new Date(posts[i].post_date);
-              date = new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), 0, 0, 0, 0);
-              var firstdate = $scope.posts[0].date;
-          
-                if(firstdate.toString() == date.toString()){
-                  $scope.posts[0].posts.unshift(posts[i]);
-                }else{
-                  var newarr = [posts[i]];
-                  var datePosts = {'date':date,'posts':newarr};
-                  $scope.posts.unshift(datePosts);    
-                }
-              $scope.totalposts++; 
-          }
-           $state.go('app.prikls');
-           $timeout(function(){
-            if(pinboard == "group"){
-           $state.go('app.allreactions');
-            }else{
-           $state.go('app.myreactions');
-
-            }
-           },200);
+  //Count chars for fontsize
+  $scope.countchars = function(textlength) {
+    var s = 70 - (textlength*4);
+    return s + "px";
+  };
 
 
-        }
-        $scope.loading = false;
-        $scope.$broadcast('scroll.refreshComplete');
-     });              
-    }
-
-
-  /*Loadmore function(when user scrolls to bottom of pinboard) call for 5 new posts*/
-  $scope.loadMore = function(pinboard) {
-
-
-                      if(!$scope.noMoreItemsAvailable && !$scope.loading && !$scope.noConnection){
-                       $scope.loading = true;
-
-                      if(pinboard == "group"){var id = $rootScope.groupid;}else if(pinboard == "user"){var id = $rootScope.userid;}
-                   
-
-                      DB.getPosts(pinboard,$scope.totalposts,5,id,function(posts) {
-                          $scope.loading = false;
-                          //Loop trough posts to sort by date; check if array with posts for specific date is present, if not create new 
-                          //object with date and postsarray. Push these objects to $scope.posts
-                          if(posts == "NOPOSTS"){ 
-                             $scope.noMoreItemsAvailable = true;
-                          }else if(posts == "NOCONNECTION"){
-                            $scope.noConnection = true;
-                          }else{
-                          for (var i = 0; i < posts.length; i++){
-                            //Dateformatting anders doen? nu eerst nieuw dateobject aanmaken met tijd op 0 om te sorteren,
-                            //kan misschien sneller
-                              var date = new Date(posts[i].post_date);
-                              date = new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), 0, 0, 0, 0);
-                              var lastdate;
-                              if($scope.posts.length >0){
-                              lastdate = $scope.posts[$scope.posts.length-1].date;
-                              }
-                              if(lastdate == date.toString()){
-                                $scope.posts[$scope.posts.length-1].posts.push(posts[i]);
-                              }else{
-                                var newarr = [];
-                                newarr.push(posts[i]);
-                                var datePosts = {'date':date,'posts':newarr};
-                                $scope.posts.push(datePosts);    
-                              }
-                               $scope.totalposts++;
-                             
-                          }
-                          $scope.$broadcast('scroll.infiniteScrollComplete');
-                          $scope.$broadcast('scroll.resize');
-                        }
-                        });
-            }
+  $scope.viewPhoto = function(serverpath,filename){
+    Modals.createAndShow($scope,"photoview");
+    console.log($rootScope.server + serverpath + filename);
+    $scope.photourl = $rootScope.server + serverpath + filename;
   }
 
-   //Count chars for fontsize
-      $scope.countchars = function(textlength) {
-          var s = 70 - (textlength*3);
-          return s + "px";
-      };
-  })
+  $scope.showPrikl = function(priklid){
+    PostService.getSinglePrikl(priklid)
+    .then(function(prikl){
+      console.log(prikl);
+      Message.notify(prikl[0].prikl_date + "</br>" +prikl[0].prikl_title)
+    },function(error){
+      Message.notify(error);
+    });
+  }
+})
 
-  .controller('PhotoPostCtrl', function($scope,$state,$rootScope,showMessage,DB,FTP){
-
-   $scope.post = function(){
-     showMessage.popUp("Fotobericht","Wil je de fotobericht publiek plaatsen?",function(publica){
-      showMessage.loading("Fotobericht uploaden");
-
-         FTP.addFile(false,$scope.photomodal.photo,"image/jpeg",function(filename){
-         
-            if($scope.priklid == undefined){$scope.priklid = 0;}
-            if($scope.photomodal.posttext == undefined){$scope.photomodal.posttext = "";}
-
-             DB.addPost($rootScope.userid,$rootScope.groupid,$scope.priklid,$scope.photomodal.posttext,"pic",filename,publica,function(returned){
-                  
-                  if(returned.success){
-                    showMessage.loadingHide();
-                  $scope.photomodal.remove();
-
-                   if(publica){
-                    $state.go('app.allreactions');  $timeout(function(){
-                    $rootScope.refresh("group");
-                      showMessage.notify("Fotobericht succesvol toegevoegd");
-                    },500);
-                  }else{
-                    $state.go('app.myreactions');
-                    $timeout(function(){
-                    $rootScope.refresh("user");
-                      showMessage.notify("fotobericht succesvol toegevoegd");
-                    },500);
-                  }
+.controller('AccountCtrl',function($scope,PostService,Message){
+ $scope.loading=false;
+  $scope.loadAccountData = function(){
+     $scope.loading=true;
+      PostService.getAccountData()
+  .then(function(userdata){
+    console.log(userdata);
+    $scope.loading=false;
+    $scope.account = userdata[0];
+  },function(error){
+    $scope.loading=false;
+    Message.notify(error);
+  });
+  }
 
 
-                  }else{
-                    showMessage.notify("Er is iets fout gegaan");
-                  }
-              });
 
-            });   
-        }); 
-   }
-       
-  })
+})
+
+.controller('PhotoPostCtrl', function($scope,$state,$rootScope,PostService,FileTransferService,Message){
+
+ $scope.post = function(){
+   Message.question("Fotobericht","Iedereen mag het zien",function(pblic){
+    Message.loading("Fotobericht uploaden");
+    FileTransferService.uploadPhoto($scope.photomodal.photo)
+    .then(function(filename){
+      if($scope.priklid == undefined){$scope.priklid = 0;}
+      if($scope.photomodal.posttext == undefined){$scope.photomodal.posttext = "";}
+      PostService.addPost($scope.priklid,$scope.photomodal.posttext,"pic",filename,pblic)
+      .then(function(response){
+       $scope.photomodal.remove();
+       Message.loadingHide();
+       Message.notify("Fotobericht opgeslagen");
+       if(pblic){
+        $state.go('app.allreactions');
+      }else{
+        $state.go('app.myreactions');
+      }
+    },function(error){
+      Message.notify(error);
+    });
+    },function(error){
+      Message.notify(error);
+    });
+  }); 
+ }
+
+})
 
 
- .controller('FeedbackCtrl', function($scope,$state,$rootScope,showMessage,DB,FTP){
+.controller('TextPostCtrl', function($scope,$timeout,$state,$rootScope,PostService,Message){
+ $scope.post = function(){
+  Message.question("Tekstbericht","Iedereen mag het zien",function(pblic){
+    Message.loading("Tekstbericht versturen");
+    if($scope.priklid == undefined){$scope.priklid = 0;}
+    PostService.addPost($scope.priklid,$scope.textmodal.posttext,"text","",pblic)
+    .then(function(){
+      $scope.textmodal.remove();
+      Message.loadingHide();
+      Message.notify("Tekstbericht opgeslagen");
+      if(pblic){
+        $state.go('app.allreactions');
+      }else{
+        $state.go('app.myreactions');
+      }
+    },function(error){
+      Message.notify(error);
+    });
+  });
+}
+})
 
-    $scope.post = function(){
-             DB.addFeedback($rootScope.userid,$rootScope.groupid,$scope.feedbackmodal.posttext, function(returned){
-                  if(returned.success){
-                    showMessage.notify("Bedankt voor je feedback. Je bericht wordt zo spoedig mogelijk in behandeling genomen.");
-                    $scope.feedbackmodal.remove();
-                  }else{
-                    showMessage.notify("Er is iets fout gegaan");
-                  }
-              });
-             
-            }
-  })
+.controller('BugCtrl', function($scope,PostService,Modals,Message){
 
- .controller('BugCtrl', function($scope,DB,Modals){
+  $scope.post = function(){
+    PostService.addFeedback($scope.feedbackmodal.posttext)
+    .then(function(){
+      Message.notify("Bedankt voor je feedback.</br> Je bericht wordt zo spoedig mogelijk in behandeling genomen.");
+      $scope.feedbackmodal.remove();
+    },function(error){
+      Message.notify(error);
+    });
+  }
 
-    $scope.feedback = function(){
+  $scope.feedback = function(){
     Modals.createAndShow($scope,"feedback");
   }
 
-    $scope.bugs = function(){
-      console.log('indefucniot');
-             DB.getBugs(function(data){
-                  $scope.bugs = data;
-              });
-             
-            }
-  })
-
-  .controller('TextPostCtrl', function($scope,$timeout,$state,$rootScope,showMessage,DB){
-       $scope.post = function(){
-            showMessage.popUp("Tekstbericht","Iedereen mag het zien",function(publica){
-              if($scope.priklid == undefined){$scope.priklid = 0;}
-              DB.addPost($rootScope.userid,$rootScope.groupid,$scope.priklid,
-                $scope.textmodal.posttext,"text","",publica,function(returned){
-                if(returned.success){
-                  $scope.textmodal.remove();
-
-                  if(publica){
-                    $state.go('app.allreactions');  $timeout(function(){
-                    $rootScope.refresh("group");
-                      showMessage.notify("Tekstbericht succesvol toegevoegd");
-                    },500);
-                  }else{
-                    $state.go('app.myreactions');
-                    $timeout(function(){
-                    $rootScope.refresh("user");
-                      showMessage.notify("Tekstbericht succesvol toegevoegd");
-                    },500);
-                  }
-
-            
-                }else{
-                  showMessage.notify("Er is iets fout gegaan");
-                }
-            });
-          });
-         }
-  })
-
-.directive('fallbackSrc', function () {
-  var fallbackSrc = {
-    link: function postLink(scope, iElement, iAttrs) {
-      iElement.bind('error', function() {
-        angular.element(this).attr("src", iAttrs.fallbackSrc);
-      });
-    }
-   }
-   return fallbackSrc;
-});
+  $scope.bugs = function(){
+   PostService.getBugs().then(function(bugs){
+    $scope.bugs = bugs;
+   },function(error){
+    Message.notify(error);
+   });  
+ }
+})

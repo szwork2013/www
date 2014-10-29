@@ -1,61 +1,25 @@
-// angular.module is a global place for creating, registering and retrieving Angular modules
-// 'prikl' is the name of this angular module example (also set in a <body> attribute in index.html)
-// the 2nd parameter is an array of 'requires'
-angular.module('prikl', ['ionic', 'prikl.services', 'prikl.controllers', 'angular-md5','youtube-embed'])
+angular.module('prikl', ['ionic', 'prikl.controllers', 'prikl.services'])
 
-.run(function($ionicPlatform,$rootScope,$timeout,$state,PushProcessingService,DB,showMessage) {
-  //URL to servers' root
+.run(function($ionicPlatform,$rootScope,$state,$timeout,PushProcessingService) {
+   //URL to servers' root
   $rootScope.server = "http://winspire01.windesheim.nl/";
 
   $ionicPlatform.ready(function() {
-    
-    //App starts in connecting.html view with LoginCtrl from controller.js where token is checked
-    /*Check token when this controller is initialized*/
-    //Check localstorage for userid,groupid and token if this is not present go directly to login
-    var userdevice = window.localStorage.getItem('userdevice');
-    if(userdevice != undefined){
-      //If token-userid pair matches DB, go to pinboard and set userid + groupid
-      //If token mismatches remove it from localstorage and go to login
-      userdevice = angular.fromJson(userdevice);
+    PushProcessingService.initialize();
 
-      DB.checkToken(userdevice.userid,userdevice.token,function(response){
-      
-        if(response.status == "200"){
-          $rootScope.userid = userdevice.userid;
-          $rootScope.groupid = userdevice.group_id;
-          $state.go('app.allreactions');
-        }else{ 
-          showMessage.notify("Token onjuist, log opnieuw in");
-          window.localStorage.removeItem('userdevice');
-          $state.go('login');
-        }
-
-        //Hide splashscreen
+      //Hide splashscreen
         if(navigator.splashcreen){
           navigator.splashscreen.hide();
         }
-      });
-    }else{
-      $state.go('login');
-       
-        //Hide splashscreen
-      if(navigator.splashcreen){
-        navigator.splashscreen.hide();
-      }
-    }
 
-//Register back button
+    //Register back button
    $ionicPlatform.registerBackButtonAction(function (event) {
    showMessage.confirm("Afsluiten","Wilt u de app afsluiten",function(yes){
     if(yes){navigator.app.exitApp();}
    });
   }, 100);
 
-
-    //Initialize PushProcessingservice for both Apple or Google
-    PushProcessingService.initialize();
-
-    //Get Appversion
+   //Get Appversion
     if(window.cordova){
       cordova.getAppVersion(function(version) {
         $rootScope.version = version;
@@ -69,14 +33,10 @@ angular.module('prikl', ['ionic', 'prikl.services', 'prikl.controllers', 'angula
       cordova.plugins.Keyboard.disableScroll(true);
     }
     if(window.StatusBar) {
-      //Light statusbarfont for dark background
-      StatusBar.styleLightContent();
+      // org.apache.cordova.statusbar required
+        StatusBar.styleLightContent();
     }
   });
-})
-
-.config(function($compileProvider){
-  $compileProvider.imgSrcSanitizationWhitelist(/^\s*(https?|ftp|mailto|file|tel):/);
 })
 
 .config(function($stateProvider, $urlRouterProvider) {
@@ -97,7 +57,7 @@ angular.module('prikl', ['ionic', 'prikl.services', 'prikl.controllers', 'angula
       controller: 'LoginCtrl'
     })
 
-     .state('app', {
+    .state('app', {
       url: "/app",
       abstract: true,
       templateUrl: "templates/menu.html",
@@ -111,18 +71,7 @@ angular.module('prikl', ['ionic', 'prikl.services', 'prikl.controllers', 'angula
           controller: 'PrikLCtrl'
         }
       }
-    })
-
-    .state('app.bugs', {
-      url: "/bugs",
-       views: {
-        'menuContent' :{
-          templateUrl: "templates/postboards/bugs.html",
-          controller: 'BugCtrl'
-        }
-      }
-    })
-
+    }) 
     .state('app.myreactions', {
       url: "/myreactions",
        views: {
@@ -132,7 +81,6 @@ angular.module('prikl', ['ionic', 'prikl.services', 'prikl.controllers', 'angula
         }
       }
     })
-
     .state('app.allreactions', {
       url: "/allreactions",
       views: {
@@ -141,7 +89,26 @@ angular.module('prikl', ['ionic', 'prikl.services', 'prikl.controllers', 'angula
           controller: 'PinboardCtrl'
         }
       }
+    }) 
+    .state('app.bugs', {
+      url: "/bugs",
+       views: {
+        'menuContent' :{
+          templateUrl: "templates/postboards/bugs.html",
+          controller: 'BugCtrl'
+        }
+      }
+    })
+    .state('app.account', {
+      url: "/account",
+       views: {
+        'menuContent' :{
+          templateUrl: "templates/account.html",
+          controller: 'AccountCtrl'
+        }
+      }
     });
-  // if none of the above states are matched, use this loadscreen as fallback
+  // if none of the above states are matched, use this as the fallback
   $urlRouterProvider.otherwise('/connecting');
 });
+

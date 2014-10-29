@@ -1,4 +1,168 @@
-angular.module('prikl.services', [])
+angular.module('prikl.services', ['angular-md5'])
+
+.factory('AuthenticationService', function ($q,$http,$rootScope, transformAsPost,md5) {
+      $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
+      var credentials = {};
+
+      var postrequest = function(data,url){
+        return $http({
+                url: url,
+                method: "POST",
+                transformRequest: transformAsPost,
+                data: data
+              })
+                  .then(function(response) {
+                    return response;
+                    /*  if (typeof response.data === 'object') {
+                          return response;
+                      } else {
+                          // invalid response
+                          console.log("INVALID RESPONSE");
+                          console.log(response);
+                          return $q.reject(response);
+                      }*/
+                  }, function(response) {
+                      console.log(response);
+                      // something went wrong
+                          return $q.reject(response.statusText);
+                });
+      }
+
+      var verifyAccount = function(credentials){
+
+        var data = {"mail":credentials.mail,"pw":md5.createHash(credentials.pw)};
+        var url = $rootScope.server + "index.php/serve/verifyAccount";
+        return postrequest(data, url);
+      }
+
+      var activateAccount = function(credentials,profilepic){
+        var data = {"mail":credentials.mail,"pw":md5.createHash(credentials.pw),"pic":profilepic};
+        var url = $rootScope.server + "index.php/serve/activateAccount";
+        return postrequest(data, url);
+      }
+
+      var registerDevice = function(userinfo,deviceinfo){
+        var data = {"userid":userinfo.userid,"pushid":deviceinfo.pushid,"platform":deviceinfo.platform};
+        var url = $rootScope.server + "index.php/serve/registerDevice";
+        return postrequest(data, url);
+      }
+
+      var unregisterDevice = function(userid,token,platform){
+        var data = {"userid":userid,"token":token,"platform":platform};
+        var url = $rootScope.server + "index.php/serve/unregisterDevice";
+        return postRequest(url,data);
+      }
+
+      var checkToken = function(userid,token){
+        var data = {"userid":userid,"token":token};
+        var url = $rootScope.server + "index.php/serve/checkToken";
+        return postrequest(data,url);
+      }
+
+      var credentials = {mail:"",pw:"",pw2:""};
+      var userinfo = {userid:'',userfirstname:'',userlastname:'',groupid:'',profilepic:'./img/dummy.png'};
+      var deviceinfo = {pushid:'',platform:''};
+
+      return {
+        verifyAccount: verifyAccount,
+        activateAccount: activateAccount,
+        registerDevice: registerDevice,
+        unregisterDevice: unregisterDevice,
+        checkToken: checkToken,
+        credentials:credentials,
+        userinfo:userinfo,
+        deviceinfo:deviceinfo
+      };
+  })
+
+.factory('PostService', function ($q, $http, $rootScope){
+
+  var jsonpRequest = function(url){
+    console.log(url);
+    var deferred = $q.defer();
+          $http.jsonp(url)
+                .success(function(data) {
+                  deferred.resolve(data);
+                  console.log(data);
+                })
+                .error(function(error){
+                  console.log(error);
+                  deferred.reject(error);
+                });
+                return deferred.promise;
+    }
+
+    var getAccountData = function(){
+      var url = $rootScope.server + "index.php/serve/getAccountData?usid="+$rootScope.userid+"&callback=JSON_CALLBACK";
+      return jsonpRequest(url);
+    }
+
+     var getPrikls = function (){
+      var url = $rootScope.server + "index.php/serve/getPrikls?groupid="+$rootScope.groupid+"&callback=JSON_CALLBACK";
+      return jsonpRequest(url);
+    }
+
+    var getSinglePrikl = function(priklid){
+      var url = $rootScope.server + "index.php/serve/getSinglePrikl?priklid="+priklid+"&callback=JSON_CALLBACK";
+       return jsonpRequest(url)
+    }
+
+    var getBugs = function (){
+      var url = $rootScope.server + "index.php/serve/getBugs?callback=JSON_CALLBACK";
+      return jsonpRequest(url);
+    }
+
+    var getPosts = function(pinboard,start,limit) {
+      if(pinboard == "user"){
+        var url = $rootScope.server + "index.php/serve/getUserPosts?start="+start+"&limit="+limit+"&userid="+$rootScope.userid+"&callback=JSON_CALLBACK";
+        return jsonpRequest(url);
+      }else if(pinboard == "group"){
+        var url = $rootScope.server + "index.php/serve/getGroupPosts?start="+start+"&limit="+limit+"&groupid="+$rootScope.groupid+"&callback=JSON_CALLBACK";    
+        return jsonpRequest(url);
+      }
+    }
+
+    var getNewPosts = function (pinboard,lastpostid) {
+      if(pinboard == "user"){
+        var url = $rootScope.server + "index.php/serve/getNewUserPosts?lastpostid="+lastpostid+"&userid="+$rootScope.userid+"&callback=JSON_CALLBACK";    
+        return jsonpRequest(url);
+      }else if(pinboard == "group"){
+        var url = $rootScope.server + "index.php/serve/getNewGroupPosts?lastpostid="+lastpostid+"&groupid="+$rootScope.groupid+"&callback=JSON_CALLBACK";    
+        return jsonpRequest(url);
+      }
+    }
+
+    var addPost = function(priklid,text,type,filename,pub) {
+    var url = $rootScope.server + "index.php/serve/addPost?userid="+$rootScope.userid+"&groupid="+$rootScope.groupid+"&priklid="+priklid+
+    "&text="+text+"&type="+type+"&filename="+filename+"&pub="+pub+"&callback=JSON_CALLBACK";
+     return jsonpRequest(url);
+    }
+
+    var addFeedback = function(text) {
+    var url = $rootScope.server + "index.php/serve/addFeedback?userid="+$rootScope.userid+"&groupid="+$rootScope.groupid+
+    "&feedback="+text+"&callback=JSON_CALLBACK";
+    console.log(url);
+    return jsonpRequest(url);
+    }
+
+    var deletePost = function(postid){
+        var url = $rootScope.server + "index.php/serve/deletePost?userid="+$rootScope.userid+"&postid="+postid+"&callback=JSON_CALLBACK";
+     return jsonpRequest(url);
+    }
+
+    return{
+      getPosts: getPosts,
+      getNewPosts: getNewPosts,
+      getPrikls: getPrikls,
+      getSinglePrikl:getSinglePrikl,
+      getAccountData:getAccountData,
+      getBugs: getBugs,
+      addPost: addPost,
+      addFeedback: addFeedback,
+      deletePost: deletePost
+    }
+
+})
 
   .factory('Cache', function($cacheFactory){
         return $cacheFactory('Cache', {
@@ -7,155 +171,131 @@ angular.module('prikl.services', [])
       })
     })
 
-  .factory('DB', function($http,$timeout,$rootScope,showMessage,transformRequestAsFormPost) {
-
-    var jsonpRequest = function(url,cb){
-                 $http.jsonp(url)
-                .success(function(data) {
-                  console.log(data);
-                   cb(data);
-                })
-                .error(function(err){
-                  console.log(err);
-                   cb("NOCONNECTION");
-                })
-    }
-
-    var postRequest = function(url,data,cb){
-    /*  if(navigator.connection != undefined){
-                      if(checkConnection() == "Geen netwerk")
-                      {
-                        showMessage.notify(checkConnection());
-                      }
-                    }else{
-                       showMessage.notify("Geen netwerkplugin");
-                    }*/
-
-      $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
-            console.log(url);
-            $http({
-                url: url,
-                method: "POST",
-                transformRequest: transformRequestAsFormPost,
-                data: data
-            })
-            .then(function(response) {
-                    // success
-                    cb(response);
-                    console.log(response);
-                }, 
-                function(error) { // optional
-                    console.log(error);
-                    // failed
-                    cb(error);
-                });
-    }
+.factory('FileTransferService', function ($q,$rootScope) {
 
 
-    var getPrikls = function (groupid,callback){
-      var url = $rootScope.server + "index.php/serve/getPrikls?groupid="+groupid+"&callback=JSON_CALLBACK";
-      jsonpRequest(url,callback);
-    }
+      var uploadProfilePic = function(fileURI){
+        var deferred = $q.defer();
 
-    var getBugs = function (callback){
-      var url = $rootScope.server + "index.php/serve/getBugs?callback=JSON_CALLBACK";
-      jsonpRequest(url,callback);
-    }
+                var options = new FileUploadOptions();
+                options.fileKey = "file";
+                options.chunkedMode = false;
+                
+                //Quickfix, Android album geeft geen jpg extensie
+                if(fileURI.substr(fileURI.length-3,fileURI.length) != "jpg")
+                {
+                    fileURI += ".jpg";
+                }
 
-    var getNewPosts = function (pinboard,lastpostid,id,callback) {
+                options.mimeType = "image/jpeg";
+                options.fileName = fileURI.substr(fileURI.lastIndexOf('/') + 1);
 
-      if(pinboard == "user"){
-        var url = $rootScope.server + "index.php/serve/getNewUserPosts?lastpostid="+lastpostid+"&userid="+id+"&callback=JSON_CALLBACK";    
-        jsonpRequest(url,callback);
-      }else if(pinboard == "group"){
-        var url = $rootScope.server + "index.php/serve/getNewGroupPosts?lastpostid="+lastpostid+"&groupid="+id+"&callback=JSON_CALLBACK";    
-        jsonpRequest(url,callback);
-      }else{
-        callback("Pinboard unknown");
+                var ft = new FileTransfer();
+
+                ft.upload(fileURI, $rootScope.server + "profilepic.php",
+                  function(r){
+                     deferred.resolve(r.response);
+                }, function(error){
+                   deferred.reject(error);
+                }, options);
+
+                return deferred.promise;
       }
-    }
 
-    var getPosts = function(pinboard,start,limit,id,callback) {
+       var uploadPhoto = function(fileURI){
 
-      if(pinboard == "user"){
-        var url = $rootScope.server + "index.php/serve/getUserPosts?start="+start+"&limit="+limit+"&userid="+id+"&callback=JSON_CALLBACK";
-        jsonpRequest(url,callback);
-      }else if(pinboard == "group"){
-        var url = $rootScope.server + "index.php/serve/getGroupPosts?start="+start+"&limit="+limit+"&groupid="+id+"&callback=JSON_CALLBACK";    
-        jsonpRequest(url,callback);
-      }else{
-        callback("Pinboard unknown");
+                var deferred = $q.defer();
+                var options = new FileUploadOptions();
+                options.fileKey = "file";
+                options.chunkedMode = false;
+                
+                //Quickfix, Android album geeft geen jpg extensie
+                if(fileURI.substr(fileURI.length-3,fileURI.length) != "jpg")
+                {
+                    fileURI += ".jpg";
+                }
+
+                options.mimeType = "image/jpeg";
+                options.fileName = fileURI.substr(fileURI.lastIndexOf('/') + 1);
+
+                var ft = new FileTransfer();
+
+                ft.upload(fileURI, $rootScope.server + "upload.php",
+                  function(r){
+                     deferred.resolve(r.response);
+                }, function(error){
+                   deferred.reject(error);
+                }, options);
+
+                return deferred.promise;
       }
-    }
 
-    var deletePost = function(userid,postid,callback){
-        var url = $rootScope.server + "index.php/serve/deletePost?userid="+userid+"&postid="+postid+"&callback=JSON_CALLBACK";
-      jsonpRequest(url,callback);
-    }
 
-  //LOGIN (Functies moeten voor veiligheid met POST aangeroepen worden, na/tjidesn alphafase)
-  var verifyAccount = function(mail,pw,callback){
-     var url = $rootScope.server + "index.php/serve/verifyAccount";
-     var data= {"mail":mail,"pw":pw};
-    postRequest(url,data,callback);
+      return {
+          uploadProfilePic:uploadProfilePic,
+          uploadPhoto:uploadPhoto
+      };
+  })
+
+
+
+.factory('Message', function ($q,$ionicPopup, $ionicLoading, $ionicActionSheet, $timeout) {
+      var loading = function(text){
+    $ionicLoading.show({
+      template: text+"</br><i class='icon ion-loading-b'></i>",
+      showBackdrop: true,
+      animation: 'fade-in',
+    });
+  }
+
+ var loadingHide = function(){
+    return $timeout(function(){
+      $ionicLoading.hide();
+    },500);
   }
   
-  var activateAccount = function(mail,pw,pic,callback){
-      var url = $rootScope.server + "index.php/serve/activateAccount";
-      var data = {"mail":mail,"pic":pic,"pw":pw};
-      postRequest(url,data,callback);
-    }
-
-  var registerDevice = function(userid,pushid,platform,callback){
-     var url = $rootScope.server + "index.php/serve/registerDevice";
-       var data = {"userid":userid,"pushid":pushid,"platform":platform};
-       postRequest(url,data,callback);
+  var notify = function(message){
+    $ionicLoading.show({
+      template: message,
+      showBackdrop: true,
+      animation: 'fade-in',
+      duration: 1500
+    }); 
   }
 
-  var unregisterDevice = function(userid,token,platform,callback){
-      var url = $rootScope.server + "index.php/serve/unregisterDevice";
-      var data = {"userid":userid,"token":token,"platform":platform};
-      postRequest(url,data,callback);
-  }
-
-   var checkToken = function(userid,token,callback){
-     var url = $rootScope.server + "index.php/serve/checkToken";
-      var data= {"userid":userid,"token":token};
-       postRequest(url,data,callback);
-  }
-
-  //Posten
-   var addPost = function(userid,groupid,priklid,text,type,filename,pub,callback) {
-    //$teruggave = $this->base_model->addpost($userid,$groupid,$priklid,$text,$type,$filename,$pub);
-    var url = $rootScope.server + "index.php/serve/addPost?userid="+userid+"&groupid="+groupid+"&priklid="+priklid+
-    "&text="+text+"&type="+type+"&filename="+filename+"&pub="+pub+"&callback=JSON_CALLBACK";
-    jsonpRequest(url,callback);
+  var question = function(title,body,callback){
+    $ionicPopup.show({
+  title: title, // String. The title of the popup.
+  template: body, // String (optional). The html template to place in the popup body.
+  buttons: [{ //Array[Object] (optional). Buttons to place in the popup footer.
+    text: "<i class='icon ion-thumbsup'></i>",
+    type: 'button-energized',
+    onTap: function(e) {
+      // e.preventDefault() will stop the popup from closing when tapped.
+      return 1;
     }
-
-    var addFeedback = function(userid,groupid,text,callback) {
-    //$teruggave = $this->base_model->addpost($userid,$groupid,$priklid,$text,$type,$filename,$pub);
-    var url = $rootScope.server + "index.php/serve/addFeedback?userid="+userid+"&groupid="+groupid+
-    "&feedback="+text+"&callback=JSON_CALLBACK";
-    console.log(url);
-    jsonpRequest(url,callback);
+  },{
+    text: "<i class='icon ion-thumbsdown'></i>",
+    type: 'button-assertive',
+    onTap: function(e) {
+      // Returning a value will cause the promise to resolve with the given value.
+      return 0;
     }
+  }]
+}).then(function(result){
+  callback(result);
+});
 
-   return {
-      verifyAccount: verifyAccount,
-      registerDevice: registerDevice,
-      unregisterDevice: unregisterDevice,
-      activateAccount: activateAccount,
-      checkToken: checkToken,
-      getNewPosts: getNewPosts,
-      getPosts: getPosts,
-      getPrikls: getPrikls,
-      addPost:addPost,
-      deletePost:deletePost,
-      addFeedback:addFeedback,
-      getBugs:getBugs
-    }
-})
 
+}
+
+      return {
+          question: question,
+          loading: loading,
+          loadingHide: loadingHide,
+          notify: notify
+      };
+  })
 
 .service('Modals',function($ionicModal){
 
@@ -207,131 +347,8 @@ angular.module('prikl.services', [])
    }
 })
 
-//Showmessages loadingscreens etc.
-.service('showMessage', function($ionicPopup, $ionicLoading, $ionicActionSheet, Camera, $timeout) {
-  this.loading = function(text){
-      $ionicLoading.show({
-                    template: text+"</br><i class='icon ion-loading-a'></i>",
-                    showBackdrop: true,
-                    animation: 'fade-in'
-          });
-  }
-
-  this.loadingHide = function(){
-    $ionicLoading.hide();
-  }
-
-    this.notify = function(message){
-      
-          $ionicLoading.show({
-                    template: message,
-                    showBackdrop: true,
-                    animation: 'fade-in'
-          });
-          $timeout(function() {
-                         $ionicLoading.hide();
-                    }, 1500);  
-  }
-
-   this.confirm = function(title,question,callback) {
-     var confirmPopup = $ionicPopup.confirm({
-       title: title,
-       template: question
-     });
-     confirmPopup.then(function(res) {
-       callback(res);
-     });
-   }
-   
-
-     this.popUp = function(title,body,callback){
-      var popUp = $ionicPopup.show({
-  title: title, // String. The title of the popup.
-  template: body, // String (optional). The html template to place in the popup body.
-  buttons: [{
-    text: "<i class='icon ion-thumbsdown'></i>",
-    type: 'button-assertive',
-    onTap: function(e) {
-      // Returning a value will cause the promise to resolve with the given value.
-      return 0;
-    }
-  },
-  { //Array[Object] (optional). Buttons to place in the popup footer.
-    text: "<i class='icon ion-thumbsup'></i>",
-    type: 'button-energized',
-    onTap: function(e) {
-      // e.preventDefault() will stop the popup from closing when tapped.
-      return 1;
-    }
-  }]
-});
-
-  popUp.then(function(res) {
-    callback(res);
-  });
-     
-
-   }
-})
-
-
-//Upload files
-.service('FTP', function($rootScope,showMessage) {
-
-                this.addFile = function(profilepic,fileURI, mimeType,callback) {
-     
-                   if(navigator.connection != undefined){
-                      if(checkConnection() == "Geen netwerk")
-                      {
-                        showMessage.notify(checkConnection());
-                        return false;
-                      }
-                    }else{
-                       showMessage.notify("Geen netwerkplugin");
-                    }
-               
-                //Upload as profilepic or photo
-                if(profilepic){var uploadfile = "profilepic.php";}else{var uploadfile = "upload.php";}
-
-                //Voor het uploaden van een bestand naar FTP wordt cordova filetransfer plugin gebruikt.
-                var options = new FileUploadOptions();
-                options.fileKey = "file";
-                options.chunkedMode = false;
-                
-                //Quickfix, Android album geeft geen jpg extensie
-                if(mimeType=="image/jpeg" && fileURI.substr(fileURI.length-3,fileURI.length) != "jpg")
-                {
-                    fileURI += ".jpg";
-                }
-
-                options.mimeType = mimeType;
-                options.fileName = fileURI.substr(fileURI.lastIndexOf('/') + 1);
-
-                //FileTransfer
-                var ft = new FileTransfer();
-                ft.upload(fileURI, $rootScope.server + uploadfile, uploadSuccess, uploadError, options);
-
-                function uploadSuccess(r) {
-                    console.log("Code = " + r.responseCode);
-                    console.log("Response(filename) = " + r.response);
-                    console.log("Sent = " + r.bytesSent);
-                    callback(r.response);
-                }
-
-                function uploadError(error) {
-                  alert("ERROR");
-                  callback(error);
-                   showMessage.notify("Probleem " + error.code);
-                  showMessage.notify("Bestand niet geupload");
-                } 
-
-        }
-
-})
-
-
 //Camerafactory, asks user for source(camera or album) and returns the url of image
-.factory('Camera', function($q,$ionicActionSheet) {
+.factory('Camera', function ($q, $ionicActionSheet) {
   return {
     getPicture: function(source) {
 
@@ -361,7 +378,8 @@ angular.module('prikl.services', [])
                                   saveToPhotoAlbum: false,
                                   correctOrientation: true,
                                   targetWidth:1000,
-                                  targetHeight:1000
+                                  targetHeight:1000,
+                                  cameraDirection:1
                               };
 
                     navigator.camera.getPicture(function(result) {
@@ -378,42 +396,42 @@ angular.module('prikl.services', [])
   }
 })
 
-
-//Pushprocessing service, gets token from Google's GCM or Apple's APNS
-.factory('PushProcessingService', function(DB,Cache) {
-        function onDeviceReady() {
-            console.info('NOTIFY  Device is ready.  Registering with GCM server');
-            var pushNotification = window.plugins.pushNotification;
-            if(device.platform == "Android")
+//Pushprocessing service, get token from Google's GCM or Apple's APNS
+.factory('PushProcessingService', function(Message,AuthenticationService) {
+    function onDeviceReady(){
+     
+         var pushNotification = window.plugins.pushNotification;
+          if(device.platform == "Android")
             {
             pushNotification.register(gcmSuccessHandler, errorHandler, {"senderID":"10154189285","ecb":"onNotificationGCM"});
             }
             else if (device.platform == "iOS")
             {
-            pushNotification.register(tokenHandler, errorHandler,{"badge":"true","sound":"true","alert":"true","ecb":"onNotificationAPN"});
-            }                
-        }
+            pushNotification.register(apnsHandler, errorHandler,{"badge":"true","sound":"true","alert":"true","ecb":"onNotificationAPN"});
+            }else{
+              console.log("Device is not an Android/iOS or cordova.device is not available");
+            }  
+    }
+
         function gcmSuccessHandler(result) {
-            //android
-            console.info('NOTIFY  pushNotification.register succeeded.  Result = '+result);
+            console.info('Android GCM succeeded: '+result);
         }
-        function tokenHandler(result) {
-            var deviceinfo = JSON.parse('{"device_id":"'+result+'", "platform":"iOS"}');
-            Cache.put('pushnotification', deviceinfo);
+        function apnsHandler(result) {
+            AuthenticationService.deviceinfo.pushid = result;
+            AuthenticationService.deviceinfo.platform = "iOS";
         }
         function errorHandler(error) {
-            console.error('NOTIFY  '+error);
-            alert("error:"+error);
+            console.error('PushProcessingError: '+error);
+            Message.notify("Pushnotification Error");
         }
+
         return {
             initialize : function () {
-                console.info('NOTIFY  initializing');
                 document.addEventListener("deviceready", onDeviceReady, true);
             },
             registerID : function (regid) {
-                //Sla deviceid op in cache
-                var deviceinfo = JSON.parse('{"device_id":"'+regid+'", "platform":"android"}');
-                Cache.put('pushnotification', deviceinfo);
+              AuthenticationService.deviceinfo.pushid = regid;
+              AuthenticationService.deviceinfo.platform = "android";
             }, 
             //unregister evt later nog aanroepen bij deinstallatie app of instellingen menu
             unregister : function () {
@@ -428,63 +446,44 @@ angular.module('prikl.services', [])
         }
 })
 
+
 //Transform request as form post
-.factory("transformRequestAsFormPost",function() {
+.factory("transformAsPost",function() {
 // I prepare the request data for the form post.
-    function transformRequest( data, getHeaders ) {
-     
-    var headers = getHeaders();
-     
-    headers[ "Content-type" ] = "application/x-www-form-urlencoded; charset=utf-8";
-     
-    return( serializeData( data ) );
-     
-    }
-     
-     
+function transformRequest( data, getHeaders ) {
+  var headers = getHeaders();
+  headers[ "Content-type" ] = "application/x-www-form-urlencoded; charset=utf-8";
+  return( serializeData( data ) );
+}
     // Return the factory value.
     return( transformRequest );
-
     function serializeData( data ) {
-     
     // If this is not an object, defer to native stringification.
     if ( ! angular.isObject( data ) ) {
-     
-    return( ( data == null ) ? "" : data.toString() );
-     
+      return( ( data == null ) ? "" : data.toString() );
     }
-     
     var buffer = [];
-     
     // Serialize each key in the object.
     for ( var name in data ) {
-     
-    if ( ! data.hasOwnProperty( name ) ) {
-     
-    continue;
-     
+      
+      if ( ! data.hasOwnProperty( name ) ) {
+        continue;
+      }
+
+      var value = data[ name ];
+      buffer.push(
+        encodeURIComponent( name ) + "=" + encodeURIComponent( ( value == null ) ? "" : value )
+        );
     }
-     
-    var value = data[ name ];
-     
-    buffer.push(
-    encodeURIComponent( name ) +
-    "=" +
-    encodeURIComponent( ( value == null ) ? "" : value )
-    );
-     
-    }
-     
+
     // Serialize the buffer and clean it up for transportation.
     var source = buffer
     .join( "&" )
     .replace( /%20/g, "+" )
     ;
-     
+
     return( source );
-     
-    }
- 
+  }
 });
 
 
@@ -568,22 +567,3 @@ onNotificationAPN  = function(event) {
         pushNotification.setApplicationIconBadgeNumber(successHandler, errorHandler, event.badge);
     };
 };
-
-checkConnection = function() {
-    var networkState = navigator.connection.type;
-
-    var states = {};
-    states[Connection.UNKNOWN]  = 'Unknown connection';
-    states[Connection.ETHERNET] = 'Ethernet connection';
-    states[Connection.WIFI]     = 'WiFi connection';
-    states[Connection.CELL_2G]  = 'Cell 2G connection';
-    states[Connection.CELL_3G]  = 'Cell 3G connection';
-    states[Connection.CELL_4G]  = 'Cell 4G connection';
-    states[Connection.CELL]     = 'Cell generic connection';
-    states[Connection.NONE]     = 'Geen netwerk';
-
-    return states[networkState];
-};
-
-
-

@@ -1,16 +1,7 @@
-<ion-view title="Inloggen" ng-controller="PhotoPostCtrl">
-<div class="bar bar-dark bar-header">
-  <div class="h1 title">Verbinden</div>
+<ion-view title="Inloggen" class="loadingscreen" ng-init="checkToken()">
+<div>
+  <img src="./img/prikl.png"/>
+  <i class="icon ion-loading-c"></i>
+  <span>Verbinden</span>
 </div>
-        <ion-content class="has-header darkbackground">
-           <div class="loading darkbackground" style="
-overflow:hidden;
-  height: 100vh;
-  border:0;
-  width: 100vw;
-  text-align: center; "><i class="icon ion-loading-c" style="
-  display: block; margin: 25% auto;font-size:200px;color:white;" ng-if="!$root.noConnection"></i>
-  <i class=" icon ion-sad" style="
-  display: block; margin: 25% auto;font-size:200px;color:white;" ng-if="$root.noConnection"></i></div>
-        </ion-content>
-      </ion-view>
+</ion-view>

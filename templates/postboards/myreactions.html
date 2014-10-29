@@ -4,9 +4,9 @@
   </ion-nav-buttons>
 
   <ion-nav-buttons side="right">
-    <button menu-toggle="right" ng-if="loading" class="button button-icon icon ion-loading-d"></button>
-    <button menu-toggle="right" ng-if="noConnection" class="button button-icon icon ion-sad"></button>
+    <i ng-if="loading" class="loadingheadericon icon ion-ios7-reloading"></i>
   </ion-nav-buttons>
+
 
    <ion-content class="has-header darkbackground">
 
@@ -47,7 +47,7 @@
 
             </div>
 
-             <div style="width:100%;background-color:red;height:20px;text-align:center;" ng-click="deletepost(post.idposts)">Verwijder</div>
+             <div style="width:100%;background-color:red;height:20px;text-align:center;color:white" ng-click="deletepost(post.idposts)">Verwijder</div>
 
       </div>
 
