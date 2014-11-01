@@ -2,10 +2,10 @@ angular.module('prikl.controllers', ['youtube-embed'])
 
 .controller('AppCtrl', function($scope,$rootScope, $state, Modals, Camera,Message) {
 
-   if($rootScope.userid == undefined && $rootScope.groupid == undefined){
-    $rootScope.userid = 156;
-    $rootScope.groupid = 69;
-  }
+  //  if($rootScope.userid == undefined && $rootScope.groupid == undefined){
+  //   $rootScope.userid = 156;
+  //   $rootScope.groupid = 69;
+  // }
 
     //Logoutfunction for logout in menu
     $scope.logout = function(){
@@ -14,6 +14,8 @@ angular.module('prikl.controllers', ['youtube-embed'])
                   Message.notify("Uitgelogd");
                   //  DB.unregisterDevice()
                   window.localStorage.removeItem('userdevice');
+                  window.localStorage.removeItem('group');
+                  window.localStorage.removeItem('private');
                   $state.go('login');
                 }
         });
@@ -21,7 +23,7 @@ angular.module('prikl.controllers', ['youtube-embed'])
 
   //Functions for new posts
   $scope.photo = function(){
-   Camera.getPicture()
+   Camera.getPicture(0)
    .then(function(imageURI){ 
     $scope.imageURI = imageURI;
     Modals.createAndShow($scope,"photo");
@@ -37,14 +39,16 @@ angular.module('prikl.controllers', ['youtube-embed'])
 })
 
 //Controller for Login/Activate/RegisterDevice/Tokencheck
-.controller('LoginCtrl', function($scope,$rootScope,$state,AuthenticationService,FileTransferService,Camera,Message) {
+.controller('LoginCtrl', function($scope,$rootScope,$state,$ionicLoading,AuthenticationService,FileTransferService,Camera,Message) {
   
   $scope.credentials = AuthenticationService.credentials;
   $scope.userinfo = AuthenticationService.userinfo;
   $scope.deviceinfo = AuthenticationService.deviceinfo;
+  $scope.noConnection = false;
 
   $scope.checkToken = function(){
     var userdevice = window.localStorage.getItem('userdevice');
+     $scope.noConnection = false;
     if(userdevice != undefined){
       //If token-userid pair matches DB, go to pinboard and set userid + groupid
       //If token mismatches remove it from localstorage and go to login
@@ -55,9 +59,15 @@ angular.module('prikl.controllers', ['youtube-embed'])
         $rootScope.groupid = userdevice.group_id;
         $state.go('app.allreactions');
       },function(error){
-        //token mismatch 
-        Message.notify("Error:</br>"+error);
-        window.localStorage.removeItem('userdevice');
+        //token mismatch
+        if(error == 467){
+          $ionicLoading.show({template:"Tokenfout</br>Log opnieuw in",duration:3000});
+          window.localStorage.removeItem('userdevice');
+          $state.go('login');
+        }else{
+          $scope.noConnection = true;
+          $ionicLoading.show({template:error,duration:3000});
+        }
       });
     }else{
       $state.go('login');
@@ -66,10 +76,11 @@ angular.module('prikl.controllers', ['youtube-embed'])
 
   //Verify useraccount mail and password
   $scope.verifyAccount = function(){
-    Message.loading("Inloggen");
+    $ionicLoading.show({template:"Inloggen"});
     AuthenticationService.verifyAccount($scope.credentials)
     .then(function(response){
-     Message.loadingHide().then(function(){
+    
+     $ionicLoading.hide();
 
       AuthenticationService.userinfo.userid = response.data.iduser;
       AuthenticationService.userinfo.groupid = response.data.groupid;
@@ -84,32 +95,38 @@ angular.module('prikl.controllers', ['youtube-embed'])
           $scope.credentials.pw = "";
           $state.go('activate');
         }
-      });
+    
+
    }, function(error){
-    Message.loadingHide().then(function(){
-      Message.notify(error);
-    });
+    console.log(error);
+    $ionicLoading.hide();
+    $ionicLoading.show({template:error,duration:2000});
   });
   }
 
   $scope.registerDevice = function(){
-   if(AuthenticationService.deviceinfo.pushid == ''){
-      //Browsers and devices won't get a DeviceID
       $rootScope.userid = AuthenticationService.userinfo.userid;
       $rootScope.groupid = AuthenticationService.userinfo.groupid;
-      Message.notify("No Push ID <br/> User:"+$rootScope.userid+",Group:"+$rootScope.groupid);
+
+   if(AuthenticationService.deviceinfo.pushid == ''){
+      //Browsers and devices won't get a DeviceID
+
+      $ionicLoading.show({template:"Geen Push ID verkregen",duration:1000});
       $state.go('app.allreactions');
     }else{
       //Registerdevice, send DeviceID(From Googles/Apples Cloud Messaging Service) to server,
       //server generates token, device stores this token in localstorage
  
+      $ionicLoading.show({template:"Apparaat registreren"});
       AuthenticationService.registerDevice($scope.userinfo, $scope.deviceinfo)
       .then(function(response){
+        $ionicLoading.hide();
         window.localStorage.setItem('userdevice', JSON.stringify(response.data));
         var userdevice = angular.fromJson(window.localStorage.getItem('userdevice'));
         $state.go('app.allreactions');
       },function(error){
-        Message.notify(error);
+        $ionicLoading.hide();
+        $ionicLoading.show({template:error,duration:3000});
       });
     }
   }
@@ -117,20 +134,18 @@ angular.module('prikl.controllers', ['youtube-embed'])
   //Activate account with new password and profilepic
   $scope.activateAccount = function(){
     var activate = function(profilepic){
-      Message.loading("Account activeren");
-
+      $ionicLoading.show({template:"Account activeren"});
       AuthenticationService.activateAccount($scope.credentials,profilepic)
       .then(function(response){
-       Message.loadingHide().then(function(){
+        $ionicLoading.hide();
         //Account activated -> register device
         AuthenticationService.userinfo.userid = response.data.iduser;
         AuthenticationService.userinfo.groupid = response.data.groupid;
         $scope.registerDevice();
-      });
+ 
      }, function(error){
-      Message.loadingHide().then(function(){
-        Message.notify(error);
-      });
+        $ionicLoading.hide();
+        $ionicLoading.show({template:error,duration:3000});
     });
     }
 
@@ -143,17 +158,14 @@ angular.module('prikl.controllers', ['youtube-embed'])
           }
         });
     }else{
-      Message.loading("Profielfoto uploaden");
+      $ionicLoading.show({template:"Profielfoto uploaden"});
       FileTransferService.uploadProfilePic($scope.userinfo.profilepic)
       .then(function(filename){
-        Message.loadingHide().then(function(){
-          activate(filename);
-        })
+        $ionicLoading.hide();
+        activate(filename);
       },function(error){
-        Message.loadingHide().then(function(){
-          Message.notify(error);
-        });
-        console.log("uploaderror");
+        $ionicLoading.hide();
+        $ionicLoading.show({template:error,duration:3000});
         console.log(error);
       });
     }  
@@ -162,7 +174,7 @@ angular.module('prikl.controllers', ['youtube-embed'])
 
   //Create new profilephoto
   $scope.getPhoto = function (){
-   Camera.getPicture()
+   Camera.getPicture(1)
    .then(function(imageURI){ 
     $scope.userinfo.profilepic = imageURI;
   },function(error){
@@ -171,13 +183,17 @@ angular.module('prikl.controllers', ['youtube-embed'])
  } 
 })
 
-.controller('PrikLCtrl', function($state, $scope, Camera, Modals,$timeout,PostService,$rootScope,Message, $ionicSideMenuDelegate,$ionicSlideBoxDelegate) {
+.controller('PrikLCtrl', function($state, $scope, Cache, Camera, Modals,$timeout,PostService,
+  $rootScope,Message, $ionicLoading, $ionicSideMenuDelegate,$ionicSlideBoxDelegate) {
    
+   $scope.loading = false;
    $scope.prikls = [];
+
    $ionicSideMenuDelegate.canDragContent(false);
    $scope.$on('$stateChangeStart', 
     function(event, toState, toParams, fromState, fromParams){ 
       if(fromState.name == "app.prikls"){
+         // Cache.put("prikls",$scope.prikls);
           $ionicSideMenuDelegate.canDragContent(true);
      }
    });
@@ -187,7 +203,11 @@ angular.module('prikl.controllers', ['youtube-embed'])
    $rootScope.prikldate =  $scope.prikls[index].prikl_date;
       for (var i = $scope.prikls.length - 1; i >= 0; i--) {
         if($scope.prikls[i].prikl_type == "youtube"){
+          try{
           $scope.prikls[i].youtube.player.pauseVideo();
+          }catch(ex){
+          //console.log(ex);
+          }
         }
       };
   }
@@ -202,9 +222,25 @@ angular.module('prikl.controllers', ['youtube-embed'])
 
   $scope.viewPhoto = function(serverpath,filename){
       Modals.createAndShow($scope,"photoview");
-      console.log($rootScope.server + serverpath + filename);
+      //console.log($rootScope.server + serverpath + filename);
       $scope.photourl = $rootScope.server + serverpath + filename;
 }
+
+   $scope.openlink = function(link){
+    window.open(link, '_blank', 'location=yes');
+  }
+
+  $scope.openyoutube = function(ytprikl){
+
+    if($scope.youtubeAndroid){
+      $scope.youtubeid = ytprikl.prikl_url;
+      Modals.createAndShow($scope,"youtube");
+
+    }else{
+      ytprikl.youtube.player.playVideo();
+    }
+
+  }
 
 
   $scope.playerVars = {
@@ -216,45 +252,56 @@ angular.module('prikl.controllers', ['youtube-embed'])
     cc_load_policy:0
 };
 
-  $scope.loading = false;
+
             
 
   $scope.loadPrikls = function(){
 
+
+
+
+  $scope.youtubeAndroid=false;
   //iOS BUG Iframe hides when user changes slide -> Quickfix custom playbutton + youtubeimage as image background
-        try{
-        $scope.hidePlayButton = false;
-        if(device.platform == "Android"){
-            $scope.hidePlayButton = true;
+      try{
+        //Open Modal for youtube in Android and iPads, these devices uses iframes
+        if(device.platform == "Android" || device.name.indexOf("iPad") > -1){
+         
+            $scope.youtubeAndroid=true;
         }
       }catch(ex){
         console.log(ex);
       }
 
+      //If there are prikls in cache load them
+  /* if(Cache.get('prikls') != null) {
+    $scope.prikls = Cache.get('prikls');
+   } */
+
+
   $scope.loading = true;
     PostService.getPrikls().then(
       function(prikls){
-        console.log(prikls);
        $scope.loading = false;
        $scope.prikls = prikls;
-       $rootScope.prikldate =  $scope.prikls[0].prikl_date;
+           if($scope.prikls[0] != undefined){
+            $rootScope.prikldate =  $scope.prikls[0].prikl_date;
+           }
        $ionicSlideBoxDelegate.update();
       },function(error){
-        Message.notify(error);
+       $scope.loading = false;
+       $ionicLoading.show({template:error,duration:3000});
       }
     );
   }
 
-   $scope.openlink = function(link){
-    window.open(link, '_blank', 'location=yes');
-  }
+
 
   
   $scope.react = function(reacttype,priklid){
 
     $scope.priklid = priklid;
     if(reacttype == "pic"){
-        Camera.getPicture()
+        Camera.getPicture(0)
         .then(function(imageURI){ 
           $scope.imageURI = imageURI;
           Modals.createAndShow($scope,"photo");
@@ -269,43 +316,55 @@ angular.module('prikl.controllers', ['youtube-embed'])
   
 })
 
-.controller('PinboardCtrl',function($scope,$rootScope,$timeout,PostService,Cache,Message,Modals){
+.controller('PinboardCtrl',function($scope,$state,$filter,$rootScope,$timeout,$ionicLoading,PostService,Cache,Message,Modals){
   $scope.noMoreItemsAvailable = false;
   $scope.noConnection = false;
   $scope.posts = [];
   $scope.loading = false;
   $scope.posts.total = 0; 
-
- 
-
   
   $scope.$on('$stateChangeStart', 
     function(event, toState, toParams, fromState, fromParams){ 
       if(fromState.name == "app.myreactions"){
        Cache.put("private",$scope.posts);
      }else if(fromState.name == "app.allreactions"){
+
        Cache.put("group",$scope.posts);
      }
    });
 
   //If there are posts in cache load them
   $scope.load = function(pinboard){
+
    if(Cache.get(pinboard) != null) {
+    $scope.loading = true;
     $scope.posts = Cache.get(pinboard);
     for (var i = $scope.posts.length - 1; i >= 0; i--) {
       $scope.totalposts += $scope.posts[i].posts.length;
     };
+      $scope.loading = false;
   } 
+
+//refreshpinboard
+$scope.refresh(pinboard);
 }
     /*Refreshfunction(when user pulls to refresh) check if there are new posts with postid from the newest post, 
     if there are create new date object with date-month-year and check if an array exists with this date, if not
       create an new array for these or this post and put it in front of the array(unshift)*/
-    $rootScope.refresh = function(pinboard){    
+    $scope.refresh = function(pinboard){
+      //Moet anders
+      if($scope.posts[0] == undefined){
+        $scope.$broadcast('scroll.refreshComplete');
+      }{
+      
+      var lastpostid = $scope.posts[0].posts[0].idposts;
       $scope.loading = true;
-      PostService.getNewPosts(pinboard,$scope.posts[0].posts[0].idposts)
+    
+      PostService.getNewPosts(pinboard,lastpostid)
       .then(function(posts){
+         $scope.loading = false;
        if(posts == "NOPOSTS"){ 
-        Message.notify("Geen nieuwe posts");
+      // $ionicLoading.show({template:"Geen nieuwe posts",duration:500});
       }else{
         for (var i = 0; i < posts.length; i++){
           var date = new Date(posts[i].post_date);
@@ -321,30 +380,30 @@ angular.module('prikl.controllers', ['youtube-embed'])
           }
           $scope.totalposts++; 
         }
-        $state.go('app.prikls');
-        $timeout(function(){
-          if(pinboard == "group"){
-           $state.go('app.allreactions');
-         }else{
-           $state.go('app.myreactions');
-
-         }
-       },200);
       }
-      $scope.loading = false;
       $scope.$broadcast('scroll.refreshComplete');
     },function(error){
-
-      Message.notify(error);
+       $scope.loading = false;
+       $scope.noConnection = true;
+       $ionicLoading.show({template:error,duration:3000});
     });
+
+}
+    
+}
+
+$scope.retry = function(pinboard){
+  $scope.noConnection = false;
+  $scope.loadMore(pinboard);
 }
 
 $scope.loadMore = function(pinboard) { 
   if(!$scope.noMoreItemsAvailable && !$scope.loading && !$scope.noConnection){
    $scope.loading = true;
 
-   PostService.getPosts(pinboard,$scope.posts.total,10)
+   PostService.getPosts(pinboard,$scope.posts.total,5)
    .then(function(posts){
+
                         //Divide posts per date, for every post create new dateobject with time 00:00:00, check
                         //if there is a object with same date, if there is not create a object with an array for this date
                         //"posts":[ { date : "12 october 2014" , posts : [post,post,post,post] },
@@ -354,9 +413,11 @@ $scope.loadMore = function(pinboard) {
                         }
                         else{
                           for (var i = 0; i < posts.length; i++){
+
                             var date = new Date(posts[i].post_date);
                             date = new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), 0, 0, 0, 0);
                             var lastdate;
+
                             if($scope.posts.length >0){
                               lastdate = $scope.posts[$scope.posts.length-1].date;
                             }
@@ -375,7 +436,9 @@ $scope.loadMore = function(pinboard) {
                         $scope.$broadcast('scroll.infiniteScrollComplete');
                         $scope.$broadcast('scroll.resize');
                       },function(error){
-                        Message.notify("Error:</br>"+error);
+                        $scope.loading = false;
+                        $scope.noConnection = true;
+                        $ionicLoading.show({template:error,duration:3000});
                       });
 }
 }
@@ -407,7 +470,7 @@ $scope.deletepost =function(postid){
         Cache.put("group",groupposts);
       },500);
       },function(error){
-        Message.notify(error);
+        $ionicLoading.show({template:error,duration:3000});
       });
   }
 });
@@ -415,48 +478,48 @@ $scope.deletepost =function(postid){
 
   //Count chars for fontsize
   $scope.countchars = function(textlength) {
-    var s = 70 - (textlength*4);
+    var s = 70 - (textlength*2);
     return s + "px";
   };
 
 
   $scope.viewPhoto = function(serverpath,filename){
     Modals.createAndShow($scope,"photoview");
-    console.log($rootScope.server + serverpath + filename);
+   // console.log($rootScope.server + serverpath + filename);
     $scope.photourl = $rootScope.server + serverpath + filename;
   }
 
   $scope.showPrikl = function(priklid){
+    //Uitgebreider maken?
     PostService.getSinglePrikl(priklid)
     .then(function(prikl){
-      console.log(prikl);
-      Message.notify(prikl[0].prikl_date + "</br>" +prikl[0].prikl_title)
+
+      var priklinfo = "PrikL van "+$filter('date')(prikl[0].prikl_date,'EEEE d MMMM')+ 
+      ":<br><b>" +prikl[0].prikl_title + "</b><br>" + prikl[0].prikl_content;
+        $ionicLoading.show({template:priklinfo,duration:3000});
     },function(error){
-      Message.notify(error);
+       $ionicLoading.show({template:error,duration:3000});
     });
   }
 })
 
-.controller('AccountCtrl',function($scope,PostService,Message){
- $scope.loading=false;
+.controller('AccountCtrl',function($scope,$ionicLoading,PostService,Message){
+ 
+
   $scope.loadAccountData = function(){
-     $scope.loading=true;
+      $ionicLoading.show({template:"Accountgegevens laden"});
       PostService.getAccountData()
   .then(function(userdata){
-    console.log(userdata);
-    $scope.loading=false;
+    $ionicLoading.hide();
     $scope.account = userdata[0];
   },function(error){
-    $scope.loading=false;
-    Message.notify(error);
+    $ionicLoading.hide();
+    $ionicLoading.show({template:error,duration:3000});
   });
   }
-
-
-
 })
 
-.controller('PhotoPostCtrl', function($scope,$state,$rootScope,PostService,FileTransferService,Message){
+.controller('PhotoPostCtrl', function( $ionicSideMenuDelegate,$scope,$timeout,$state,$rootScope,PostService,FileTransferService,Message){
 
  $scope.post = function(){
    Message.question("Fotobericht","Iedereen mag het zien",function(pblic){
@@ -467,14 +530,37 @@ $scope.deletepost =function(postid){
       if($scope.photomodal.posttext == undefined){$scope.photomodal.posttext = "";}
       PostService.addPost($scope.priklid,$scope.photomodal.posttext,"pic",filename,pblic)
       .then(function(response){
-       $scope.photomodal.remove();
+
+          $ionicSideMenuDelegate.canDragContent(true);
+      
+      //DIRTY QUICKFIX, DOM WON'T LOAD IMAGES PROPERLY ON ALLREACTIONS AFTER UPLOADING
+      $state.go('app.account');
+      $timeout(function(){
+        if(pblic){
+           Message.loading("Fotobericht uploaden");
+        $state.go('app.allreactions');
+          $timeout(function(){
+             Message.loading("Fotobericht uploaden");
+            $state.go('app.account');
+               $timeout(function(){
+                 Message.loading("Fotobericht uploaden");
+        $state.go('app.allreactions');
+
+       Message.loadingHide();
+
+      $scope.photomodal.remove();
+       Message.notify("Fotobericht opgeslagen");
+
+                },300);
+          },300);
+      }else{
        Message.loadingHide();
        Message.notify("Fotobericht opgeslagen");
-       if(pblic){
-        $state.go('app.allreactions');
-      }else{
+      $scope.photomodal.remove();
         $state.go('app.myreactions');
       }
+      },100);
+
     },function(error){
       Message.notify(error);
     });
@@ -487,21 +573,29 @@ $scope.deletepost =function(postid){
 })
 
 
-.controller('TextPostCtrl', function($scope,$timeout,$state,$rootScope,PostService,Message){
+.controller('TextPostCtrl', function($ionicSideMenuDelegate,$scope,$timeout,$state,$rootScope,PostService,Message){
  $scope.post = function(){
   Message.question("Tekstbericht","Iedereen mag het zien",function(pblic){
     Message.loading("Tekstbericht versturen");
     if($scope.priklid == undefined){$scope.priklid = 0;}
     PostService.addPost($scope.priklid,$scope.textmodal.posttext,"text","",pblic)
     .then(function(){
-      $scope.textmodal.remove();
-      Message.loadingHide();
-      Message.notify("Tekstbericht opgeslagen");
-      if(pblic){
+      
+
+          $ionicSideMenuDelegate.canDragContent(true);
+      //Quickfix ga naar andere view om daarna refreshfunctie aan te roepen
+      $state.go('app.account');
+      $timeout(function(){
+        if(pblic){
         $state.go('app.allreactions');
       }else{
         $state.go('app.myreactions');
       }
+       $scope.textmodal.remove();
+       Message.loadingHide();
+       Message.notify("Tekstbericht opgeslagen");
+      },500);
+      
     },function(error){
       Message.notify(error);
     });
@@ -514,7 +608,7 @@ $scope.deletepost =function(postid){
   $scope.post = function(){
     PostService.addFeedback($scope.feedbackmodal.posttext)
     .then(function(){
-      Message.notify("Bedankt voor je feedback.</br> Je bericht wordt zo spoedig mogelijk in behandeling genomen.");
+      Message.notify("Bedankt voor je feedback.<br> Je bericht wordt zo spoedig mogelijk in behandeling genomen.");
       $scope.feedbackmodal.remove();
     },function(error){
       Message.notify(error);

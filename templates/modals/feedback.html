@@ -5,7 +5,7 @@
            <button class="button button-primary button-clear" ng-click="post()" ng-disabled="feedbackmodal.posttext==undefined||feedbackmodal.posttext.length<2">Verzend</button>
         </ion-header-bar>
         <ion-content>
-        <textarea placeholder="Voer hier zo uitgebreid mogelijk jouw probleem in" rows="10" maxlength="500" ng-model="feedbackmodal.posttext">
+        <textarea placeholder="Typ hier" rows="10" maxlength="500" ng-model="feedbackmodal.posttext">
         </textarea>
 
         <p>{{500 - feedbackmodal.posttext.length}} tekens over</p>

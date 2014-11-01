@@ -1,0 +1,13 @@
+<ion-modal-view class="youtubemodal">
+        <ion-header-bar class="bar bar-header bar-dark">
+         <button class="button button-primary button-clear" style="float:right;" ng-click="youtubemodal.remove()">Klaar</button>
+        </ion-header-bar>
+         <ion-content has-header="true" padding="true">
+     
+        <div class="youtube-container">
+        	  <youtube-video video-id="youtubemodal.youtubeid" player="youtubemodal.youtube.player" player-vars="playerVars">
+              </youtube-video>
+          </div> 
+          </ion-content>
+
+</ion-modal-view>

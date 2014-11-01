@@ -9,27 +9,26 @@ angular.module('prikl.services', ['angular-md5'])
                 url: url,
                 method: "POST",
                 transformRequest: transformAsPost,
-                data: data
+                data: data,
+                timeout: 5000
               })
                   .then(function(response) {
                     return response;
-                    /*  if (typeof response.data === 'object') {
-                          return response;
-                      } else {
-                          // invalid response
-                          console.log("INVALID RESPONSE");
-                          console.log(response);
-                          return $q.reject(response);
-                      }*/
                   }, function(response) {
-                      console.log(response);
-                      // something went wrong
-                          return $q.reject(response.statusText);
+                    if(response.status == 0){
+                      return $q.reject("Kan niet verbinden met server");
+                    }
+                    else if(response.status == 467){
+                      return $q.reject(response.status);
+                    }else if(response.status < 600){
+                      return $q.reject(response.statusText);
+                    }else{
+                      return $q.reject("Serverfout:<br>"+response.status+", "+response.statusText);
+                    }
                 });
       }
 
       var verifyAccount = function(credentials){
-
         var data = {"mail":credentials.mail,"pw":md5.createHash(credentials.pw)};
         var url = $rootScope.server + "index.php/serve/verifyAccount";
         return postrequest(data, url);
@@ -78,16 +77,17 @@ angular.module('prikl.services', ['angular-md5'])
 .factory('PostService', function ($q, $http, $rootScope){
 
   var jsonpRequest = function(url){
-    console.log(url);
     var deferred = $q.defer();
-          $http.jsonp(url)
+          $http.jsonp(url,{timeout:5000})
                 .success(function(data) {
                   deferred.resolve(data);
-                  console.log(data);
                 })
-                .error(function(error){
-                  console.log(error);
-                  deferred.reject(error);
+                .error(function(data, status, headers, config){
+                   if(status == 0){
+                     deferred.reject("Kan niet verbinden met server");
+                    }else{
+                     deferred.reject("Kan niet verbinden met server</b>Status:"+status);
+                    }
                 });
                 return deferred.promise;
     }
@@ -141,7 +141,7 @@ angular.module('prikl.services', ['angular-md5'])
     var addFeedback = function(text) {
     var url = $rootScope.server + "index.php/serve/addFeedback?userid="+$rootScope.userid+"&groupid="+$rootScope.groupid+
     "&feedback="+text+"&callback=JSON_CALLBACK";
-    console.log(url);
+  
     return jsonpRequest(url);
     }
 
@@ -240,26 +240,34 @@ angular.module('prikl.services', ['angular-md5'])
 
 
 .factory('Message', function ($q,$ionicPopup, $ionicLoading, $ionicActionSheet, $timeout) {
-      var loading = function(text){
+    var loading = function(text){
     $ionicLoading.show({
-      template: text+"</br><i class='icon ion-loading-b'></i>",
+      template: text+"<br><i class='icon ion-loading-b'></i>",
       showBackdrop: true,
-      animation: 'fade-in',
+      animation: 'fade-in'
     });
   }
 
- var loadingHide = function(){
-    return $timeout(function(){
-      $ionicLoading.hide();
-    },500);
+  var loadingHide = function(){
+    $ionicLoading.hide();
   }
   
+
   var notify = function(message){
     $ionicLoading.show({
       template: message,
       showBackdrop: true,
       animation: 'fade-in',
       duration: 1500
+    }); 
+  }
+
+  var error = function(message){
+    $ionicLoading.show({
+      template: message,
+      showBackdrop: true,
+      animation: 'fade-in',
+      duration: 3000
     }); 
   }
 
@@ -313,6 +321,17 @@ angular.module('prikl.services', ['angular-md5'])
                               });
                      
                         break;
+                        case "youtube":
+                          $ionicModal.fromTemplateUrl('templates/modals/youtube.html', {
+                                scope: scope
+                              }).then(function(modal) {
+                                scope.youtubemodal = modal;
+                                scope.youtubemodal.playervars = scope.playervars;
+                                scope.youtubemodal.youtubeid = scope.youtubeid;
+                                scope.youtubemodal.show();
+                              });
+                     
+                        break;
                         case "text":
                            $ionicModal.fromTemplateUrl('templates/modals/textpost.html', {
                                   scope: scope, focusFirstInput: true
@@ -350,7 +369,7 @@ angular.module('prikl.services', ['angular-md5'])
 //Camerafactory, asks user for source(camera or album) and returns the url of image
 .factory('Camera', function ($q, $ionicActionSheet) {
   return {
-    getPicture: function(source) {
+    getPicture: function(direction) {
 
       var q = $q.defer();
 
@@ -369,6 +388,9 @@ angular.module('prikl.services', ['angular-md5'])
                     buttonClicked: function(source) {
                       //source 0=Camera 1=Photoalbum
                       if(source==1){source=0;}else{source=1;}
+
+                       var popover = new CameraPopoverOptions(0, 0, 300, 100, Camera.PopoverArrowDirection.ARROW_LEFT);
+     
                        var options = { 
                                   quality: 100,
                                   destinationType: 1, //0:DATA_URL,1:FILE_URI,2:NATIVE_URI
@@ -379,7 +401,8 @@ angular.module('prikl.services', ['angular-md5'])
                                   correctOrientation: true,
                                   targetWidth:1000,
                                   targetHeight:1000,
-                                  cameraDirection:1
+                                  cameraDirection:direction,
+                                  popoverOptions  : popover
                               };
 
                     navigator.camera.getPicture(function(result) {
@@ -422,7 +445,7 @@ angular.module('prikl.services', ['angular-md5'])
         }
         function errorHandler(error) {
             console.error('PushProcessingError: '+error);
-            Message.notify("Pushnotification Error");
+            Message.notify("Niet aangemeld voor pushnotificaties");
         }
 
         return {
@@ -445,7 +468,6 @@ angular.module('prikl.services', ['angular-md5'])
             }
         }
 })
-
 
 //Transform request as form post
 .factory("transformAsPost",function() {
@@ -518,7 +540,8 @@ function onNotificationGCM(e) {
                 // if the notification contains a soundname, play it.
                 //var my_media = new Media("/android_asset/www/"+e.soundname);
                 //my_media.play();
-                alert(e.payload.message);
+
+                window.location = "#/app/prikls";
             }
             else
             {   
@@ -552,7 +575,7 @@ onNotificationAPN  = function(event) {
 
     if ( event.alert )
     {
-        navigator.notification.alert(event.alert);
+       // navigator.notification.alert(event.alert);
     };
 
     if ( event.sound )
@@ -567,3 +590,20 @@ onNotificationAPN  = function(event) {
         pushNotification.setApplicationIconBadgeNumber(successHandler, errorHandler, event.badge);
     };
 };
+
+function checkConnection() {
+    var networkState = navigator.connection.type;
+
+    var states = {};
+    states[Connection.UNKNOWN]  = 'Onbekende';
+    states[Connection.ETHERNET] = 'Ethernet';
+    states[Connection.WIFI]     = 'WiFi';
+    states[Connection.CELL_2G]  = '2G';
+    states[Connection.CELL_3G]  = '3G';
+    states[Connection.CELL_4G]  = '4G';
+    states[Connection.CELL]     = 'Mobiel';
+    states[Connection.NONE]     = 'Geen';
+
+    return states[networkState];
+}
+

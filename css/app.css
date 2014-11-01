@@ -6,6 +6,11 @@
   border-radius:0;
 }
 
+
+.title{
+  font-weight:300;
+}
+
 /*login*/
 .loadingscreen{
 background-color:#222;
@@ -18,6 +23,7 @@ height:100%;
   position: absolute;
   color:white;
   line-height: 30px;
+  font-size: 0.8em;
   top:50%;
   left:50%;
   margin:-90px 0 0 -50px;
@@ -123,14 +129,11 @@ padding-bottom:10px;
 
 
 .pinboard .item-divider {
-  font-weight: 400;
-  font-size: 0.9em;
-
-  margin:-1px 0;
+  font-weight:200;
   text-align: center;
+  background-color:transparent;
   width:100%;
   border: 0;
-  background-color: #1a1a1a;
   color: white; }
 
 .customavatar {
@@ -158,16 +161,30 @@ padding-bottom:10px;
   font-weight: 300;
 }
 
+
+
 .privatetime {
   width: 100%;
-  height: 30px;
-  background-color: #1a1a1a;
-  color: white;
-  padding: 1.5%;
+  height: 50px;
+  background-color: #d7d7d7;
+  padding:5px;
   margin: 0; }
 
+.privatetime div{
+  text-align: center;
+  line-height: 40px;
+  font-weight: 300;
+}
+
+.privatetime i{
+  float:left;
+  line-height: 40px;
+  font-size: 30px;
+}
+
 .privatetime span {
-  float: right; }
+  float: right;
+  line-height: 40px }
 
 .card {
   margin: 70px 3.5% 30px 3.5%;
@@ -178,6 +195,10 @@ padding-bottom:10px;
   padding: 0;
   display: block;
   overflow: visible; }
+
+  .privatecard{
+    margin:10px 3.5% 20px 3.5%;
+}
 
 
 .bugcard{
@@ -194,7 +215,7 @@ padding-bottom:10px;
   line-height:40px;
   width:60px;
   color:white;
-  border-bottom-right-radius: 50%;
+  border-bottom-right-radius: 100%;
   background-color:#111;
   border:1px solid #aaa;
   border-left:none;
@@ -232,6 +253,11 @@ padding-bottom:10px;
   background-color: rgba(0, 0, 0, 0.8);
   color: white; }
 
+.deletepost{
+}
+
+/*Photomodal*/
+
 .photoprev{
   height: 300px;
   width:300px;
@@ -256,14 +282,38 @@ padding-bottom:10px;
    color: white;  
 }
 
- .photoviewmodal{
+
+
+ .photoviewmodal,.youtubemodal{
   top: 0 ;
   bottom: 0 ; 
   left: 0 ;
   right: 0 ;
-  background-color:rgba(0,0,0,0.5);
+  background-color:rgba(0,0,0,0.6);
   width: 100% ;
   }
+
+  .youtubemodal{
+    background-color:black;
+  }
+
+
+  .youtube-container {
+
+    position: relative;
+    padding-bottom: 56.25%;
+    padding-top:65%;
+    height: 0; 
+    overflow: hidden;
+}
+ 
+.youtube-container iframe{
+    position: absolute;
+    top: 0px;
+    left: 0;
+    width: 100%;
+    height: 100%;
+}
 
 .photoviewmodal div{
   background-size:100% auto;
@@ -280,6 +330,21 @@ padding-bottom:10px;
   width: 100%;
   height: 100%; }
 
+.noprikls{
+  position: absolute;
+  color:white;
+  font-size: 150px;
+  left:50%;
+  top:50%;
+  margin:-25% 0 0 -25%;
+  width:50%;
+  height:5%;
+  text-align: center;
+}
+.noprikls p{
+  font-size:10px;
+}
+
 .priklslidebox{
   height: 100%;
   margin:0; }
@@ -288,22 +353,14 @@ padding-bottom:10px;
   overflow: hidden;
   padding-top: 43px; }
 
-.priklpic {
-  height:70%;
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat; 
-}
 
 .slide-next,.slide-previous{
   position: absolute;
-  color:rgba(255,255,255,0.5);
-  font-size: 40px;
-  background-color:rgba(0,0,0,0.5);
-  border-radius:10%;
+  color:white;
+  font-size: 20px;
   top:40%;
   margin:5px;
-  margin-top: -25px;
+  margin-top: -15px;
   padding:5px;
   z-index: 10;
 }
@@ -312,18 +369,17 @@ padding-bottom:10px;
   right:0;
 }
 
-.priklurl{
-  height: 70%;
+.priklurl, .priklpic{
+  height: 65%;
   background-size: cover;
-  background-position: center;
+  background-position: top;
   background-repeat: no-repeat;
-
 }
 
-.priklbutton{
+.priklbutton, .ytplaybutton, .ytloading{
   position: absolute;
   color:white;
-  background-color: rgba(0,0,0,0.7);
+  background-color:rgba(0,0,0,0.7);
   top:40%;
   left:50%;
   border-radius: 50%;
@@ -331,24 +387,25 @@ padding-bottom:10px;
   height: 70px;
   z-index: 10;
   margin:-35px 0 0 -35px;
-  font-size: 40px;
-  padding:17px;
-  padding-left:20px;
+  font-size: 45px;
+  padding-top:13px;
+  padding-left:15px;
 }
 
-.priklbutton i{
-  padding-left:35px;
-  padding-top:25px;
+.ytloading{
+  padding:13px;
 }
+
+.ytplaybutton{
+  padding-left: 26px;
+}
+
 
 .priklyt {
   background-repeat: no-repeat;
   background-size: cover;
   background-position: center;
-    position: relative;
-    padding-bottom: 56.25%;
-    padding-top: 0; 
-    height:100%; 
+    height:62%; 
     overflow: hidden;
 }
  
@@ -356,11 +413,7 @@ padding-bottom:10px;
 .priklyt object,
 .priklyt embed,
 .priklyt youtube-video {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 68%;
+   display: none;
 }
 
 
@@ -378,43 +431,50 @@ padding-bottom:10px;
   bottom: 0px;
   z-index: 3;
   font-size: 0.8em;
-  height:30%;
-  min-height: 160px;
+  height:35%;
+  min-height: 180px;
   padding: 10px;
   background-color:black;
   border-top:1px solid white;
 }
 
+
+
+
   .prikltextstyle{
     height: 100%;
+    width: 100%;
+   font-family: "Courier New", Courier, monospace;
+  display: table;
+  }
+
+  .prikltextstyle h1{
+    color:white;
+    font-weight: 700;
+   font-family: "Courier New", Courier, monospace;
   }
 
 
   .prikltextstyle .textje{
-    padding:10%;
-    margin:0 auto;
-    width:100%;
+    display: table-cell;
+    vertical-align: middle;
     text-align: center;
     color:white;
-    position: absolute;
   }
 
-  .textje h1{
-    color:white;
-  }
 
   .priklcontent h2{
     color: white;
+    line-height: 30px;
+    font-size: 22px;
   }
 
 .priklcontent p, .priklcontent span {
   color: white;
-  max-width:70%;
-  min-height:75px;
-  font-weight: 400; }
+  font-weight: 300; }
 
   .priklcontent div{
-    max-width: 70%;
+    max-width: 80%;
   }
 
 .priklreact button {
@@ -426,10 +486,9 @@ padding-bottom:10px;
   border-radius: 50%;
   border-top: 1px solid white;
   border: 1px solid white;
-  width: 75px;
-  height: 75px;
+  width: 60px;
+  height: 60px;
   background-color: black;
-  font-size: 25px;
   color: white; }
 
 .video-container {
@@ -449,7 +508,7 @@ padding-bottom:10px;
 .textpostmodal {
   
   overflow-y:hidden;
-  background-color: rgba(51, 51, 51, 0.9);
+  background-color: #333;
    }
 
 .textpostmodal p{
@@ -458,15 +517,16 @@ padding-bottom:10px;
   width: 100%;
   font-size: 12px;
 }
+.textpostmodal ion-content{
+  padding:15px;
+}
 
 .textpostmodal ion-content textarea {
   background-color: rgba(0, 0, 0, 0);
-  margin:15px;
-  width: 93.8%;
-  margin-right:50px;
-  border-radius: 15px;
-  border-right:1px solid grey;
-  border-left:1px solid grey;
+
+  width:100%;
+  border-radius: 10px;
+  border: 1px solid grey;
   color:white;
   padding: 15px;
   overflow-x: hidden;
@@ -494,15 +554,16 @@ padding-bottom:10px;
   width: 100%; }
 
 .text {
-  padding: 5%;
+  padding: 3%;
   display: table;
    font-family: "Courier New", Courier, monospace;
    font-weight: 600;
   height: 100%;
-  width: 100%;
+  width: 300px;
   text-align: center; }
 
 .text span {
+  max-width: 250px;
   display: table-cell;
   vertical-align: middle; }
 
@@ -530,6 +591,16 @@ padding-bottom:10px;
     margin-top: -100px; 
   } 
 
+  .noprikls{
+    margin-top:-10%;
+  }
+
+  .youtube-container{
+  padding-top:40%;
+}
+
+
+
  .login{
     width:440px;
     margin:0 auto;
@@ -540,15 +611,12 @@ padding-bottom:10px;
   .photo img {
     margin: 0; }
 
-.priklpic, .priklurl{
+.priklpic, .priklurl, .priklyt{
   height:80%;
 }
 
-.priklyt iframe,
-.priklyt object,
-.priklyt embed,
-.priklyt youtube-video {
-    height: 79%;
+.youtube-container{
+  padding-top:20%;
 }
 
   .priklcontent{
@@ -568,6 +636,10 @@ padding-bottom:10px;
     float: left;
     display: block; }
 
+    .privatecard{
+    margin:20px 1.6%;
+}
+
 
   
 
@@ -575,13 +647,23 @@ padding-bottom:10px;
     margin-top: 0; } }
 @media only screen and (min-width: 900px) {
   .card {
-    width: 30%; } 
+    width: 30%; 
+  } 
+
+  .youtube-container{
+  padding-top:10%;
+}
 
 
   }
 @media only screen and (min-width: 1200px) {
   .card {
-    width: 21.6%; } 
+    width: 21.6%; 
+  } 
+
+  .youtube-container{
+  padding-top:0;
+}
 
 
   }

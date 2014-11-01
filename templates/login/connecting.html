@@ -1,7 +1,10 @@
 <ion-view title="Inloggen" class="loadingscreen" ng-init="checkToken()">
-<div>
+<div ng-if="!noConnection">
   <img src="./img/prikl.png"/>
   <i class="icon ion-loading-c"></i>
-  <span>Verbinden</span>
+  <span>Token controleren</span>
 </div>
+ <div ng-if="noConnection">
+
+  <img src="./img/prikl.png"/><button class="button button-small button-assertive" ng-click="checkToken()">Opnieuw</button></div>
 </ion-view>

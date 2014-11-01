@@ -1,6 +1,6 @@
 angular.module('prikl', ['ionic', 'prikl.controllers', 'prikl.services'])
 
-.run(function($ionicPlatform,$rootScope,$state,$timeout,PushProcessingService) {
+.run(function($ionicPlatform,$rootScope,Message,$state,$timeout,PushProcessingService) {
    //URL to servers' root
   $rootScope.server = "http://winspire01.windesheim.nl/";
 
@@ -14,7 +14,7 @@ angular.module('prikl', ['ionic', 'prikl.controllers', 'prikl.services'])
 
     //Register back button
    $ionicPlatform.registerBackButtonAction(function (event) {
-   showMessage.confirm("Afsluiten","Wilt u de app afsluiten",function(yes){
+   Message.question("Afsluiten","Wilt u de app afsluiten",function(yes){
     if(yes){navigator.app.exitApp();}
    });
   }, 100);

@@ -10,16 +10,14 @@
     <ion-content class="has-header darkbackground custombg">
 
      <ion-refresher on-refresh="refresh('group')"
-                     pulling-text="Schuif voor verversen"
-                     refreshing-text="Verversen"
-                     refreshing-icon="ion-loading-c" style="color:#aaa;"
+                     refreshing-icon="ion-ios7-reloading"
                      ng-if="!noConnection">
       </ion-refresher>
     <ion-list class="pinboard" ng-model="listposts">
 
-   <div class="item item-divider item-dark"
+   <div class="item item-divider"
     ng-repeat-start="(date, posts) in posts | orderBy:'date':true">
-          {{posts.date | date:'EEEE, d MMMM'}}
+            {{posts.date | date:'EEEE d MMMM'}}
   </div>
 
       <div class="card"  ng-repeat="post in posts.posts track by $index">
@@ -46,10 +44,10 @@
 
      <div ng-repeat-end></div>
     </ion-list>
-    <ion-infinite-scroll ng-if="!noMoreItemsAvailable && !noConnection" on-infinite="loadMore('group')" distance="20%"></ion-infinite-scroll>
-
+    <ion-infinite-scroll icon="ion-loading-d" ng-if="!noMoreItemsAvailable && !noConnection" on-infinite="loadMore('group')" distance="20%"></ion-infinite-scroll>
+<div class="item item-divider" style="background-color:transparent;width:100%;color:white;border:0;text-align:center;font-weight:200;" ng-if="posts.length==0 && !loading && !noConnection"><span>Geen berichten</span></div>
   <div class="item item-divider" style="background-color:#333;width:100%;color:white;border:0;text-align:center;" ng-if="noMoreItemsAvailable"><i class=" icon ion-checkmark" ></i></div>
-  <div class="item item-divider" style="background-color:#333;width:100%;color:white;border:0;text-align:center;" ng-if="noConnection">Geen verbinding</div>
+  <div class="item item-divider darkbackground" ng-if="noConnection"><button class="button button-assertive button-block" ng-click="retry('group')">Probeer opnieuw</button></div>
 
   </ion-content>
 
