@@ -273,18 +273,18 @@ angular.module('prikl.services', ['angular-md5'])
 
   var question = function(title,body,callback){
     $ionicPopup.show({
-  title: title, // String. The title of the popup.
-  template: body, // String (optional). The html template to place in the popup body.
+  title: '<p style = "width: 100%; text-align: center; font-weight: bold;">'+title+'</p>', // String. The title of the popup.
+  template: '<p style = "width: 100%; text-align: center;">'+body+'</p>', // String (optional). The html template to place in the popup body.
   buttons: [{ //Array[Object] (optional). Buttons to place in the popup footer.
-    text: "<i class='icon ion-thumbsup'></i>",
+    text: "<b>Ja</b>",
     type: 'button-energized',
     onTap: function(e) {
       // e.preventDefault() will stop the popup from closing when tapped.
       return 1;
     }
   },{
-    text: "<i class='icon ion-thumbsdown'></i>",
-    type: 'button-assertive',
+    text: "<b>Nee</b>",
+    type: 'button-stable',
     onTap: function(e) {
       // Returning a value will cause the promise to resolve with the given value.
       return 0;

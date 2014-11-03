@@ -522,7 +522,7 @@ $scope.deletepost =function(postid){
 .controller('PhotoPostCtrl', function( $ionicSideMenuDelegate,$scope,$timeout,$state,$rootScope,PostService,FileTransferService,Message){
 
  $scope.post = function(){
-   Message.question("Fotobericht","Iedereen mag het zien",function(pblic){
+   Message.question("Fotobericht","Mag iedereen dit zien?",function(pblic){
     Message.loading("Fotobericht uploaden");
     FileTransferService.uploadPhoto($scope.photomodal.photo)
     .then(function(filename){
@@ -575,7 +575,7 @@ $scope.deletepost =function(postid){
 
 .controller('TextPostCtrl', function($ionicSideMenuDelegate,$scope,$timeout,$state,$rootScope,PostService,Message){
  $scope.post = function(){
-  Message.question("Tekstbericht","Iedereen mag het zien",function(pblic){
+  Message.question("Tekstbericht","Mag iedereen dit zien?",function(pblic){
     Message.loading("Tekstbericht versturen");
     if($scope.priklid == undefined){$scope.priklid = 0;}
     PostService.addPost($scope.priklid,$scope.textmodal.posttext,"text","",pblic)
