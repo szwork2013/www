@@ -25,6 +25,17 @@ angular.module('prikl', ['ionic', 'prikl.controllers', 'prikl.services'])
         $rootScope.version = version;
       });
     }
+   
+   //Get deviceinfo
+   try{
+    if(device){
+        $rootScope.device = {platform: device.platform, name: device.name, cordova:device.cordova, 
+          uuid:device.uuid,model:device.model,version:device.version};
+    }
+  }catch(ex){
+    console.log(ex);
+  }
+
 
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
     // for form inputs)

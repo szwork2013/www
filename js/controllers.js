@@ -231,21 +231,15 @@ angular.module('prikl.controllers', ['youtube-embed'])
   }
 
   $scope.openyoutube = function(ytprikl){
-
-    if($scope.youtubeAndroid){
-      $scope.youtubeid = ytprikl.prikl_url;
+      $scope.currentprikl = ytprikl;
+      $scope.youtubeid = ytprikl.prikl_url + "?rel=0";
       Modals.createAndShow($scope,"youtube");
-
-    }else{
-      ytprikl.youtube.player.playVideo();
-    }
-
   }
 
 
   $scope.playerVars = {
     controls: 1,
-    autoplay: 0,
+    autoplay: 1,
     modestbranding: 1,
     showinfo: 0,
     iv_load_policy: 3,
@@ -257,20 +251,6 @@ angular.module('prikl.controllers', ['youtube-embed'])
 
   $scope.loadPrikls = function(){
 
-
-
-
-  $scope.youtubeAndroid=false;
-  //iOS BUG Iframe hides when user changes slide -> Quickfix custom playbutton + youtubeimage as image background
-      try{
-        //Open Modal for youtube in Android and iPads, these devices uses iframes
-        if(device.platform == "Android" || device.name.indexOf("iPad") > -1){
-         
-            $scope.youtubeAndroid=true;
-        }
-      }catch(ex){
-        console.log(ex);
-      }
 
       //If there are prikls in cache load them
   /* if(Cache.get('prikls') != null) {
@@ -298,6 +278,9 @@ angular.module('prikl.controllers', ['youtube-embed'])
 
   
   $scope.react = function(reacttype,priklid){
+    if($scope.youtubemodal){
+      $scope.youtubemodal.youtube.player.pauseVideo();
+    }
 
     $scope.priklid = priklid;
     if(reacttype == "pic"){
@@ -530,6 +513,9 @@ $scope.deletepost =function(postid){
       if($scope.photomodal.posttext == undefined){$scope.photomodal.posttext = "";}
       PostService.addPost($scope.priklid,$scope.photomodal.posttext,"pic",filename,pblic)
       .then(function(response){
+        if($scope.youtubemodal){
+        $scope.youtubemodal.remove();
+      }
 
           $ionicSideMenuDelegate.canDragContent(true);
       
@@ -547,6 +533,7 @@ $scope.deletepost =function(postid){
         $state.go('app.allreactions');
 
        Message.loadingHide();
+          
 
       $scope.photomodal.remove();
        Message.notify("Fotobericht opgeslagen");
@@ -590,6 +577,9 @@ $scope.deletepost =function(postid){
         $state.go('app.allreactions');
       }else{
         $state.go('app.myreactions');
+      }
+      if($scope.youtubemodal){
+        $scope.youtubemodal.remove();
       }
        $scope.textmodal.remove();
        Message.loadingHide();
