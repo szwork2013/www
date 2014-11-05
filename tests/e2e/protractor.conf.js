@@ -40,7 +40,7 @@ exports.config = {
           
 
             //Create Jasmine Reports
-            /*var folderName = (new Date()).toString().split(' ').splice(1, 4).join(' ');
+            var folderName = (new Date()).toString().split(' ').splice(1, 4).join(' ');
             var mkdirp = require('mkdirp');
             var newFolder = "./reports/" + folderName;
             require('jasmine-reporters');
@@ -51,6 +51,6 @@ exports.config = {
               } else {
                 jasmine.getEnv().addReporter(new jasmine.JUnitXmlReporter(newFolder, true, true));
               }
-            });*/
+            });
         }
 };

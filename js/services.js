@@ -40,6 +40,12 @@ angular.module('prikl.services', ['angular-md5'])
         return postrequest(data, url);
       }
 
+       var resetPassword = function(mail){
+        var data = {"mail":mail};
+        var url = $rootScope.server + "index.php/serve/resetPassword";
+        return postrequest(data, url);
+      }
+
       var registerDevice = function(userinfo,deviceinfo){
         var data = {"userid":userinfo.userid,"pushid":deviceinfo.pushid,"platform":deviceinfo.platform};
         var url = $rootScope.server + "index.php/serve/registerDevice";
@@ -67,6 +73,7 @@ angular.module('prikl.services', ['angular-md5'])
         activateAccount: activateAccount,
         registerDevice: registerDevice,
         unregisterDevice: unregisterDevice,
+        resetPassword: resetPassword,
         checkToken: checkToken,
         credentials:credentials,
         userinfo:userinfo,
@@ -83,10 +90,12 @@ angular.module('prikl.services', ['angular-md5'])
                   deferred.resolve(data);
                 })
                 .error(function(data, status, headers, config){
+                  console.log(data,status,headers);
                    if(status == 0){
                      deferred.reject("Kan niet verbinden met server");
-                    }else{
-                     deferred.reject("Kan niet verbinden met server</b>Status:"+status);
+                    }
+                    else{
+                     deferred.reject("Kan niet verbinden met server<br>Status:"+status);
                     }
                 });
                 return deferred.promise;
@@ -132,6 +141,12 @@ angular.module('prikl.services', ['angular-md5'])
       }
     }
 
+    var addProfilePic = function(filename){
+      var url = $rootScope.server + "index.php/serve/addProfilePic?filename="+
+      filename+"&userid="+$rootScope.userid+"&callback=JSON_CALLBACK";
+      return jsonpRequest(url);
+    }
+
     var addPost = function(priklid,text,type,filename,pub) {
     var url = $rootScope.server + "index.php/serve/addPost?userid="+$rootScope.userid+"&groupid="+$rootScope.groupid+"&priklid="+priklid+
     "&text="+text+"&type="+type+"&filename="+filename+"&pub="+pub+"&callback=JSON_CALLBACK";
@@ -150,6 +165,7 @@ angular.module('prikl.services', ['angular-md5'])
      return jsonpRequest(url);
     }
 
+  
     return{
       getPosts: getPosts,
       getNewPosts: getNewPosts,
@@ -158,6 +174,7 @@ angular.module('prikl.services', ['angular-md5'])
       getAccountData:getAccountData,
       getBugs: getBugs,
       addPost: addPost,
+      addProfilePic: addProfilePic,
       addFeedback: addFeedback,
       deletePost: deletePost
     }
@@ -320,6 +337,14 @@ angular.module('prikl.services', ['angular-md5'])
                                 scope.photomodal.show();
                               });
                      
+                        break;
+                        case "newpassword":
+                            $ionicModal.fromTemplateUrl('templates/modals/newpassword.html', {
+                                scope: scope
+                              }).then(function(modal) {
+                                scope.newpasswordmodal = modal;
+                                scope.newpasswordmodal.show();
+                              });
                         break;
                         case "youtube":
                           $ionicModal.fromTemplateUrl('templates/modals/youtube.html', {
