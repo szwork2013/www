@@ -262,6 +262,8 @@ angular.module('prikl.services', ['angular-md5'])
     }); 
   }
 
+  //OERKEBOERKE
+
   var error = function(message){
     $ionicLoading.show({
       template: message,
