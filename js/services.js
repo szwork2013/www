@@ -112,6 +112,11 @@ angular.module('prikl.services', ['angular-md5'])
       return jsonpRequest(url);
     }
 
+    var getComments = function (postid){
+      var url = $rootScope.server + "index.php/serve/getComments?postid="+postid+"&callback=JSON_CALLBACK";
+      return jsonpRequest(url);
+    }
+
     var getPosts = function(pinboard,start,limit) {
       if(pinboard == "user"){
         var url = $rootScope.server + "index.php/serve/getUserPosts?start="+start+"&limit="+limit+"&userid="+$rootScope.userid+"&callback=JSON_CALLBACK";
@@ -138,6 +143,15 @@ angular.module('prikl.services', ['angular-md5'])
      return jsonpRequest(url);
     }
 
+    //set commenttext from ng-bind
+    // var commentText = {}
+
+    var addComment = function(postid,text) {
+    var url = $rootScope.server + "index.php/serve/addPostComment?userid="+$rootScope.userid+"&postid="+postid+"&text="+text+"&callback=JSON_CALLBACK";
+    console.log(url);
+     return jsonpRequest(url);
+    }
+
     var addFeedback = function(text) {
     var url = $rootScope.server + "index.php/serve/addFeedback?userid="+$rootScope.userid+"&groupid="+$rootScope.groupid+
     "&feedback="+text+"&callback=JSON_CALLBACK";
@@ -159,7 +173,9 @@ angular.module('prikl.services', ['angular-md5'])
       getBugs: getBugs,
       addPost: addPost,
       addFeedback: addFeedback,
-      deletePost: deletePost
+      deletePost: deletePost,
+      getComments: getComments,
+      addComment: addComment
     }
 
 })
@@ -357,6 +373,16 @@ angular.module('prikl.services', ['angular-md5'])
                                     }).then(function(modal) {
                                       scope.photoviewmodal = modal;
                                       scope.photoviewmodal.show();
+                                    });
+                              
+                        break;
+                        case "comments":
+                              $ionicModal.fromTemplateUrl('templates/modals/comments.html', {
+                                      scope: scope, focusFirstInput: true
+                                    }).then(function(modal) {
+                                      scope.commentModal = modal;
+                                      scope.commentModal.postid = scope.postIdForComment;
+                                      scope.commentModal.show();
                                     });
                               
                         break;

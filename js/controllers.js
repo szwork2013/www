@@ -2,10 +2,10 @@ angular.module('prikl.controllers', ['youtube-embed'])
 
 .controller('AppCtrl', function($scope,$rootScope, $state, Modals, Camera,Message) {
 
-  //  if($rootScope.userid == undefined && $rootScope.groupid == undefined){
-  //   $rootScope.userid = 156;
-  //   $rootScope.groupid = 69;
-  // }
+   if($rootScope.userid == undefined && $rootScope.groupid == undefined){
+    $rootScope.userid = 227;
+    $rootScope.groupid = 90;
+  }
 
     //Logoutfunction for logout in menu
     $scope.logout = function(){
@@ -317,6 +317,43 @@ angular.module('prikl.controllers', ['youtube-embed'])
      }
    });
 
+  $scope.comments = function(postid){
+    $scope.postIdForComment = postid;
+     Modals.createAndShow($scope,"comments");
+   PostService.getComments(postid).then(function(comments){
+    $scope.postComments = comments;
+    console.log(comments);
+   },function(error){
+    Message.notify(error);
+   });  
+ }
+
+ $scope.close_comment_modal = function()
+ {
+  $scope.postIdForComment = "";
+  $scope.postComments = "";
+  $scope.commentModal.remove(); 
+  console.log($scope.postComments);
+ }
+
+ $scope.comment_on_post = function()
+ {
+    Message.loading("Reactie versturen");
+    console.log($scope.commentModal.commenttext);
+    console.log($scope.commentModal.postid);
+        PostService.addComment($scope.commentModal.postid, $scope.commentModal.commenttext)
+          .then(function(){
+            $scope.commentModal.remove(); 
+            $scope.postComments = [];
+            $scope.comments($scope.postIdForComment);
+            
+            Message.loadingHide();
+          },function(error){
+            console.log(error);
+            
+          });
+ }
+
   //If there are posts in cache load them
   $scope.load = function(pinboard){
 
@@ -466,9 +503,14 @@ $scope.deletepost =function(postid){
     return s + "px";
   };
 
-
   $scope.viewPhoto = function(serverpath,filename){
     Modals.createAndShow($scope,"photoview");
+   // console.log($rootScope.server + serverpath + filename);
+    $scope.photourl = $rootScope.server + serverpath + filename;
+  }
+
+  $scope.getComments = function(postid){
+    Modals.createAndShow($scope,"comments");
    // console.log($rootScope.server + serverpath + filename);
     $scope.photourl = $rootScope.server + serverpath + filename;
   }
@@ -502,6 +544,13 @@ $scope.deletepost =function(postid){
   });
   }
 })
+
+
+// .controller('AccountCtrl',function($scope,$ionicLoading,PostService,Message){
+ 
+//   $scope.close_comment_modal = function()
+  
+// })
 
 .controller('PhotoPostCtrl', function( $ionicSideMenuDelegate,$scope,$timeout,$state,$rootScope,PostService,FileTransferService,Message){
 
@@ -618,3 +667,30 @@ $scope.deletepost =function(postid){
    });  
  }
 })
+
+.controller('BugCtrl', function($scope,PostService,Modals,Message, $timeout){
+
+  $scope.post = function(){
+    PostService.addFeedback($scope.feedbackmodal.posttext)
+    .then(function(){
+      Message.notify("Bedankt voor je feedback.<br> Je bericht wordt zo spoedig mogelijk in behandeling genomen.");
+      $scope.feedbackmodal.remove();
+    },function(error){
+      Message.notify(error);
+    });
+  }
+
+  $scope.feedback = function(){
+    Modals.createAndShow($scope,"feedback");
+  }
+
+  $scope.bugs = function(){
+   PostService.getBugs().then(function(bugs){
+    $scope.bugs = bugs;
+   },function(error){
+    Message.notify(error);
+   });  
+ }
+})
+
+
