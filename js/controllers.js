@@ -278,9 +278,10 @@ angular.module('prikl.controllers', ['youtube-embed'])
 
   
   $scope.react = function(reacttype,priklid){
+    try{
     if($scope.youtubemodal){
       $scope.youtubemodal.youtube.player.pauseVideo();
-    }
+    }}catch(ex){console.log(ex);}
 
     $scope.priklid = priklid;
     if(reacttype == "pic"){
