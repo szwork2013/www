@@ -6,17 +6,21 @@
   
   <ion-nav-buttons side="right">
     <i ng-if="loading" class="loadingheadericon icon ion-ios7-reloading"></i>
+    <button class="button button-clear" ng-disabled="!newProfilePicSet" ng-click="saveProfilePic()">Opslaan</button>
   </ion-nav-buttons>
 
 <ion-content class="has-header darkbackground">
 
-<div class="profilepic" style="background-image: url('{{$root.server}}/images/users/{{account.user_pic}}');" >
+
+
+<div class="accountpic" style="background-image: url('{{account.user_pic}}');" ng-click="getNewProfilePic()">
+  <button class="button button-icon icon ion-camera"></button>
 </div>
+
 <div class="accountinfo">
-{{account.user_firstname}} 
-{{account.user_lastname}}</br>
+{{account.user_firstname}} {{account.user_lastname}}</br>
 {{account.user_email}}</br>
-Apparaat: {{device.model}} {{device.platform}} {{device.version}}
+Apparaat: {{device.model}} {{device.platform}} {{device.version}} </br>
 </div>
 
 </ion-content>

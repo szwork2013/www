@@ -2,10 +2,17 @@ angular.module('prikl.controllers', ['youtube-embed'])
 
 .controller('AppCtrl', function($scope,$rootScope, $state, Modals, Camera,Message) {
 
+<<<<<<< HEAD
    if($rootScope.userid == undefined && $rootScope.groupid == undefined){
     $rootScope.userid = 227;
     $rootScope.groupid = 90;
   }
+=======
+    if($rootScope.userid == undefined && $rootScope.groupid == undefined){
+     $rootScope.userid = 227;
+     $rootScope.groupid = 90;
+   }
+>>>>>>> origin/profielfotowijzigen-branch
 
     //Logoutfunction for logout in menu
     $scope.logout = function(){
@@ -39,7 +46,8 @@ angular.module('prikl.controllers', ['youtube-embed'])
 })
 
 //Controller for Login/Activate/RegisterDevice/Tokencheck
-.controller('LoginCtrl', function($scope,$rootScope,$state,$ionicLoading,AuthenticationService,FileTransferService,Camera,Message) {
+.controller('LoginCtrl', function($scope,Modals,$rootScope,$state,$ionicLoading,
+  AuthenticationService,FileTransferService,Camera,Message) {
   
   $scope.credentials = AuthenticationService.credentials;
   $scope.userinfo = AuthenticationService.userinfo;
@@ -169,6 +177,28 @@ angular.module('prikl.controllers', ['youtube-embed'])
         console.log(error);
       });
     }  
+  }
+
+  //Forgot password
+  $scope.forgotPassword = function(){
+    Modals.createAndShow($scope, "newpassword");
+  }
+
+  $scope.requestPassword = function(){
+    $ionicLoading.show({template:"Wachtwoordreset aanvragen"});
+    AuthenticationService.resetPassword($scope.credentials.accountmail)
+    .then(function(response){
+      $ionicLoading.hide();
+      if(response.status == 201){
+      $ionicLoading.show({template:response.statusText,duration:3000}); 
+      }else{
+      $ionicLoading.show({template:"Je wachtwoord is gereset, je ontvangt een mail met je nieuwe wachtwoord",duration:3000});  
+      }
+    },function(error){
+      $ionicLoading.hide();
+      $ionicLoading.show({template:error,duration:1500});
+    });
+    $scope.newpasswordmodal.remove();
   }
 
 
@@ -529,8 +559,40 @@ $scope.deletepost =function(postid){
   }
 })
 
-.controller('AccountCtrl',function($scope,$ionicLoading,PostService,Message){
- 
+.controller('AccountCtrl',function($scope,$rootScope,PostService,FileTransferService,$ionicLoading,PostService,Message,Camera){
+
+  $scope.newProfilePicSet = false;
+
+  $scope.getNewProfilePic = function(){
+    Camera.getPicture(1)
+       .then(function(imageURI){ 
+        $scope.account.user_pic = imageURI;
+        $scope.newProfilePicSet = true;
+      },function(error){
+        console.log("Camera probleem:</br>"+error);
+      });
+     } 
+
+
+    $scope.saveProfilePic = function(){
+      $ionicLoading.show({template:"Profielfoto uploaden"});
+      FileTransferService.uploadProfilePic($scope.account.user_pic)
+      .then(function(filename){
+        PostService.addProfilePic(filename)
+        .then(function(){  
+          $ionicLoading.hide();
+          $ionicLoading.show({template:"Je nieuwe profielfoto is opgeslagen",
+            duration:1500});
+          $scope.newProfilePicSet = false;
+        },function(error){
+          $ionicLoading.show({template:error,duration:3000});
+        });
+      },function(error){
+        $ionicLoading.hide();
+        $ionicLoading.show({template:error,duration:3000});
+        console.log(error);
+      });
+    }
 
   $scope.loadAccountData = function(){
       $ionicLoading.show({template:"Accountgegevens laden"});
@@ -538,6 +600,7 @@ $scope.deletepost =function(postid){
   .then(function(userdata){
     $ionicLoading.hide();
     $scope.account = userdata[0];
+    $scope.account.user_pic = $rootScope.server + "/images/users/" + $scope.account.user_pic;
   },function(error){
     $ionicLoading.hide();
     $ionicLoading.show({template:error,duration:3000});
