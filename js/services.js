@@ -163,6 +163,11 @@ angular.module('prikl.services', ['angular-md5'])
 
     var addComment = function(postid,text) {
     var url = $rootScope.server + "index.php/serve/addPostComment?userid="+$rootScope.userid+"&postid="+postid+"&text="+text+"&callback=JSON_CALLBACK";
+    return jsonpRequest(url);
+    }
+
+    var deleteComment = function(commentid) {
+    var url = $rootScope.server + "index.php/serve/deleteComment?commentid="+commentid+"&callback=JSON_CALLBACK";
     console.log(url);
      return jsonpRequest(url);
     }
@@ -192,7 +197,8 @@ angular.module('prikl.services', ['angular-md5'])
       addFeedback: addFeedback,
       deletePost: deletePost,
       getComments: getComments,
-      addComment: addComment
+      addComment: addComment,
+      deleteComment: deleteComment
     }
 
 })

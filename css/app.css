@@ -556,10 +556,29 @@ height:70px;
   resize: none; 
 }
 
+.top-right
+{
+  position: absolute;
+  font-size: 30px;
+  top: 3px;
+  right: 3px;
+}
+
+.full-width
+{
+  width: 100%;
+  border-radius: 0;
+}
+
 .dark-bg
 {
     background-color: rgba(0, 0, 0, 0);
     height: 19%;
+}
+
+.dark-bg a
+{
+  text-decoration: none;
 }
 
 .extra-end

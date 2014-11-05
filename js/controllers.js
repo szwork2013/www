@@ -2,17 +2,12 @@ angular.module('prikl.controllers', ['youtube-embed'])
 
 .controller('AppCtrl', function($scope,$rootScope, $state, Modals, Camera,Message) {
 
-<<<<<<< HEAD
-   if($rootScope.userid == undefined && $rootScope.groupid == undefined){
-    $rootScope.userid = 227;
-    $rootScope.groupid = 90;
-  }
-=======
-    if($rootScope.userid == undefined && $rootScope.groupid == undefined){
-     $rootScope.userid = 227;
-     $rootScope.groupid = 90;
-   }
->>>>>>> origin/profielfotowijzigen-branch
+
+  //  if($rootScope.userid == undefined && $rootScope.groupid == undefined){
+  //   $rootScope.userid = 227;
+  //   $rootScope.groupid = 90;
+  // }
+
 
     //Logoutfunction for logout in menu
     $scope.logout = function(){
@@ -348,14 +343,44 @@ angular.module('prikl.controllers', ['youtube-embed'])
    });
 
   $scope.comments = function(postid){
+    Message.loading("Reacties laden");
+
     $scope.postIdForComment = postid;
-     Modals.createAndShow($scope,"comments");
-   PostService.getComments(postid).then(function(comments){
+    
+    PostService.getComments(postid).then(function(comments){
+    Modals.createAndShow($scope,"comments");
     $scope.postComments = comments;
-    console.log(comments);
-   },function(error){
+    Message.loadingHide();
+
+    },function(error){
     Message.notify(error);
    });  
+ }
+
+ $scope.deleteComment = function(commentid)
+ {
+    Message.question("Reactie verwijderen","Weet je zeker dat je je reactie wilt verwijderen?",function(answer){
+  if(answer){
+    PostService.deleteComment(commentid)
+    .then(function(){
+        //Delete from posts
+        $timeout(function(){
+          $scope.commentModal.remove(); 
+            $scope.postComments = [];
+            $scope.comments($scope.postIdForComment);
+      },500);
+      },function(error){
+        Message.notify(error);
+        $timeout(function(){
+          $scope.commentModal.remove(); 
+            $scope.postComments = [];
+            $scope.comments($scope.postIdForComment);
+      },500);
+      });
+  }
+});
+
+
  }
 
  $scope.close_comment_modal = function()
