@@ -342,13 +342,16 @@ angular.module('prikl.controllers', ['youtube-embed'])
      }
    });
 
-  $scope.comments = function(postid){
+  $scope.comments = function(postid, show){
     Message.loading("Reacties laden");
 
     $scope.postIdForComment = postid;
     
     PostService.getComments(postid).then(function(comments){
-    Modals.createAndShow($scope,"comments");
+      if (show) {
+        Modals.createAndShow($scope,"comments");
+      };
+    
     $scope.postComments = comments;
     Message.loadingHide();
 
@@ -364,31 +367,17 @@ angular.module('prikl.controllers', ['youtube-embed'])
     PostService.deleteComment(commentid)
     .then(function(){
         //Delete from posts
-        $timeout(function(){
-          $scope.commentModal.remove(); 
+        // $scope.commentModal.remove(); 
+
             $scope.postComments = [];
-            $scope.comments($scope.postIdForComment);
-      },500);
+            $scope.comments($scope.postIdForComment, false);
       },function(error){
         Message.notify(error);
-        $timeout(function(){
-          $scope.commentModal.remove(); 
-            $scope.postComments = [];
-            $scope.comments($scope.postIdForComment);
-      },500);
       });
   }
 });
 
 
- }
-
- $scope.close_comment_modal = function()
- {
-  $scope.postIdForComment = "";
-  $scope.postComments = "";
-  $scope.commentModal.remove(); 
-  console.log($scope.postComments);
  }
 
  $scope.comment_on_post = function()
@@ -398,15 +387,24 @@ angular.module('prikl.controllers', ['youtube-embed'])
     console.log($scope.commentModal.postid);
         PostService.addComment($scope.commentModal.postid, $scope.commentModal.commenttext)
           .then(function(){
-            $scope.commentModal.remove(); 
+            // $scope.commentModal.remove(); 
             $scope.postComments = [];
-            $scope.comments($scope.postIdForComment);
+            $scope.comments($scope.postIdForComment, false);
+            $scope.commentModal.commenttext = "";
             
             Message.loadingHide();
           },function(error){
             console.log(error);
             
           });
+ }
+
+  $scope.close_comment_modal = function()
+ {
+  $scope.postIdForComment = "";
+  $scope.postComments = "";
+  $scope.commentModal.remove(); 
+  console.log($scope.postComments);
  }
 
   //If there are posts in cache load them
