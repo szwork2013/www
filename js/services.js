@@ -570,7 +570,7 @@ function transformRequest( data, getHeaders ) {
 
 
 // ALL GCM notifications come through here. 
-function onNotificationGCM(e) {
+function onNotificationGCM(e, $state, $rootScope) {
     console.log('EVENT -> RECEIVED:' + e.event + '');
     switch( e.event )
     {
@@ -611,8 +611,21 @@ function onNotificationGCM(e) {
                 else
                     console.log('--BACKGROUND NOTIFICATION--' + '');
 
-                 
-                window.location = "#/app/prikls";
+                if(e.payload.postid !== '')
+                {
+                  var postid = e.payload.postid;
+                  window.location = "#/app/allreactions/:" + e.payload.postid;
+                  // $rootScope.notificationPostid = e.payload.postid;
+                  // Modals.createAndShow('comments');
+                  $rootScope.postidfrompush = postid;
+                  
+                }
+                else
+                {
+                  window.location = "#/app/prikls";
+                }
+                
+
             }
  
             console.log('MESSAGE -> MSG: ' + e.payload.message + '');

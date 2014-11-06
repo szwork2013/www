@@ -93,11 +93,12 @@ angular.module('prikl', ['ionic', 'prikl.controllers', 'prikl.services'])
       }
     })
     .state('app.allreactions', {
-      url: "/allreactions",
+      url: "/allreactions/:idpost",
       views: {
         'menuContent' :{
           templateUrl: "templates/postboards/allreactions.html",
-          controller: 'PinboardCtrl'
+          controller: 'PinboardCtrl',
+          params: ['idpost']
         }
       }
     }) 

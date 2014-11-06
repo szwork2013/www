@@ -1,6 +1,6 @@
 angular.module('prikl.controllers', ['youtube-embed'])
 
-.controller('AppCtrl', function($scope,$rootScope, $state, Modals, Camera,Message) {
+.controller('AppCtrl', function($scope,$rootScope, $state, Modals, Camera,Message, $stateParams) {
 
 
   //  if($rootScope.userid == undefined && $rootScope.groupid == undefined){
@@ -42,7 +42,7 @@ angular.module('prikl.controllers', ['youtube-embed'])
 
 //Controller for Login/Activate/RegisterDevice/Tokencheck
 .controller('LoginCtrl', function($scope,Modals,$rootScope,$state,$ionicLoading,
-  AuthenticationService,FileTransferService,Camera,Message) {
+  AuthenticationService,FileTransferService,Camera,Message,$stateParams) {
   
   $scope.credentials = AuthenticationService.credentials;
   $scope.userinfo = AuthenticationService.userinfo;
@@ -60,7 +60,8 @@ angular.module('prikl.controllers', ['youtube-embed'])
       .then(function(response){
         $rootScope.userid = userdevice.userid;
         $rootScope.groupid = userdevice.group_id;
-        $state.go('app.allreactions');
+        $state.go('app.allreactions/:idpost',{idpost:'xdfvbfgbfg'});
+        // window.location = "#/app/allreactions/dbvdf";
       },function(error){
         //token mismatch
         if(error == 467){
@@ -325,13 +326,15 @@ angular.module('prikl.controllers', ['youtube-embed'])
   
 })
 
-.controller('PinboardCtrl',function($scope,$state,$filter,$rootScope,$timeout,$ionicLoading,PostService,Cache,Message,Modals){
+.controller('PinboardCtrl',function($scope,$state,$filter,$stateParams,$rootScope,$timeout,$ionicLoading,PostService,Cache,Message,Modals){
   $scope.noMoreItemsAvailable = false;
   $scope.noConnection = false;
   $scope.posts = [];
   $scope.loading = false;
   $scope.posts.total = 0; 
-  
+  // alert(document.URL);
+  console.log($stateParams);
+
   $scope.$on('$stateChangeStart', 
     function(event, toState, toParams, fromState, fromParams){ 
       if(fromState.name == "app.myreactions"){
