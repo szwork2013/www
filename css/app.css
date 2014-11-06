@@ -546,8 +546,8 @@ height:70px;
    }
 
 .commentmodal p{
-  color:white;
-  text-align:center;
+  white-space: normal;
+  color: black;  /*text-align:center;*/
   width: 100%;
   font-size: 12px;
 }
