@@ -236,6 +236,13 @@ height:70px;
   padding:10px;
 }
 
+.horizontal
+{
+  background-color: blue;
+  position: relative;
+  margin-right: auto;
+  margin-right: auto;
+}
 
 .photo{
   background-size: auto 100%;
@@ -670,13 +677,17 @@ height:70px;
   width: 100%; }
 
 .text {
+  position: relative;
+  margin-right: auto;
+  margin-left: auto;
   padding: 3%;
   display: table;
    font-family: "Courier New", Courier, monospace;
    font-weight: 600;
   height: 100%;
   width: 300px;
-  text-align: center; }
+  text-align: center; 
+}
 
 .text span {
   max-width: 250px;
