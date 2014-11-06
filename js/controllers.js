@@ -2,17 +2,11 @@ angular.module('prikl.controllers', ['youtube-embed'])
 
 .controller('AppCtrl', function($scope,$rootScope, $state, Modals, Camera,Message) {
 
-<<<<<<< HEAD
-   if($rootScope.userid == undefined && $rootScope.groupid == undefined){
-    $rootScope.userid = 227;
-    $rootScope.groupid = 90;
-  }
-=======
+
     if($rootScope.userid == undefined && $rootScope.groupid == undefined){
      $rootScope.userid = 227;
      $rootScope.groupid = 90;
    }
->>>>>>> origin/profielfotowijzigen-branch
 
     //Logoutfunction for logout in menu
     $scope.logout = function(){
@@ -456,22 +450,27 @@ $scope.loadMore = function(pinboard) {
    .then(function(posts){
 
                         //Divide posts per date, for every post create new dateobject with time 00:00:00, check
-                        //if there is a object with same date, if there is not create a object with an array for this date
+                        //if there is no other post with the same date -> create an object with an array for this date
                         //"posts":[ { date : "12 october 2014" , posts : [post,post,post,post] },
                         // { date : "13 october 2014" , posts : [post,post] }, { date : "14 october 2014" , posts : [post,post,post] } ]
                         if(posts == "NOPOSTS"){
                           $scope.noMoreItemsAvailable = true;
                         }
                         else{
+
+                          //iterate trough all received posts
                           for (var i = 0; i < posts.length; i++){
 
+                            //Set time to 00:00:00 for every post
                             var date = new Date(posts[i].post_date);
                             date = new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), 0, 0, 0, 0);
+                            
                             var lastdate;
-
+                            
                             if($scope.posts.length >0){
                               lastdate = $scope.posts[$scope.posts.length-1].date;
                             }
+
                             if(lastdate == date.toString()){
                               $scope.posts[$scope.posts.length-1].posts.push(posts[i]);
                             }else{
@@ -480,6 +479,8 @@ $scope.loadMore = function(pinboard) {
                               var newDateArray = {'date':date,'posts':newarr};
                               $scope.posts.push(newDateArray);    
                             }
+
+
                             $scope.posts.total++;
                           }
                         }
