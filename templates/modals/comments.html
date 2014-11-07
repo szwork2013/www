@@ -1,4 +1,4 @@
-<ion-modal-view class="textpostmodal">
+<ion-modal-view class="commentmodal">
         <ion-header-bar class="bar bar-header bar-dark">
          <button class="button button-primary button-clear" ng-click="close_comment_modal()">Sluiten</button>
           <h1 class="title">Reacties</h1>
@@ -10,11 +10,14 @@
 
     <div class="item item-avatar margin-extra" ng-repeat = "commentie in postComments">
       <img src="http://winspire01.windesheim.nl/images/users/{{commentie.user_pic}}">
+      <i ng-if = "commentie.user_iduser==userid" ng-click = "deleteComment(commentie.idpost_comments)" class = "ion-close-circled top-right"></i> 
+      <inut type = "hidden" ng-model = "commentid" value = "commentie" />
       <h2 style = "color: black;">{{commentie.user_firstname}} {{commentie.user_lastname}}</h2>
       <p style = "color: #333; text-align: left">{{commentie.post_comment_date}}</p>
-      <p style = "color: black; text-align: left; margin-left: -60px;">{{commentie.post_comment_content}}</p>
+      <p>{{commentie.post_comment_content}}</p>
+
     </div>
-    <div class = "extra-end"></div>
+    <div class = "extra-end dark-bg"></div>
 </div>
 
 

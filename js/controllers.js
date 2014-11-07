@@ -1,12 +1,14 @@
 angular.module('prikl.controllers', ['youtube-embed'])
 
-.controller('AppCtrl', function($scope,$rootScope, $state,$ionicPlatform,$cordovaPush, Modals, Camera,Message) {
 
-  /*  if($rootScope.userid == undefined && $rootScope.groupid == undefined){
-     $rootScope.userid = 227;
-     $rootScope.groupid = 90;
-   }*/
+.controller('AppCtrl', function($scope,$rootScope, $state, Modals, Camera,Message, 
+  $stateParams,$ionicPlatform,$cordovaPush) {
 
+
+  //  if($rootScope.userid == undefined && $rootScope.groupid == undefined){
+  //   $rootScope.userid = 227;
+  //   $rootScope.groupid = 90;
+  // }
 
 
     //Logoutfunction for logout in menu
@@ -42,7 +44,7 @@ angular.module('prikl.controllers', ['youtube-embed'])
 
 //Controller for Login/Activate/RegisterDevice/Tokencheck
 .controller('LoginCtrl', function($scope,Modals,$rootScope,$state,$ionicLoading,
-  AuthenticationService,FileTransferService,Camera,Message) {
+  AuthenticationService,FileTransferService,Camera,Message,$stateParams) {
   
   $scope.credentials = AuthenticationService.credentials;
   $scope.userinfo = AuthenticationService.userinfo;
@@ -60,7 +62,8 @@ angular.module('prikl.controllers', ['youtube-embed'])
       .then(function(response){
         $rootScope.userid = userdevice.userid;
         $rootScope.groupid = userdevice.group_id;
-        $state.go('app.allreactions');
+        $state.go('app.allreactions/:idpost',{idpost:'xdfvbfgbfg'});
+        // window.location = "#/app/allreactions/dbvdf";
       },function(error){
         //token mismatch
         if(error == 467){
@@ -325,13 +328,15 @@ angular.module('prikl.controllers', ['youtube-embed'])
   
 })
 
-.controller('PinboardCtrl',function($scope,$state,$filter,$rootScope,$timeout,$ionicLoading,PostService,Cache,Message,Modals){
+.controller('PinboardCtrl',function($scope,$state,$filter,$stateParams,$rootScope,$timeout,$ionicLoading,PostService,Cache,Message,Modals){
   $scope.noMoreItemsAvailable = false;
   $scope.noConnection = false;
   $scope.posts = [];
   $scope.loading = false;
   $scope.posts.total = 0; 
-  
+  // alert(document.URL);
+  console.log($stateParams);
+
   $scope.$on('$stateChangeStart', 
     function(event, toState, toParams, fromState, fromParams){ 
       if(fromState.name == "app.myreactions"){
@@ -342,23 +347,42 @@ angular.module('prikl.controllers', ['youtube-embed'])
      }
    });
 
-  $scope.comments = function(postid){
+  $scope.comments = function(postid, show){
+    Message.loading("Reacties laden");
+
     $scope.postIdForComment = postid;
-     Modals.createAndShow($scope,"comments");
-   PostService.getComments(postid).then(function(comments){
+    
+    PostService.getComments(postid).then(function(comments){
+      if (show) {
+        Modals.createAndShow($scope,"comments");
+      };
+    
     $scope.postComments = comments;
-    console.log(comments);
-   },function(error){
+    Message.loadingHide();
+
+    },function(error){
     Message.notify(error);
    });  
  }
 
- $scope.close_comment_modal = function()
+ $scope.deleteComment = function(commentid)
  {
-  $scope.postIdForComment = "";
-  $scope.postComments = "";
-  $scope.commentModal.remove(); 
-  console.log($scope.postComments);
+    Message.question("Reactie verwijderen","Weet je zeker dat je je reactie wilt verwijderen?",function(answer){
+  if(answer){
+    PostService.deleteComment(commentid)
+    .then(function(){
+        //Delete from posts
+        // $scope.commentModal.remove(); 
+
+            $scope.postComments = [];
+            $scope.comments($scope.postIdForComment, false);
+      },function(error){
+        Message.notify(error);
+      });
+  }
+});
+
+
  }
 
  $scope.comment_on_post = function()
@@ -368,15 +392,24 @@ angular.module('prikl.controllers', ['youtube-embed'])
     console.log($scope.commentModal.postid);
         PostService.addComment($scope.commentModal.postid, $scope.commentModal.commenttext)
           .then(function(){
-            $scope.commentModal.remove(); 
+            // $scope.commentModal.remove(); 
             $scope.postComments = [];
-            $scope.comments($scope.postIdForComment);
+            $scope.comments($scope.postIdForComment, false);
+            $scope.commentModal.commenttext = "";
             
             Message.loadingHide();
           },function(error){
             console.log(error);
             
           });
+ }
+
+  $scope.close_comment_modal = function()
+ {
+  $scope.postIdForComment = "";
+  $scope.postComments = "";
+  $scope.commentModal.remove(); 
+  console.log($scope.postComments);
  }
 
   //If there are posts in cache load them

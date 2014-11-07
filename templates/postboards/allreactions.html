@@ -34,16 +34,21 @@
 
       <div class= "photo" ng-if="post.post_type == 'pic'" data-ng-style="{'background-image':'url({{$root.server}}/posts/images/thumbs/{{post.post_pic}})'}" ng-click="viewPhoto('/posts/images/',post.post_pic)">
         <span ng-if="post.post_text != ''" >{{post.post_text}}</span>
-      </div>
+       </div>
     </div>
 
-    <div class="item tabs tabs-secondary tabs-dark tabs-icon-left">
-      <a class="tab-item" ng-click="comments(post.idposts)">
+    <!-- <div class="item tabs tabs-secondary tabs-dark tabs-icon-left dark-bg">
+      <a class="tab-item" ng-click="comments(post.idposts)" style = "width: 102%; border:none;">
         <i class="icon ion-chatbox">
         </i> 
         Reageer
       </a>
-      </div>
+      </div> -->
+      <button class="button button-dark full-width" ng-click="comments(post.idposts, true)">
+        <i class="icon ion-chatbox">
+        </i>
+        Reageer
+      </button>
     </div>
 
   </ion-list>

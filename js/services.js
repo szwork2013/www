@@ -164,6 +164,12 @@ angular.module('prikl.services', ['angular-md5'])
     var addComment = function(postid,text) {
     var url = $rootScope.server + "index.php/serve/addPostComment?userid="+$rootScope.userid+"&postid="+postid+"&text="+text+"&callback=JSON_CALLBACK";
     console.log(url);
+    return jsonpRequest(url);
+    }
+
+    var deleteComment = function(commentid) {
+    var url = $rootScope.server + "index.php/serve/deleteComment?commentid="+commentid+"&callback=JSON_CALLBACK";
+    console.log(url);
      return jsonpRequest(url);
     }
 
@@ -192,7 +198,8 @@ angular.module('prikl.services', ['angular-md5'])
       addFeedback: addFeedback,
       deletePost: deletePost,
       getComments: getComments,
-      addComment: addComment
+      addComment: addComment,
+      deleteComment: deleteComment
     }
 
 })
@@ -517,7 +524,7 @@ function transformRequest( data, getHeaders ) {
     register : function(){
         //Register push
         if(ionic.Platform.isAndroid()){
-          $cordovaPush.register({"senderID":"10154189285","ecb":"onGCMNotification"}).then(function(result) {
+          $cordovaPush.register({"senderID":"10154189285","ecb":"onNotificationGCM"}).then(function(result) {
               // Success!
               alert("ANDROIDGEREGISTREERD");
               alert(result);
@@ -531,7 +538,7 @@ function transformRequest( data, getHeaders ) {
                   alert(err);
                 });
         }else if(ionic.Platform.isIOS()){
-          $cordovaPush.register({"badge":"true","sound":"true","alert":"true","ecb":"onAPNNotification"}).then(function(result) {
+          $cordovaPush.register({"badge":"true","sound":"true","alert":"true","ecb":"onNotificationAPN"}).then(function(result) {
               // Success!
               alert("APPLEGEREGISTREERD");
               alert(result);
@@ -545,15 +552,85 @@ function transformRequest( data, getHeaders ) {
                 alert(err);
               });
         }
+      }
+    }
+  });
+
+
+
+// ALL GCM notifications come through here. 
+function onNotificationGCM(e, $state, $rootScope) {
+    switch( e.event )
+    {
+        case 'registered':
+            if ( e.regid.length > 0 )
+            {
+                console.log('REGISTERED with GCM Server -> REGID:' + e.regid + "");
+          
+                //call back to web service in Angular.  
+                //This works for me because in my code I have a factory called
+                //      PushProcessingService with method registerID
+                var elem = angular.element(document.querySelector('[ng-app]'));
+                var injector = elem.injector();
+                var myService = injector.get('PushProcessingService');
+                myService.registerID(e.regid);
+            }
+            break;
+ 
+        case 'message':
+            // if this flag is set, this notification happened while we were in the foreground.
+            // you might want to play a sound to get the user's attention, throw up a dialog, etc.
+            if (e.foreground)
+            {
+                //we're using the app when a message is received.
+                console.log('--INLINE NOTIFICATION--' + '');
+ 
+                // if the notification contains a soundname, play it.
+                //var my_media = new Media("/android_asset/www/"+e.soundname);
+                //my_media.play();
+
+                window.location = "#/app/prikls";
+            }
+            else
+            {   
+                // otherwise we were launched because the user touched a notification in the notification tray.
+                if (e.coldstart)
+                    console.log('--COLDSTART NOTIFICATION--' + '');
+                else
+                    console.log('--BACKGROUND NOTIFICATION--' + '');
+
+                if(e.payload.postid !== '')
+                {
+                  var postid = e.payload.postid;
+                  window.location = "#/app/allreactions/:" + e.payload.postid;
+                  // $rootScope.notificationPostid = e.payload.postid;
+                  // Modals.createAndShow('comments');
+                  $rootScope.postidfrompush = postid;
+                  
+                }
+                else
+                {
+                  window.location = "#/app/prikls";
+                }
+                
+
+            }
+ 
+            console.log('MESSAGE -> MSG: ' + e.payload.message + '');
+            console.log('MESSAGE: '+ JSON.stringify(e.payload));
+            break;
+ 
+        case 'error':
+            console.log('ERROR -> MSG:' + e.msg + '');
+            break;
+ 
+        default:
+            console.log('EVENT -> Unknown, an event was received and we do not know what it is');
+            break;
     }
 }
-});
 
-function onGCMNotification(){
-  alert("JOONOTIFICATIEGOOGLE");
-}
-
-function onAPNNotification(){
+function onNotificationAPN(){
   alert("JOONOTIFICATIEAPPLE");
 }
 
