@@ -1,6 +1,6 @@
 .darkbackground, .menu-left {
   background-color:#333;
-  background-image:url('../img/sep-half.png');
+  /*background-image:url('../img/sep-half.png');*/
   background-repeat:repeat;
   border:none;
   border-radius:0;
@@ -78,7 +78,7 @@ padding-bottom:10px;
   margin: 1px 8px; }
 
 /*activate*/
-.profilepic{
+.profilepic, .accountpic{
   margin: 20px auto;
   width:125px;
   height: 125px;
@@ -91,6 +91,12 @@ padding-bottom:10px;
   background-repeat: no-repeat;
 }
 
+.accountpic{
+  position: relative;
+  width:200px;
+  height:200px;
+}
+
 .menu{
   font-weight: 300;
 }
@@ -99,7 +105,7 @@ padding-bottom:10px;
   font-weight: 500;
 }
 
-.profilepic span{
+.profilepic span, .accountpic span{
   color:white;
   padding:5px;
   line-height: 15px;
@@ -112,9 +118,10 @@ padding-bottom:10px;
   margin-left: -80px;
 }
 
-.profilepic button,.profilepic button:hover{
+.profilepic button,
+.accountpic button{
   border:1px solid white;
-  background-color: rgba(0,0,0,0.9);
+  background-color: black;
   border-radius: 50%;
   width:50px;
   height: 50px;
@@ -124,6 +131,12 @@ padding-bottom:10px;
   left:50%;
   margin-left:25px;
 }
+
+.accountpic button{
+width:70px;
+margin-left:35px;
+height:70px;
+  }
 
 
 /*pinboard*/
@@ -223,6 +236,13 @@ padding-bottom:10px;
   padding:10px;
 }
 
+.horizontal
+{
+  background-color: blue;
+  position: relative;
+  margin-right: auto;
+  margin-right: auto;
+}
 
 .photo{
   background-size: auto 100%;
@@ -515,6 +535,38 @@ padding-bottom:10px;
   width: 100%;
   height: 100%; }
 
+.commentmodal {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  overflow-y:hidden;
+  background-color: #333;
+   }
+
+.commentmodal p{
+  white-space: normal;
+  color: black;  /*text-align:center;*/
+  width: 100%;
+  font-size: 12px;
+}
+.commentmodal ion-content{
+  padding:15px;
+}
+
+.commentmodal ion-content textarea {
+  background-color: rgba(0, 0, 0, 0);
+
+  width:100%;
+  border-radius: 10px;
+  border: 1px solid grey;
+  color:white;
+  padding: 15px;
+  overflow-x: hidden;
+  resize: none; 
+}
+
 .textpostmodal {
   
   overflow-y:hidden;
@@ -540,7 +592,68 @@ padding-bottom:10px;
   color:white;
   padding: 15px;
   overflow-x: hidden;
-  resize: none; }
+  resize: none; 
+}
+
+.top-right
+{
+  position: absolute;
+  font-size: 30px;
+  top: 3px;
+  right: 3px;
+}
+
+.full-width
+{
+  width: 100%;
+  border-radius: 0;
+}
+
+.dark-bg
+{
+    background-color: rgba(0, 0, 0, 0);
+    height: 19%;
+}
+
+.dark-bg a
+{
+  text-decoration: none;
+}
+
+.extra-end
+{
+  width: 100%;
+  height: 200px;
+}
+
+.extra-end p
+{
+  width: 100%;
+  text-align
+}
+
+.margin-extra
+{
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.comment-text-area
+{
+  /*background-color: rgba(0, 0, 0, 0);*/
+  
+  bottom: 0px;
+  background-color: #333;
+  width:100%;
+  border-radius: 10px;
+  border: 1px solid grey;
+  color:white;
+  padding: 15px;
+  margin-bottom: 0px;
+  overflow-x: hidden;
+  resize: none; 
+  font-size: 11px;
+}
 
 .loadingheadericon{
   position: absolute;
@@ -564,13 +677,17 @@ padding-bottom:10px;
   width: 100%; }
 
 .text {
+  position: relative;
+  margin-right: auto;
+  margin-left: auto;
   padding: 3%;
   display: table;
    font-family: "Courier New", Courier, monospace;
    font-weight: 600;
   height: 100%;
   width: 300px;
-  text-align: center; }
+  text-align: center; 
+}
 
 .text span {
   max-width: 250px;

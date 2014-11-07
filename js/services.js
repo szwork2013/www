@@ -40,6 +40,12 @@ angular.module('prikl.services', ['angular-md5'])
         return postrequest(data, url);
       }
 
+       var resetPassword = function(mail){
+        var data = {"mail":mail};
+        var url = $rootScope.server + "index.php/serve/resetPassword";
+        return postrequest(data, url);
+      }
+
       var registerDevice = function(userinfo,deviceinfo){
         var data = {"userid":userinfo.userid,"pushid":deviceinfo.pushid,"platform":deviceinfo.platform};
         var url = $rootScope.server + "index.php/serve/registerDevice";
@@ -67,6 +73,7 @@ angular.module('prikl.services', ['angular-md5'])
         activateAccount: activateAccount,
         registerDevice: registerDevice,
         unregisterDevice: unregisterDevice,
+        resetPassword: resetPassword,
         checkToken: checkToken,
         credentials:credentials,
         userinfo:userinfo,
@@ -83,10 +90,12 @@ angular.module('prikl.services', ['angular-md5'])
                   deferred.resolve(data);
                 })
                 .error(function(data, status, headers, config){
+                  console.log(data,status,headers);
                    if(status == 0){
                      deferred.reject("Kan niet verbinden met server");
-                    }else{
-                     deferred.reject("Kan niet verbinden met server</b>Status:"+status);
+                    }
+                    else{
+                     deferred.reject("Kan niet verbinden met server<br>Status:"+status);
                     }
                 });
                 return deferred.promise;
@@ -112,6 +121,11 @@ angular.module('prikl.services', ['angular-md5'])
       return jsonpRequest(url);
     }
 
+    var getComments = function (postid){
+      var url = $rootScope.server + "index.php/serve/getComments?postid="+postid+"&callback=JSON_CALLBACK";
+      return jsonpRequest(url);
+    }
+
     var getPosts = function(pinboard,start,limit) {
       if(pinboard == "user"){
         var url = $rootScope.server + "index.php/serve/getUserPosts?start="+start+"&limit="+limit+"&userid="+$rootScope.userid+"&callback=JSON_CALLBACK";
@@ -132,9 +146,30 @@ angular.module('prikl.services', ['angular-md5'])
       }
     }
 
+    var addProfilePic = function(filename){
+      var url = $rootScope.server + "index.php/serve/addProfilePic?filename="+
+      filename+"&userid="+$rootScope.userid+"&callback=JSON_CALLBACK";
+      return jsonpRequest(url);
+    }
+
     var addPost = function(priklid,text,type,filename,pub) {
     var url = $rootScope.server + "index.php/serve/addPost?userid="+$rootScope.userid+"&groupid="+$rootScope.groupid+"&priklid="+priklid+
     "&text="+text+"&type="+type+"&filename="+filename+"&pub="+pub+"&callback=JSON_CALLBACK";
+     return jsonpRequest(url);
+    }
+
+    //set commenttext from ng-bind
+    // var commentText = {}
+
+    var addComment = function(postid,text) {
+    var url = $rootScope.server + "index.php/serve/addPostComment?userid="+$rootScope.userid+"&postid="+postid+"&text="+text+"&callback=JSON_CALLBACK";
+    console.log(url);
+    return jsonpRequest(url);
+    }
+
+    var deleteComment = function(commentid) {
+    var url = $rootScope.server + "index.php/serve/deleteComment?commentid="+commentid+"&callback=JSON_CALLBACK";
+    console.log(url);
      return jsonpRequest(url);
     }
 
@@ -150,6 +185,7 @@ angular.module('prikl.services', ['angular-md5'])
      return jsonpRequest(url);
     }
 
+  
     return{
       getPosts: getPosts,
       getNewPosts: getNewPosts,
@@ -158,8 +194,12 @@ angular.module('prikl.services', ['angular-md5'])
       getAccountData:getAccountData,
       getBugs: getBugs,
       addPost: addPost,
+      addProfilePic: addProfilePic,
       addFeedback: addFeedback,
-      deletePost: deletePost
+      deletePost: deletePost,
+      getComments: getComments,
+      addComment: addComment,
+      deleteComment: deleteComment
     }
 
 })
@@ -262,6 +302,8 @@ angular.module('prikl.services', ['angular-md5'])
     }); 
   }
 
+  //OERKEBOERKE
+
   var error = function(message){
     $ionicLoading.show({
       template: message,
@@ -321,6 +363,14 @@ angular.module('prikl.services', ['angular-md5'])
                               });
                      
                         break;
+                        case "newpassword":
+                            $ionicModal.fromTemplateUrl('templates/modals/newpassword.html', {
+                                scope: scope
+                              }).then(function(modal) {
+                                scope.newpasswordmodal = modal;
+                                scope.newpasswordmodal.show();
+                              });
+                        break;
                         case "youtube":
                           $ionicModal.fromTemplateUrl('templates/modals/youtube.html', {
                                 scope: scope
@@ -355,6 +405,16 @@ angular.module('prikl.services', ['angular-md5'])
                                     }).then(function(modal) {
                                       scope.photoviewmodal = modal;
                                       scope.photoviewmodal.show();
+                                    });
+                              
+                        break;
+                        case "comments":
+                              $ionicModal.fromTemplateUrl('templates/modals/comments.html', {
+                                      scope: scope, focusFirstInput: true
+                                    }).then(function(modal) {
+                                      scope.commentModal = modal;
+                                      scope.commentModal.postid = scope.postIdForComment;
+                                      scope.commentModal.show();
                                     });
                               
                         break;
@@ -419,56 +479,6 @@ angular.module('prikl.services', ['angular-md5'])
   }
 })
 
-//Pushprocessing service, get token from Google's GCM or Apple's APNS
-.factory('PushProcessingService', function(Message,AuthenticationService) {
-    function onDeviceReady(){
-     
-         var pushNotification = window.plugins.pushNotification;
-          if(device.platform == "Android")
-            {
-            pushNotification.register(gcmSuccessHandler, errorHandler, {"senderID":"10154189285","ecb":"onNotificationGCM"});
-            }
-            else if (device.platform == "iOS")
-            {
-            pushNotification.register(apnsHandler, errorHandler,{"badge":"true","sound":"true","alert":"true","ecb":"onNotificationAPN"});
-            }else{
-              console.log("Device is not an Android/iOS or cordova.device is not available");
-            }  
-    }
-
-        function gcmSuccessHandler(result) {
-            console.info('Android GCM succeeded: '+result);
-        }
-        function apnsHandler(result) {
-            AuthenticationService.deviceinfo.pushid = result;
-            AuthenticationService.deviceinfo.platform = "iOS";
-        }
-        function errorHandler(error) {
-            console.error('PushProcessingError: '+error);
-            Message.notify("Niet aangemeld voor pushnotificaties");
-        }
-
-        return {
-            initialize : function () {
-                document.addEventListener("deviceready", onDeviceReady, true);
-            },
-            registerID : function (regid) {
-              AuthenticationService.deviceinfo.pushid = regid;
-              AuthenticationService.deviceinfo.platform = "android";
-            }, 
-            //unregister evt later nog aanroepen bij deinstallatie app of instellingen menu
-            unregister : function () {
-                console.info('unregister')
-                var push = window.plugins.pushNotification;
-                if (push) {
-                    push.unregister(function () {
-                        console.info('unregister success')
-                    });
-                }
-            }
-        }
-})
-
 //Transform request as form post
 .factory("transformAsPost",function() {
 // I prepare the request data for the form post.
@@ -506,12 +516,50 @@ function transformRequest( data, getHeaders ) {
 
     return( source );
   }
-});
+})
+
+.factory("PushProcessing",function($cordovaPush) {
+
+  return {
+    register : function(){
+        //Register push
+        if(ionic.Platform.isAndroid()){
+          $cordovaPush.register({"senderID":"10154189285","ecb":"onNotificationGCM"}).then(function(result) {
+              // Success!
+              alert("ANDROIDGEREGISTREERD");
+              alert(result);
+              console.log(result);
+              //alert($cordovaDevice.getUUID());
+                   // AuthenticationService.deviceinfo.pushid = regid;
+                   // AuthenticationService.deviceinfo.platform = "android";
+                   console.log("Succesfully registered android GCM");
+                 }, function(err) {
+                  console.log(err);
+                  alert(err);
+                });
+        }else if(ionic.Platform.isIOS()){
+          $cordovaPush.register({"badge":"true","sound":"true","alert":"true","ecb":"onNotificationAPN"}).then(function(result) {
+              // Success!
+              alert("APPLEGEREGISTREERD");
+              alert(result);
+              console.log(result);
+             // alert($cordovaDevice.getUUID());
+               //   AuthenticationService.deviceinfo.pushid = result;
+                //  AuthenticationService.deviceinfo.platform = "iOS";
+                console.log("Succesfully registered Apple APN");
+              }, function(err) {
+                console.log(err);
+                alert(err);
+              });
+        }
+      }
+    }
+  });
+
 
 
 // ALL GCM notifications come through here. 
-function onNotificationGCM(e) {
-    console.log('EVENT -> RECEIVED:' + e.event + '');
+function onNotificationGCM(e, $state, $rootScope) {
     switch( e.event )
     {
         case 'registered':
@@ -551,8 +599,21 @@ function onNotificationGCM(e) {
                 else
                     console.log('--BACKGROUND NOTIFICATION--' + '');
 
-                 
-                window.location = "#/app/prikls";
+                if(e.payload.postid !== '')
+                {
+                  var postid = e.payload.postid;
+                  window.location = "#/app/allreactions/:" + e.payload.postid;
+                  // $rootScope.notificationPostid = e.payload.postid;
+                  // Modals.createAndShow('comments');
+                  $rootScope.postidfrompush = postid;
+                  
+                }
+                else
+                {
+                  window.location = "#/app/prikls";
+                }
+                
+
             }
  
             console.log('MESSAGE -> MSG: ' + e.payload.message + '');
@@ -569,8 +630,9 @@ function onNotificationGCM(e) {
     }
 }
 
+
 //Apple notificationevents
-onNotificationAPN  = function(event) {
+function onNotificationAPN(event) {
     window.location = "#/app/prikls";
 
     if ( event.alert )

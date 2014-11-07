@@ -1,0 +1,29 @@
+<ion-modal-view class="commentmodal">
+        <ion-header-bar class="bar bar-header bar-dark">
+         <button class="button button-primary button-clear" ng-click="close_comment_modal()">Sluiten</button>
+          <h1 class="title">Reacties</h1>
+          <button class="button button-primary button-clear" ng-click="comment_on_post()" ng-disabled="commentModal.commenttext==undefined||commentModal.commenttext.length<2">Reageer</button>
+        </ion-header-bar>
+        <ion-content>
+
+<div class="list">
+
+    <div class="item item-avatar margin-extra" ng-repeat = "commentie in postComments">
+      <img src="http://winspire01.windesheim.nl/images/users/{{commentie.user_pic}}">
+      <i ng-if = "commentie.user_iduser==userid" ng-click = "deleteComment(commentie.idpost_comments)" class = "ion-close-circled top-right"></i> 
+      <inut type = "hidden" ng-model = "commentid" value = "commentie" />
+      <h2 style = "color: black;">{{commentie.user_firstname}} {{commentie.user_lastname}}</h2>
+      <p style = "color: #333; text-align: left">{{commentie.post_comment_date}}</p>
+      <p>{{commentie.post_comment_content}}</p>
+
+    </div>
+    <div class = "extra-end dark-bg"></div>
+</div>
+
+
+      </ion-content>
+<div class="bar bar-footer dark-bg">
+  <textarea class = "comment-text-area" placeholder="Typ hier je tekst" rows="3" maxlength="150" ng-model="commentModal.commenttext">
+        </textarea>
+</div>      
+</ion-modal-view>

@@ -1,11 +1,15 @@
 angular.module('prikl.controllers', ['youtube-embed'])
 
-.controller('AppCtrl', function($scope,$rootScope, $state, Modals, Camera,Message) {
+
+.controller('AppCtrl', function($scope,$rootScope, $state, Modals, Camera,Message, 
+  $stateParams,$ionicPlatform,$cordovaPush) {
+
 
   //  if($rootScope.userid == undefined && $rootScope.groupid == undefined){
-  //   $rootScope.userid = 156;
-  //   $rootScope.groupid = 69;
+  //   $rootScope.userid = 227;
+  //   $rootScope.groupid = 90;
   // }
+
 
     //Logoutfunction for logout in menu
     $scope.logout = function(){
@@ -21,7 +25,7 @@ angular.module('prikl.controllers', ['youtube-embed'])
         });
       }
 
-  //Functions for new posts
+   //Functions for new posts
   $scope.photo = function(){
    Camera.getPicture(0)
    .then(function(imageURI){ 
@@ -39,7 +43,8 @@ angular.module('prikl.controllers', ['youtube-embed'])
 })
 
 //Controller for Login/Activate/RegisterDevice/Tokencheck
-.controller('LoginCtrl', function($scope,$rootScope,$state,$ionicLoading,AuthenticationService,FileTransferService,Camera,Message) {
+.controller('LoginCtrl', function($scope,Modals,$rootScope,$state,$ionicLoading,
+  AuthenticationService,FileTransferService,Camera,Message,$stateParams) {
   
   $scope.credentials = AuthenticationService.credentials;
   $scope.userinfo = AuthenticationService.userinfo;
@@ -57,7 +62,8 @@ angular.module('prikl.controllers', ['youtube-embed'])
       .then(function(response){
         $rootScope.userid = userdevice.userid;
         $rootScope.groupid = userdevice.group_id;
-        $state.go('app.allreactions');
+        $state.go('app.allreactions/:idpost',{idpost:'xdfvbfgbfg'});
+        // window.location = "#/app/allreactions/dbvdf";
       },function(error){
         //token mismatch
         if(error == 467){
@@ -169,6 +175,28 @@ angular.module('prikl.controllers', ['youtube-embed'])
         console.log(error);
       });
     }  
+  }
+
+  //Forgot password
+  $scope.forgotPassword = function(){
+    Modals.createAndShow($scope, "newpassword");
+  }
+
+  $scope.requestPassword = function(){
+    $ionicLoading.show({template:"Wachtwoordreset aanvragen"});
+    AuthenticationService.resetPassword($scope.credentials.accountmail)
+    .then(function(response){
+      $ionicLoading.hide();
+      if(response.status == 201){
+      $ionicLoading.show({template:response.statusText,duration:3000}); 
+      }else{
+      $ionicLoading.show({template:"Je wachtwoord is gereset, je ontvangt een mail met je nieuwe wachtwoord",duration:3000});  
+      }
+    },function(error){
+      $ionicLoading.hide();
+      $ionicLoading.show({template:error,duration:1500});
+    });
+    $scope.newpasswordmodal.remove();
   }
 
 
@@ -300,13 +328,15 @@ angular.module('prikl.controllers', ['youtube-embed'])
   
 })
 
-.controller('PinboardCtrl',function($scope,$state,$filter,$rootScope,$timeout,$ionicLoading,PostService,Cache,Message,Modals){
+.controller('PinboardCtrl',function($scope,$state,$filter,$stateParams,$rootScope,$timeout,$ionicLoading,PostService,Cache,Message,Modals){
   $scope.noMoreItemsAvailable = false;
   $scope.noConnection = false;
   $scope.posts = [];
   $scope.loading = false;
   $scope.posts.total = 0; 
-  
+  // alert(document.URL);
+  console.log($stateParams);
+
   $scope.$on('$stateChangeStart', 
     function(event, toState, toParams, fromState, fromParams){ 
       if(fromState.name == "app.myreactions"){
@@ -316,6 +346,71 @@ angular.module('prikl.controllers', ['youtube-embed'])
        Cache.put("group",$scope.posts);
      }
    });
+
+  $scope.comments = function(postid, show){
+    Message.loading("Reacties laden");
+
+    $scope.postIdForComment = postid;
+    
+    PostService.getComments(postid).then(function(comments){
+      if (show) {
+        Modals.createAndShow($scope,"comments");
+      };
+    
+    $scope.postComments = comments;
+    Message.loadingHide();
+
+    },function(error){
+    Message.notify(error);
+   });  
+ }
+
+ $scope.deleteComment = function(commentid)
+ {
+    Message.question("Reactie verwijderen","Weet je zeker dat je je reactie wilt verwijderen?",function(answer){
+  if(answer){
+    PostService.deleteComment(commentid)
+    .then(function(){
+        //Delete from posts
+        // $scope.commentModal.remove(); 
+
+            $scope.postComments = [];
+            $scope.comments($scope.postIdForComment, false);
+      },function(error){
+        Message.notify(error);
+      });
+  }
+});
+
+
+ }
+
+ $scope.comment_on_post = function()
+ {
+    Message.loading("Reactie versturen");
+    console.log($scope.commentModal.commenttext);
+    console.log($scope.commentModal.postid);
+        PostService.addComment($scope.commentModal.postid, $scope.commentModal.commenttext)
+          .then(function(){
+            // $scope.commentModal.remove(); 
+            $scope.postComments = [];
+            $scope.comments($scope.postIdForComment, false);
+            $scope.commentModal.commenttext = "";
+            
+            Message.loadingHide();
+          },function(error){
+            console.log(error);
+            
+          });
+ }
+
+  $scope.close_comment_modal = function()
+ {
+  $scope.postIdForComment = "";
+  $scope.postComments = "";
+  $scope.commentModal.remove(); 
+  console.log($scope.postComments);
+ }
 
   //If there are posts in cache load them
   $scope.load = function(pinboard){
@@ -354,6 +449,8 @@ $scope.refresh(pinboard);
           var date = new Date(posts[i].post_date);
           date = new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), 0, 0, 0, 0);
           var firstdate = $scope.posts[0].date;
+
+
           
           if(firstdate.toString() == date.toString()){
             $scope.posts[0].posts.unshift(posts[i]);
@@ -388,31 +485,22 @@ $scope.loadMore = function(pinboard) {
    PostService.getPosts(pinboard,$scope.posts.total,5)
    .then(function(posts){
 
+
+
                         //Divide posts per date, for every post create new dateobject with time 00:00:00, check
-                        //if there is a object with same date, if there is not create a object with an array for this date
+                        //if there is no other post with the same date -> create an object with an array for this date
                         //"posts":[ { date : "12 october 2014" , posts : [post,post,post,post] },
                         // { date : "13 october 2014" , posts : [post,post] }, { date : "14 october 2014" , posts : [post,post,post] } ]
                         if(posts == "NOPOSTS"){
                           $scope.noMoreItemsAvailable = true;
                         }
                         else{
+
+                          //iterate trough all received posts
                           for (var i = 0; i < posts.length; i++){
 
-                            var date = new Date(posts[i].post_date);
-                            date = new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), 0, 0, 0, 0);
-                            var lastdate;
+                            $scope.posts.push(posts[i]);
 
-                            if($scope.posts.length >0){
-                              lastdate = $scope.posts[$scope.posts.length-1].date;
-                            }
-                            if(lastdate == date.toString()){
-                              $scope.posts[$scope.posts.length-1].posts.push(posts[i]);
-                            }else{
-                              var newarr = [];
-                              newarr.push(posts[i]);
-                              var newDateArray = {'date':date,'posts':newarr};
-                              $scope.posts.push(newDateArray);    
-                            }
                             $scope.posts.total++;
                           }
                         }
@@ -460,15 +548,21 @@ $scope.deletepost =function(postid){
 });
 }
 
+
   //Count chars for fontsize
   $scope.countchars = function(textlength) {
     var s = 70 - (textlength*2);
     return s + "px";
   };
 
-
   $scope.viewPhoto = function(serverpath,filename){
     Modals.createAndShow($scope,"photoview");
+   // console.log($rootScope.server + serverpath + filename);
+    $scope.photourl = $rootScope.server + serverpath + filename;
+  }
+
+  $scope.getComments = function(postid){
+    Modals.createAndShow($scope,"comments");
    // console.log($rootScope.server + serverpath + filename);
     $scope.photourl = $rootScope.server + serverpath + filename;
   }
@@ -487,8 +581,40 @@ $scope.deletepost =function(postid){
   }
 })
 
-.controller('AccountCtrl',function($scope,$ionicLoading,PostService,Message){
- 
+.controller('AccountCtrl',function($scope,$rootScope,PostService,FileTransferService,$ionicLoading,PostService,Message,Camera){
+
+  $scope.newProfilePicSet = false;
+
+  $scope.getNewProfilePic = function(){
+    Camera.getPicture(1)
+       .then(function(imageURI){ 
+        $scope.account.user_pic = imageURI;
+        $scope.newProfilePicSet = true;
+      },function(error){
+        console.log("Camera probleem:</br>"+error);
+      });
+     } 
+
+
+    $scope.saveProfilePic = function(){
+      $ionicLoading.show({template:"Profielfoto uploaden"});
+      FileTransferService.uploadProfilePic($scope.account.user_pic)
+      .then(function(filename){
+        PostService.addProfilePic(filename)
+        .then(function(){  
+          $ionicLoading.hide();
+          $ionicLoading.show({template:"Je nieuwe profielfoto is opgeslagen",
+            duration:1500});
+          $scope.newProfilePicSet = false;
+        },function(error){
+          $ionicLoading.show({template:error,duration:3000});
+        });
+      },function(error){
+        $ionicLoading.hide();
+        $ionicLoading.show({template:error,duration:3000});
+        console.log(error);
+      });
+    }
 
   $scope.loadAccountData = function(){
       $ionicLoading.show({template:"Accountgegevens laden"});
@@ -496,12 +622,16 @@ $scope.deletepost =function(postid){
   .then(function(userdata){
     $ionicLoading.hide();
     $scope.account = userdata[0];
+    $scope.account.user_pic = $rootScope.server + "/images/users/" + $scope.account.user_pic;
   },function(error){
     $ionicLoading.hide();
     $ionicLoading.show({template:error,duration:3000});
   });
   }
 })
+
+
+
 
 .controller('PhotoPostCtrl', function( $ionicSideMenuDelegate,$scope,$timeout,$state,$rootScope,PostService,FileTransferService,Message){
 
@@ -618,3 +748,36 @@ $scope.deletepost =function(postid){
    });  
  }
 })
+
+.controller('BugCtrl', function($scope,PostService,Modals,Message, $timeout){
+
+  $scope.post = function(){
+    PostService.addFeedback($scope.feedbackmodal.posttext)
+    .then(function(){
+      Message.notify("Bedankt voor je feedback.<br> Je bericht wordt zo spoedig mogelijk in behandeling genomen.");
+      $scope.feedbackmodal.remove();
+    },function(error){
+      Message.notify(error);
+    });
+  }
+
+  $scope.feedback = function(){
+    Modals.createAndShow($scope,"feedback");
+  }
+
+  $scope.bugs = function(){
+   PostService.getBugs().then(function(bugs){
+    $scope.bugs = bugs;
+   },function(error){
+    Message.notify(error);
+   });  
+ }
+})
+
+.filter('timeAgo', function() {
+      return function(date) {
+        return moment(date).fromNow(); 
+      };
+})
+
+
