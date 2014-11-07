@@ -6,8 +6,10 @@ angular.module('prikl', ['ionic', 'ngCordova', 'prikl.controllers', 'prikl.servi
   $rootScope.server = "http://winspire01.windesheim.nl/";
 
   $ionicPlatform.ready(function() {
+    
       //Hide splashscreen
         if(navigator.splashcreen){
+
           navigator.splashscreen.hide();
         }
 

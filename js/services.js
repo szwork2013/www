@@ -132,6 +132,7 @@ angular.module('prikl.services', ['angular-md5'])
         return jsonpRequest(url);
       }else if(pinboard == "group"){
         var url = $rootScope.server + "index.php/serve/getGroupPosts?start="+start+"&limit="+limit+"&groupid="+$rootScope.groupid+"&callback=JSON_CALLBACK";    
+        console.log(url);
         return jsonpRequest(url);
       }
     }
@@ -163,20 +164,28 @@ angular.module('prikl.services', ['angular-md5'])
 
     var addComment = function(postid,text) {
     var url = $rootScope.server + "index.php/serve/addPostComment?userid="+$rootScope.userid+"&postid="+postid+"&text="+text+"&callback=JSON_CALLBACK";
-    console.log(url);
     return jsonpRequest(url);
     }
 
     var deleteComment = function(commentid) {
     var url = $rootScope.server + "index.php/serve/deleteComment?commentid="+commentid+"&callback=JSON_CALLBACK";
-    console.log(url);
-     return jsonpRequest(url);
+    return jsonpRequest(url);
     }
 
     var addFeedback = function(text) {
     var url = $rootScope.server + "index.php/serve/addFeedback?userid="+$rootScope.userid+"&groupid="+$rootScope.groupid+
     "&feedback="+text+"&callback=JSON_CALLBACK";
   
+    return jsonpRequest(url);
+    }
+
+    var changeSettings = function(comm1, comm2, token) {
+    if (comm1 === true) {comm1 = 'true';};
+    if (comm1 === false) {comm1 = 'false';};
+    if (comm2 === true) {comm2 = 'true';};
+    if (comm2 === false) {comm2 = 'false';};
+    var url = $rootScope.server + "index.php/serve/changeSettings?token="+token+"&comm1="+comm1+"&comm2="+comm2+"&callback=JSON_CALLBACK";
+    console.log(url);
     return jsonpRequest(url);
     }
 
@@ -199,7 +208,8 @@ angular.module('prikl.services', ['angular-md5'])
       deletePost: deletePost,
       getComments: getComments,
       addComment: addComment,
-      deleteComment: deleteComment
+      deleteComment: deleteComment,
+      changeSettings: changeSettings
     }
 
 })

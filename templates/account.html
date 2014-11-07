@@ -1,4 +1,4 @@
-<ion-view title="Account" hide-Back-Button="true" ng-init="loadAccountData()">
+<ion-view title="Instellingen" hide-Back-Button="true" ng-init="loadAccountData()">
   <ion-nav-buttons side="left">
     <button menu-toggle="left" class="button button-icon icon ion-navicon"></button>
   </ion-nav-buttons>
@@ -6,7 +6,7 @@
   
   <ion-nav-buttons side="right">
     <i ng-if="loading" class="loadingheadericon icon ion-ios7-reloading"></i>
-    <button class="button button-clear" ng-disabled="!newProfilePicSet" ng-click="saveProfilePic()">Opslaan</button>
+    <button class="button button-clear" ng-disabled="!activateButton" ng-click="saveSettings()">Opslaan</button>
   </ion-nav-buttons>
 
 <ion-content class="has-header darkbackground">
@@ -17,12 +17,34 @@
   <button class="button button-icon icon ion-camera"></button>
 </div>
 
-<div class="accountinfo">
+<div class="accountinfo setting-list">
 {{account.user_firstname}} {{account.user_lastname}}</br>
 {{account.user_email}}</br>
-Apparaat: {{device.model}} {{device.platform}} {{device.version}} </br>
-</div>
+Apparaat: {{device.model}} {{device.platform}} {{device.version}} </br><br />
+<ul class="list">
 
+  <li class="item item-toggle">
+     Notificaties ontvangen van reacties op jouw posts
+     <label class="toggle toggle-energized">
+       <input type="checkbox" ng-model = "checkboxes.comm1" ng-change = "changeSettings()">
+       <div class="track">
+         <div class="handle"></div>
+       </div>
+     </label>
+     <p class = "comment-checkbox-val">{{checkboxes.comm1}}</p>
+  </li>
+  <li class="item item-toggle">
+     Notificaties ontvangen als anderen reageren op dezelfde post
+     <label class="toggle toggle-energized">
+       <input type="checkbox" ng-model = "checkboxes.comm2" ng-change = "changeSettings()">
+       <div class="track">
+         <div class="handle"></div>
+       </div>
+     </label>
+<p class = "comment-checkbox-val">{{checkboxes.comm2}}</p>
+  </li>
+</ul>
+</div>
 </ion-content>
 
 </ion-view>

@@ -5,10 +5,10 @@ angular.module('prikl.controllers', ['youtube-embed'])
   $stateParams,$ionicPlatform,$cordovaPush) {
 
 
-  //  if($rootScope.userid == undefined && $rootScope.groupid == undefined){
-  //   $rootScope.userid = 227;
-  //   $rootScope.groupid = 90;
-  // }
+   if($rootScope.userid == undefined && $rootScope.groupid == undefined){
+    $rootScope.userid = 227;
+    $rootScope.groupid = 90;
+  }
 
 
     //Logoutfunction for logout in menu
@@ -584,17 +584,73 @@ $scope.deletepost =function(postid){
 .controller('AccountCtrl',function($scope,$rootScope,PostService,FileTransferService,$ionicLoading,PostService,Message,Camera){
 
   $scope.newProfilePicSet = false;
+  $scope.settingsChanged = false;
+  $scope.activateButton = false;
+  $scope.checkboxes = {comm1:true,comm2:true};
 
   $scope.getNewProfilePic = function(){
     Camera.getPicture(1)
        .then(function(imageURI){ 
         $scope.account.user_pic = imageURI;
         $scope.newProfilePicSet = true;
+        $scope.activateButton = true;
       },function(error){
         console.log("Camera probleem:</br>"+error);
       });
      } 
 
+     $scope.changeSettings = function()
+     {
+      console.log();
+        $scope.settingsChanged = true;
+        $scope.activateButton = true;
+     }
+
+     $scope.saveSettings = function()
+     {
+        if  ($scope.newProfilePicSet === true) 
+              {
+                $scope.saveProfilePic();
+              }
+          
+        if  ($scope.settingsChanged === true)
+              {
+                $scope.saveProfileSettings();
+              }
+     }
+
+    $scope.saveProfileSettings = function()
+    {
+      console.log($scope.comm1);
+      console.log($scope.comm2);
+      $ionicLoading.show({template:"Wijzigingen opslaan..."});
+      var token = "1101dfc89053b7b3e99bb4815a66c0347956b89c";
+     
+        // var userdevice = window.localStorage.getItem('userdevice');
+        // if(userdevice != undefined){
+        //   //If token-userid pair matches DB, go to pinboard and set userid + groupid
+        //   //If token mismatches remove it from localstorage and go to login
+        //   userdevice = angular.fromJson(userdevice);
+        //   token = userdevice.token;
+        // }
+        // else
+        // {
+        //   console.log('poepelepeu');
+        //   token = "";
+        // }
+
+
+        PostService.changeSettings($scope.checkboxes.comm1, $scope.checkboxes.comm2, token)
+                .then(function(){  
+                  $ionicLoading.hide();
+                  $ionicLoading.show({template:"Je Wijzigingen zijn opgeslagen!",
+                    duration:1500});
+                  $scope.settingsChanged = false;
+                },function(error){
+                  $ionicLoading.show({template:error,duration:3000});
+                });
+
+    }
 
     $scope.saveProfilePic = function(){
       $ionicLoading.show({template:"Profielfoto uploaden"});
@@ -620,6 +676,8 @@ $scope.deletepost =function(postid){
       $ionicLoading.show({template:"Accountgegevens laden"});
       PostService.getAccountData()
   .then(function(userdata){
+    $scope.checkboxes.comm1 = userdata[0].notify_own_post;
+    $scope.checkboxes.comm2 = userdata[0].notify_other_comments;
     $ionicLoading.hide();
     $scope.account = userdata[0];
     $scope.account.user_pic = $rootScope.server + "/images/users/" + $scope.account.user_pic;
