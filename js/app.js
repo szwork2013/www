@@ -11,15 +11,12 @@ angular.module('prikl', ['ionic', 'ngCordova', 'prikl.controllers', 'prikl.servi
           navigator.splashscreen.hide();
         }
 
-
   //Register back button
    $ionicPlatform.registerBackButtonAction(function (event) {
    Message.question("Afsluiten","Wilt u de app afsluiten",function(yes){
     if(yes){navigator.app.exitApp();}
    });
   }, 100);
-
-  
 
    //Get Appversion
     if(window.cordova){

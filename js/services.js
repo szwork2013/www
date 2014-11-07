@@ -5,6 +5,7 @@ angular.module('prikl.services', ['angular-md5'])
       var credentials = {};
 
       var postrequest = function(data,url){
+        console.log(data);
         return $http({
                 url: url,
                 method: "POST",
@@ -13,7 +14,9 @@ angular.module('prikl.services', ['angular-md5'])
                 timeout: 5000
               })
                   .then(function(response) {
+                    console.log(response);
                     return response;
+
                   }, function(response) {
                     if(response.status == 0){
                       return $q.reject("Kan niet verbinden met server");
@@ -49,15 +52,14 @@ angular.module('prikl.services', ['angular-md5'])
       var registerDevice = function(userinfo){
           var data = {"userid":userinfo.userid,"pushid":device.pushID,
           "platform":$cordovaDevice.getPlatform(),"uuid":$cordovaDevice.getUUID()};
-          console.log(data);
           var url = $rootScope.server + "index.php/serve/registerDevice";
           return postrequest(data, url);
       }
 
-      var unregisterDevice = function(userid,token,platform){
-        var data = {"userid":userid,"token":token,"platform":platform};
+      var unregisterDevice = function(token){
+        var data = {"token":token};
         var url = $rootScope.server + "index.php/serve/unregisterDevice";
-        return postRequest(url,data);
+        return postrequest(data,url);
       }
 
       var checkToken = function(userid,token){
@@ -546,7 +548,17 @@ function transformRequest( data, getHeaders ) {
                 return $q.reject(err);
               });
         }
-      }
+      },
+
+    unregister: function(){
+        $cordovaPush.unregister().then(function(result) {
+            // Success!
+            console.log(result);
+        }, function(err) {
+          console.log(err);
+            // An error occured. Show a message to the user
+        });
+    }
     }
   });
 

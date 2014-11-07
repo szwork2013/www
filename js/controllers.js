@@ -2,7 +2,7 @@ angular.module('prikl.controllers', ['youtube-embed'])
 
 
 .controller('AppCtrl', function($scope,$rootScope, $state, Modals, Camera,Message, 
-  $stateParams,$ionicPlatform) {
+  $stateParams,$ionicPlatform,PushProcessing,AuthenticationService) {
 
 
   //  if($rootScope.userid == undefined && $rootScope.groupid == undefined){
@@ -15,11 +15,25 @@ angular.module('prikl.controllers', ['youtube-embed'])
     $scope.logout = function(){
         Message.question("Uitloggen","Weet je zeker dat je wilt uitloggen?",function(answer){
              if(answer){
-                  Message.notify("Uitgelogd");
-                  //  DB.unregisterDevice()
+          
+                  if(ionic.Platform.isIOS() || ionic.Platform.isAndroid()){
+
+                  //Unregisterdevice from DB
+                  var token = angular.fromJson(window.localStorage.getItem('userdevice')).token;
+                  AuthenticationService.unregisterDevice(token);
+
+                  //Unregister Push
+                  PushProcessing.unregister();
+
+
+
+                  //Remove Cache
                   window.localStorage.removeItem('userdevice');
                   window.localStorage.removeItem('group');
                   window.localStorage.removeItem('private');
+                  }
+
+                  Message.notify("Uitgelogd");
                   $state.go('login');
                 }
         });
@@ -53,6 +67,7 @@ angular.module('prikl.controllers', ['youtube-embed'])
   $scope.checkToken = function(){
     var userdevice = window.localStorage.getItem('userdevice');
      $scope.noConnection = false;
+
     if(userdevice != undefined){
       //If token-userid pair matches DB, go to pinboard and set userid + groupid
       //If token mismatches remove it from localstorage and go to login
@@ -61,7 +76,8 @@ angular.module('prikl.controllers', ['youtube-embed'])
       .then(function(response){
         $rootScope.userid = userdevice.userid;
         $rootScope.groupid = userdevice.group_id;
-        $state.go('app.allreactions/:idpost',{idpost:'xdfvbfgbfg'});
+         $state.go('app.allreactions');
+       // $state.go('app.allreactions/:idpost',{idpost:'xdfvbfgbfg'});
         // window.location = "#/app/allreactions/dbvdf";
       },function(error){
         //token mismatch
@@ -128,6 +144,7 @@ angular.module('prikl.controllers', ['youtube-embed'])
           AuthenticationService.registerDevice($scope.userinfo)
               .then(function(response){
                 $ionicLoading.hide();
+                $ionicLoading.show({template:"Apparaat geregistreerd",duration:500});
                 window.localStorage.setItem('userdevice', JSON.stringify(response.data));
                 $state.go('app.allreactions');
               },function(error){
