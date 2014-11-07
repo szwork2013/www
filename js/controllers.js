@@ -4,11 +4,11 @@ angular.module('prikl.controllers', ['youtube-embed'])
 .controller('AppCtrl', function($scope,$rootScope, $state, Modals, Camera,Message, 
   $stateParams,$ionicPlatform,PushProcessing,AuthenticationService) {
 
-
+/*
    if($rootScope.userid == undefined && $rootScope.groupid == undefined){
     $rootScope.userid = 227;
     $rootScope.groupid = 90;
-  }
+  }*/
 
 
     //Logoutfunction for logout in menu
