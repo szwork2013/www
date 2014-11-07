@@ -652,23 +652,22 @@ $scope.deletepost =function(postid){
 
     $scope.saveProfileSettings = function()
     {
-      console.log($scope.comm1);
-      console.log($scope.comm2);
+      var token;
+
       $ionicLoading.show({template:"Wijzigingen opslaan..."});
-      var token = "1101dfc89053b7b3e99bb4815a66c0347956b89c";
+      // var token = "1101dfc89053b7b3e99bb4815a66c0347956b89c";
      
-        // var userdevice = window.localStorage.getItem('userdevice');
-        // if(userdevice != undefined){
-        //   //If token-userid pair matches DB, go to pinboard and set userid + groupid
-        //   //If token mismatches remove it from localstorage and go to login
-        //   userdevice = angular.fromJson(userdevice);
-        //   token = userdevice.token;
-        // }
-        // else
-        // {
-        //   console.log('poepelepeu');
-        //   token = "";
-        // }
+        var userdevice = window.localStorage.getItem('userdevice');
+        if(userdevice != undefined){
+          //If token-userid pair matches DB, go to pinboard and set userid + groupid
+          //If token mismatches remove it from localstorage and go to login
+          userdevice = angular.fromJson(userdevice);
+          token = userdevice.token;
+        }
+        else
+        {
+          token = "";
+        }
 
 
         PostService.changeSettings($scope.checkboxes.comm1, $scope.checkboxes.comm2, token)
