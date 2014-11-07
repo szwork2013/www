@@ -1,10 +1,11 @@
 angular.module('prikl.services', ['angular-md5'])
 
-.factory('AuthenticationService', function ($q,$http,$rootScope, transformAsPost,md5) {
+.factory('AuthenticationService', function ($q,$http,$rootScope,transformAsPost,md5,$cordovaDevice) {
       $http.defaults.headers.post["Content-Type"] = "application/x-www-form-urlencoded";
       var credentials = {};
 
       var postrequest = function(data,url){
+        console.log(data);
         return $http({
                 url: url,
                 method: "POST",
@@ -13,7 +14,9 @@ angular.module('prikl.services', ['angular-md5'])
                 timeout: 5000
               })
                   .then(function(response) {
+                    console.log(response);
                     return response;
+
                   }, function(response) {
                     if(response.status == 0){
                       return $q.reject("Kan niet verbinden met server");
@@ -46,16 +49,17 @@ angular.module('prikl.services', ['angular-md5'])
         return postrequest(data, url);
       }
 
-      var registerDevice = function(userinfo,deviceinfo){
-        var data = {"userid":userinfo.userid,"pushid":deviceinfo.pushid,"platform":deviceinfo.platform};
-        var url = $rootScope.server + "index.php/serve/registerDevice";
-        return postrequest(data, url);
+      var registerDevice = function(userinfo){
+          var data = {"userid":userinfo.userid,"pushid":device.pushID,
+          "platform":$cordovaDevice.getPlatform(),"uuid":$cordovaDevice.getUUID()};
+          var url = $rootScope.server + "index.php/serve/registerDevice";
+          return postrequest(data, url);
       }
 
-      var unregisterDevice = function(userid,token,platform){
-        var data = {"userid":userid,"token":token,"platform":platform};
+      var unregisterDevice = function(token){
+        var data = {"token":token};
         var url = $rootScope.server + "index.php/serve/unregisterDevice";
-        return postRequest(url,data);
+        return postrequest(data,url);
       }
 
       var checkToken = function(userid,token){
@@ -66,7 +70,7 @@ angular.module('prikl.services', ['angular-md5'])
 
       var credentials = {mail:"",pw:"",pw2:""};
       var userinfo = {userid:'',userfirstname:'',userlastname:'',groupid:'',profilepic:'./img/dummy.png'};
-      var deviceinfo = {pushid:'',platform:''};
+      var device = {pushID:''};
 
       return {
         verifyAccount: verifyAccount,
@@ -77,7 +81,7 @@ angular.module('prikl.services', ['angular-md5'])
         checkToken: checkToken,
         credentials:credentials,
         userinfo:userinfo,
-        deviceinfo:deviceinfo
+        device:device
       };
   })
 
@@ -528,41 +532,43 @@ function transformRequest( data, getHeaders ) {
   }
 })
 
-.factory("PushProcessing",function($cordovaPush) {
-
+.factory("PushProcessing",function($q,$cordovaPush,AuthenticationService) {
   return {
     register : function(){
-        //Register push
+        //Register android GCM with senderID
         if(ionic.Platform.isAndroid()){
-          $cordovaPush.register({"senderID":"10154189285","ecb":"onNotificationGCM"}).then(function(result) {
-              // Success!
-              alert("ANDROIDGEREGISTREERD");
-              alert(result);
-              console.log(result);
-              //alert($cordovaDevice.getUUID());
-                   // AuthenticationService.deviceinfo.pushid = regid;
-                   // AuthenticationService.deviceinfo.platform = "android";
-                   console.log("Succesfully registered android GCM");
+          return $cordovaPush.register({"senderID":"10154189285","ecb":"onNotificationGCM"})
+          .then(function(result) {
+              //Android's GCM returns OK if successfully registered
+                  console.log("Succesfully registered android GCM");
+                  return result;
                  }, function(err) {
                   console.log(err);
-                  alert(err);
+                  return $q.reject(err);
                 });
         }else if(ionic.Platform.isIOS()){
-          $cordovaPush.register({"badge":"true","sound":"true","alert":"true","ecb":"onNotificationAPN"}).then(function(result) {
-              // Success!
-              alert("APPLEGEREGISTREERD");
-              alert(result);
-              console.log(result);
-             // alert($cordovaDevice.getUUID());
-               //   AuthenticationService.deviceinfo.pushid = result;
-                //  AuthenticationService.deviceinfo.platform = "iOS";
+          return $cordovaPush.register({"badge":"true","sound":"true","alert":"true","ecb":"onNotificationAPN"})
+          .then(function(result) {
+              //IOS APNS returns unique pushID for receiving pushnotifications
+                AuthenticationService.device.pushID=result;
                 console.log("Succesfully registered Apple APN");
+                return "OK";
               }, function(err) {
                 console.log(err);
-                alert(err);
+                return $q.reject(err);
               });
         }
-      }
+      },
+
+    unregister: function(){
+        $cordovaPush.unregister().then(function(result) {
+            // Success!
+            console.log(result);
+        }, function(err) {
+          console.log(err);
+            // An error occured. Show a message to the user
+        });
+    }
     }
   });
 
@@ -575,15 +581,11 @@ function onNotificationGCM(e, $state, $rootScope) {
         case 'registered':
             if ( e.regid.length > 0 )
             {
-                console.log('REGISTERED with GCM Server -> REGID:' + e.regid + "");
-          
-                //call back to web service in Angular.  
-                //This works for me because in my code I have a factory called
-                //      PushProcessingService with method registerID
+                //Register Google's PushID
                 var elem = angular.element(document.querySelector('[ng-app]'));
                 var injector = elem.injector();
-                var myService = injector.get('PushProcessingService');
-                myService.registerID(e.regid);
+                var myService = injector.get('AuthenticationService');
+                myService.device.pushID=e.regid;
             }
             break;
  

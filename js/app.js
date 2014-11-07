@@ -1,7 +1,7 @@
 angular.module('prikl', ['ionic', 'ngCordova', 'prikl.controllers', 'prikl.services'])
 
 .run(function($ionicPlatform,$cordovaDevice,
-  $rootScope,Message,PushProcessing,$state,$timeout) {
+  $rootScope,Message,$state,$timeout,PushProcessing) {
    //URL to servers' root
   $rootScope.server = "http://winspire01.windesheim.nl/";
 
@@ -13,7 +13,6 @@ angular.module('prikl', ['ionic', 'ngCordova', 'prikl.controllers', 'prikl.servi
           navigator.splashscreen.hide();
         }
 
-
   //Register back button
    $ionicPlatform.registerBackButtonAction(function (event) {
    Message.question("Afsluiten","Wilt u de app afsluiten",function(yes){
@@ -21,26 +20,12 @@ angular.module('prikl', ['ionic', 'ngCordova', 'prikl.controllers', 'prikl.servi
    });
   }, 100);
 
-
-   PushProcessing.register();
-
    //Get Appversion
     if(window.cordova){
       cordova.getAppVersion(function(version) {
         $rootScope.version = version;
       });
     }
-   
-   //Get deviceinfo
-   try{
-    if(device){
-        $rootScope.device = {platform: device.platform, name: device.name, cordova:device.cordova, 
-          uuid:device.uuid,model:device.model,version:device.version};
-    }
-  }catch(ex){
-    console.log(ex);
-  }
-
 
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard
     // for form inputs)
