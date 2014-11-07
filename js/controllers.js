@@ -2,7 +2,7 @@ angular.module('prikl.controllers', ['youtube-embed'])
 
 
 .controller('AppCtrl', function($scope,$rootScope, $state, Modals, Camera,Message, 
-  $stateParams,$ionicPlatform,$cordovaPush) {
+  $stateParams,$ionicPlatform) {
 
 
   //  if($rootScope.userid == undefined && $rootScope.groupid == undefined){
@@ -43,12 +43,11 @@ angular.module('prikl.controllers', ['youtube-embed'])
 })
 
 //Controller for Login/Activate/RegisterDevice/Tokencheck
-.controller('LoginCtrl', function($scope,Modals,$rootScope,$state,$ionicLoading,
-  AuthenticationService,FileTransferService,Camera,Message,$stateParams) {
+.controller('LoginCtrl', function($scope,Modals,$timeout,$rootScope,$state,$ionicLoading,
+  AuthenticationService,FileTransferService,PushProcessing,Camera,Message,$stateParams) {
   
   $scope.credentials = AuthenticationService.credentials;
   $scope.userinfo = AuthenticationService.userinfo;
-  $scope.deviceinfo = AuthenticationService.deviceinfo;
   $scope.noConnection = false;
 
   $scope.checkToken = function(){
@@ -114,26 +113,41 @@ angular.module('prikl.controllers', ['youtube-embed'])
       $rootScope.userid = AuthenticationService.userinfo.userid;
       $rootScope.groupid = AuthenticationService.userinfo.groupid;
 
-   if(AuthenticationService.deviceinfo.pushid == ''){
-      //Browsers and devices won't get a DeviceID
-
-      $ionicLoading.show({template:"Geen Push ID verkregen",duration:1000});
-      $state.go('app.allreactions');
-    }else{
+   //Register device for pushNotifications
+   if(ionic.Platform.isIOS() || ionic.Platform.isAndroid()){
+     
       //Registerdevice, send DeviceID(From Googles/Apples Cloud Messaging Service) to server,
       //server generates token, device stores this token in localstorage
- 
       $ionicLoading.show({template:"Apparaat registreren"});
-      AuthenticationService.registerDevice($scope.userinfo, $scope.deviceinfo)
-      .then(function(response){
-        $ionicLoading.hide();
-        window.localStorage.setItem('userdevice', JSON.stringify(response.data));
-        var userdevice = angular.fromJson(window.localStorage.getItem('userdevice'));
-        $state.go('app.allreactions');
-      },function(error){
+
+      //Register app for pushnotifications, returns when succesfully registered
+      PushProcessing.register().then(function(succes){
+        //Google GCM doesnt return PushID directly -> have to wait 
+        //Better to return promise
+        $timeout(function(){
+          AuthenticationService.registerDevice($scope.userinfo)
+              .then(function(response){
+                $ionicLoading.hide();
+                window.localStorage.setItem('userdevice', JSON.stringify(response.data));
+                $state.go('app.allreactions');
+              },function(error){
+                $ionicLoading.hide();
+                $ionicLoading.show({template:error,duration:3000});
+              });
+          },500);
+
+      },function(err){
+
         $ionicLoading.hide();
         $ionicLoading.show({template:error,duration:3000});
+
       });
+      
+     
+    }else{ 
+      //Browsers and devices won't get a DeviceID
+      $ionicLoading.show({template:"Geen Android of iOS",duration:1000});
+      $state.go('app.allreactions');
     }
   }
 
