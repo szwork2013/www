@@ -630,9 +630,28 @@ function onNotificationGCM(e, $state, $rootScope) {
     }
 }
 
-function onNotificationAPN(){
-  alert("JOONOTIFICATIEAPPLE");
-}
+
+//Apple notificationevents
+function onNotificationAPN(event) {
+    window.location = "#/app/prikls";
+
+    if ( event.alert )
+    {
+       // navigator.notification.alert(event.alert);
+    };
+
+    if ( event.sound )
+    {
+        var snd = new Media(event.sound);
+
+        snd.play();
+    };
+
+    if ( event.badge )
+    {
+        pushNotification.setApplicationIconBadgeNumber(successHandler, errorHandler, event.badge);
+    };
+};
 
 function checkConnection() {
     var networkState = navigator.connection.type;
