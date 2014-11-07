@@ -1,23 +1,26 @@
-angular.module('prikl', ['ionic', 'prikl.controllers', 'prikl.services'])
+angular.module('prikl', ['ionic', 'ngCordova', 'prikl.controllers', 'prikl.services'])
 
-.run(function($ionicPlatform,$rootScope,Message,$state,$timeout,PushProcessingService) {
+.run(function($ionicPlatform,$cordovaDevice,
+  $rootScope,Message,PushProcessing,$state,$timeout) {
    //URL to servers' root
   $rootScope.server = "http://winspire01.windesheim.nl/";
 
   $ionicPlatform.ready(function() {
-    PushProcessingService.initialize();
-
       //Hide splashscreen
         if(navigator.splashcreen){
           navigator.splashscreen.hide();
         }
 
-    //Register back button
+
+  //Register back button
    $ionicPlatform.registerBackButtonAction(function (event) {
    Message.question("Afsluiten","Wilt u de app afsluiten",function(yes){
     if(yes){navigator.app.exitApp();}
    });
   }, 100);
+
+
+   PushProcessing.register();
 
    //Get Appversion
     if(window.cordova){
@@ -122,4 +125,6 @@ angular.module('prikl', ['ionic', 'prikl.controllers', 'prikl.services'])
   // if none of the above states are matched, use this as the fallback
   $urlRouterProvider.otherwise('/connecting');
 });
+
+
 

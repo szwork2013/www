@@ -1,12 +1,13 @@
 angular.module('prikl.controllers', ['youtube-embed'])
 
-.controller('AppCtrl', function($scope,$rootScope, $state, Modals, Camera,Message) {
+.controller('AppCtrl', function($scope,$rootScope, $state,$ionicPlatform,$cordovaPush, Modals, Camera,Message) {
 
-
-    if($rootScope.userid == undefined && $rootScope.groupid == undefined){
+  /*  if($rootScope.userid == undefined && $rootScope.groupid == undefined){
      $rootScope.userid = 227;
      $rootScope.groupid = 90;
-   }
+   }*/
+
+
 
     //Logoutfunction for logout in menu
     $scope.logout = function(){
@@ -22,7 +23,7 @@ angular.module('prikl.controllers', ['youtube-embed'])
         });
       }
 
-  //Functions for new posts
+   //Functions for new posts
   $scope.photo = function(){
    Camera.getPicture(0)
    .then(function(imageURI){ 
@@ -415,6 +416,8 @@ $scope.refresh(pinboard);
           var date = new Date(posts[i].post_date);
           date = new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), 0, 0, 0, 0);
           var firstdate = $scope.posts[0].date;
+
+
           
           if(firstdate.toString() == date.toString()){
             $scope.posts[0].posts.unshift(posts[i]);
@@ -449,6 +452,8 @@ $scope.loadMore = function(pinboard) {
    PostService.getPosts(pinboard,$scope.posts.total,5)
    .then(function(posts){
 
+
+
                         //Divide posts per date, for every post create new dateobject with time 00:00:00, check
                         //if there is no other post with the same date -> create an object with an array for this date
                         //"posts":[ { date : "12 october 2014" , posts : [post,post,post,post] },
@@ -461,25 +466,7 @@ $scope.loadMore = function(pinboard) {
                           //iterate trough all received posts
                           for (var i = 0; i < posts.length; i++){
 
-                            //Set time to 00:00:00 for every post
-                            var date = new Date(posts[i].post_date);
-                            date = new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), 0, 0, 0, 0);
-                            
-                            var lastdate;
-                            
-                            if($scope.posts.length >0){
-                              lastdate = $scope.posts[$scope.posts.length-1].date;
-                            }
-
-                            if(lastdate == date.toString()){
-                              $scope.posts[$scope.posts.length-1].posts.push(posts[i]);
-                            }else{
-                              var newarr = [];
-                              newarr.push(posts[i]);
-                              var newDateArray = {'date':date,'posts':newarr};
-                              $scope.posts.push(newDateArray);    
-                            }
-
+                            $scope.posts.push(posts[i]);
 
                             $scope.posts.total++;
                           }
@@ -527,6 +514,7 @@ $scope.deletepost =function(postid){
   }
 });
 }
+
 
   //Count chars for fontsize
   $scope.countchars = function(textlength) {
@@ -610,11 +598,7 @@ $scope.deletepost =function(postid){
 })
 
 
-// .controller('AccountCtrl',function($scope,$ionicLoading,PostService,Message){
- 
-//   $scope.close_comment_modal = function()
-  
-// })
+
 
 .controller('PhotoPostCtrl', function( $ionicSideMenuDelegate,$scope,$timeout,$state,$rootScope,PostService,FileTransferService,Message){
 
@@ -755,6 +739,12 @@ $scope.deletepost =function(postid){
     Message.notify(error);
    });  
  }
+})
+
+.filter('timeAgo', function() {
+      return function(date) {
+        return moment(date).fromNow(); 
+      };
 })
 
 

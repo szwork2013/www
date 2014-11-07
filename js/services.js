@@ -472,56 +472,6 @@ angular.module('prikl.services', ['angular-md5'])
   }
 })
 
-//Pushprocessing service, get token from Google's GCM or Apple's APNS
-.factory('PushProcessingService', function(Message,AuthenticationService) {
-    function onDeviceReady(){
-     
-         var pushNotification = window.plugins.pushNotification;
-          if(device.platform == "Android")
-            {
-            pushNotification.register(gcmSuccessHandler, errorHandler, {"senderID":"10154189285","ecb":"onNotificationGCM"});
-            }
-            else if (device.platform == "iOS")
-            {
-            pushNotification.register(apnsHandler, errorHandler,{"badge":"true","sound":"true","alert":"true","ecb":"onNotificationAPN"});
-            }else{
-              console.log("Device is not an Android/iOS or cordova.device is not available");
-            }  
-    }
-
-        function gcmSuccessHandler(result) {
-            console.info('Android GCM succeeded: '+result);
-        }
-        function apnsHandler(result) {
-            AuthenticationService.deviceinfo.pushid = result;
-            AuthenticationService.deviceinfo.platform = "iOS";
-        }
-        function errorHandler(error) {
-            console.error('PushProcessingError: '+error);
-            Message.notify("Niet aangemeld voor pushnotificaties");
-        }
-
-        return {
-            initialize : function () {
-                document.addEventListener("deviceready", onDeviceReady, true);
-            },
-            registerID : function (regid) {
-              AuthenticationService.deviceinfo.pushid = regid;
-              AuthenticationService.deviceinfo.platform = "android";
-            }, 
-            //unregister evt later nog aanroepen bij deinstallatie app of instellingen menu
-            unregister : function () {
-                console.info('unregister')
-                var push = window.plugins.pushNotification;
-                if (push) {
-                    push.unregister(function () {
-                        console.info('unregister success')
-                    });
-                }
-            }
-        }
-})
-
 //Transform request as form post
 .factory("transformAsPost",function() {
 // I prepare the request data for the form post.
@@ -559,90 +509,53 @@ function transformRequest( data, getHeaders ) {
 
     return( source );
   }
-});
+})
 
+.factory("PushProcessing",function($cordovaPush) {
 
-// ALL GCM notifications come through here. 
-function onNotificationGCM(e) {
-    console.log('EVENT -> RECEIVED:' + e.event + '');
-    switch( e.event )
-    {
-        case 'registered':
-            if ( e.regid.length > 0 )
-            {
-                console.log('REGISTERED with GCM Server -> REGID:' + e.regid + "");
-          
-                //call back to web service in Angular.  
-                //This works for me because in my code I have a factory called
-                //      PushProcessingService with method registerID
-                var elem = angular.element(document.querySelector('[ng-app]'));
-                var injector = elem.injector();
-                var myService = injector.get('PushProcessingService');
-                myService.registerID(e.regid);
-            }
-            break;
- 
-        case 'message':
-            // if this flag is set, this notification happened while we were in the foreground.
-            // you might want to play a sound to get the user's attention, throw up a dialog, etc.
-            if (e.foreground)
-            {
-                //we're using the app when a message is received.
-                console.log('--INLINE NOTIFICATION--' + '');
- 
-                // if the notification contains a soundname, play it.
-                //var my_media = new Media("/android_asset/www/"+e.soundname);
-                //my_media.play();
-
-                window.location = "#/app/prikls";
-            }
-            else
-            {   
-                // otherwise we were launched because the user touched a notification in the notification tray.
-                if (e.coldstart)
-                    console.log('--COLDSTART NOTIFICATION--' + '');
-                else
-                    console.log('--BACKGROUND NOTIFICATION--' + '');
-
-                 
-                window.location = "#/app/prikls";
-            }
- 
-            console.log('MESSAGE -> MSG: ' + e.payload.message + '');
-            console.log('MESSAGE: '+ JSON.stringify(e.payload));
-            break;
- 
-        case 'error':
-            console.log('ERROR -> MSG:' + e.msg + '');
-            break;
- 
-        default:
-            console.log('EVENT -> Unknown, an event was received and we do not know what it is');
-            break;
+  return {
+    register : function(){
+        //Register push
+        if(ionic.Platform.isAndroid()){
+          $cordovaPush.register({"senderID":"10154189285","ecb":"onGCMNotification"}).then(function(result) {
+              // Success!
+              alert("ANDROIDGEREGISTREERD");
+              alert(result);
+              console.log(result);
+              //alert($cordovaDevice.getUUID());
+                   // AuthenticationService.deviceinfo.pushid = regid;
+                   // AuthenticationService.deviceinfo.platform = "android";
+                   console.log("Succesfully registered android GCM");
+                 }, function(err) {
+                  console.log(err);
+                  alert(err);
+                });
+        }else if(ionic.Platform.isIOS()){
+          $cordovaPush.register({"badge":"true","sound":"true","alert":"true","ecb":"onAPNNotification"}).then(function(result) {
+              // Success!
+              alert("APPLEGEREGISTREERD");
+              alert(result);
+              console.log(result);
+             // alert($cordovaDevice.getUUID());
+               //   AuthenticationService.deviceinfo.pushid = result;
+                //  AuthenticationService.deviceinfo.platform = "iOS";
+                console.log("Succesfully registered Apple APN");
+              }, function(err) {
+                console.log(err);
+                alert(err);
+              });
+        }
     }
 }
+});
 
-//Apple notificationevents
-onNotificationAPN  = function(event) {
-    window.location = "#/app/prikls";
+function onGCMNotification(){
+  alert("JOONOTIFICATIEGOOGLE");
+}
 
-    if ( event.alert )
-    {
-       // navigator.notification.alert(event.alert);
-    };
-
-    if ( event.sound )
-    {
-        var snd = new Media(event.sound);
-
-        snd.play();
-    };
-
-    if ( event.badge )
-    {
-        pushNotification.setApplicationIconBadgeNumber(successHandler, errorHandler, event.badge);
-    };
-};
+function onAPNNotification(){
+  alert("JOONOTIFICATIEAPPLE");
+}
 
 function checkConnection() {
     var networkState = navigator.connection.type;
