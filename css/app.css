@@ -31,6 +31,19 @@
   border-top: 1px solid white;
 }
 
+.comment-checkbox-val-no
+{
+  font-weight: bolder;
+  color: red !important;
+}
+
+.comment-checkbox-val-yes
+{
+  font-weight: bolder;
+  color: lightgreen !important;
+}
+
+
 .title{
   font-weight:300;
 }

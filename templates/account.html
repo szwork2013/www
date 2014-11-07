@@ -31,7 +31,8 @@ Apparaat: {{device.model}} {{device.platform}} {{device.version}} </br><br />
          <div class="handle"></div>
        </div>
      </label>
-     <p class = "comment-checkbox-val">{{checkboxes.comm1}}</p>
+     <p ng-if = "!checkboxes.comm1" class = "comment-checkbox-val-no">Nee</p>
+     <p ng-if = "checkboxes.comm1" class = "comment-checkbox-val-yes">Ja</p>
   </li>
   <li class="item item-toggle">
      Notificaties ontvangen als anderen reageren op dezelfde post
@@ -40,8 +41,11 @@ Apparaat: {{device.model}} {{device.platform}} {{device.version}} </br><br />
        <div class="track">
          <div class="handle"></div>
        </div>
+
      </label>
-<p class = "comment-checkbox-val">{{checkboxes.comm2}}</p>
+     <p ng-if = "!checkboxes.comm2" class = "comment-checkbox-val-no">Nee</p>
+     <p ng-if = "checkboxes.comm2" class = "comment-checkbox-val-yes">Ja</p>
+
   </li>
 </ul>
 </div>
