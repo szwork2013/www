@@ -105,8 +105,8 @@ angular.module('prikl.services', ['angular-md5'])
                 return deferred.promise;
     }
 
-    var getAccountData = function(){
-      var url = $rootScope.server + "index.php/serve/getAccountData?usid="+$rootScope.userid+"&callback=JSON_CALLBACK";
+    var getAccountData = function(token){
+      var url = $rootScope.server + "index.php/serve/getAccountData?usid="+$rootScope.userid+"&token="+token+"&callback=JSON_CALLBACK";
       return jsonpRequest(url);
     }
 
@@ -136,7 +136,6 @@ angular.module('prikl.services', ['angular-md5'])
         return jsonpRequest(url);
       }else if(pinboard == "group"){
         var url = $rootScope.server + "index.php/serve/getGroupPosts?start="+start+"&limit="+limit+"&groupid="+$rootScope.groupid+"&callback=JSON_CALLBACK";    
-        console.log(url);
         return jsonpRequest(url);
       }
     }
@@ -189,7 +188,7 @@ angular.module('prikl.services', ['angular-md5'])
     if (comm2 === true) {comm2 = 'true';};
     if (comm2 === false) {comm2 = 'false';};
     var url = $rootScope.server + "index.php/serve/changeSettings?token="+token+"&comm1="+comm1+"&comm2="+comm2+"&callback=JSON_CALLBACK";
-    console.log(url);
+    alert(url);
     return jsonpRequest(url);
     }
 

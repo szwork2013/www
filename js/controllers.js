@@ -619,6 +619,24 @@ $scope.deletepost =function(postid){
   $scope.activateButton = false;
   $scope.checkboxes = {comm1:true,comm2:true};
 
+   var token;
+
+      $ionicLoading.show({template:"Wijzigingen opslaan..."});
+      // var token = "1101dfc89053b7b3e99bb4815a66c0347956b89c";
+     
+        var userdevice = window.localStorage.getItem('userdevice');
+        if(userdevice != undefined){
+          //If token-userid pair matches DB, go to pinboard and set userid + groupid
+          //If token mismatches remove it from localstorage and go to login
+          userdevice = angular.fromJson(userdevice);
+          token = userdevice.token + "";
+          // alert(token);
+        }
+        else
+        {
+          token = "";
+        }
+
   $scope.getNewProfilePic = function(){
     Camera.getPicture(1)
        .then(function(imageURI){ 
@@ -652,28 +670,11 @@ $scope.deletepost =function(postid){
 
     $scope.saveProfileSettings = function()
     {
-      var token;
-
-      $ionicLoading.show({template:"Wijzigingen opslaan..."});
-      // var token = "1101dfc89053b7b3e99bb4815a66c0347956b89c";
-     
-        var userdevice = window.localStorage.getItem('userdevice');
-        if(userdevice != undefined){
-          //If token-userid pair matches DB, go to pinboard and set userid + groupid
-          //If token mismatches remove it from localstorage and go to login
-          userdevice = angular.fromJson(userdevice);
-          token = userdevice.token;
-        }
-        else
-        {
-          token = "";
-        }
-
-
         PostService.changeSettings($scope.checkboxes.comm1, $scope.checkboxes.comm2, token)
-                .then(function(){  
+                .then(function(){
                   $ionicLoading.hide();
-                  $ionicLoading.show({template:"Je Wijzigingen zijn opgeslagen!",
+                  alert("comm1:" + $scope.checkboxes.comm1 + " comm2:" + $scope.checkboxes.comm2);
+                  $ionicLoading.show({template:"Je wijzigingen zijn opgeslagen!",
                     duration:1500});
                   $scope.settingsChanged = false;
                 },function(error){
@@ -704,7 +705,7 @@ $scope.deletepost =function(postid){
 
   $scope.loadAccountData = function(){
       $ionicLoading.show({template:"Accountgegevens laden"});
-      PostService.getAccountData()
+      PostService.getAccountData(token)
   .then(function(userdata){
     $scope.checkboxes.comm1 = userdata[0].notify_own_post;
     $scope.checkboxes.comm2 = userdata[0].notify_other_comments;
