@@ -359,14 +359,20 @@ angular.module('prikl.controllers', ['youtube-embed'])
   
 })
 
-.controller('PinboardCtrl',function($scope,$state,$filter,$stateParams,$rootScope,$timeout,$ionicLoading,PostService,Cache,Message,Modals){
+.controller('PinboardCtrl',function($scope,$state,$filter,$stateParams,$rootScope,$timeout,$ionicLoading,PostService,Cache,Message,Modals,pushNotificationHandler){
   $scope.noMoreItemsAvailable = false;
   $scope.noConnection = false;
   $scope.posts = [];
   $scope.loading = false;
   $scope.posts.total = 0; 
   // alert(document.URL);
-  console.log($stateParams);
+  
+  alert(pushNotificationHandler.postidFromPushNotification);
+
+  if (pushNotificationHandler.postidFromPushNotification != "") 
+    {
+      alert('DIKKE PJOEP, HET LUKT: ' + pushNotificationHandler.postidFromPushNotification);
+    };
 
   $scope.$on('$stateChangeStart', 
     function(event, toState, toParams, fromState, fromParams){ 
