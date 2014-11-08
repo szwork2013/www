@@ -440,6 +440,14 @@ angular.module('prikl.services', ['angular-md5'])
    }
 })
 
+.factory('pushNotificationHandler', function (){
+
+  var postidFromPushNotification = "";
+
+  return {postidFromPushNotification: postidFromPushNotification};
+
+})
+
 //Camerafactory, asks user for source(camera or album) and returns the url of image
 .factory('Camera', function ($q, $ionicActionSheet) {
   return {
@@ -594,6 +602,21 @@ function onNotificationGCM(e, $state, $rootScope) {
             // you might want to play a sound to get the user's attention, throw up a dialog, etc.
             if (e.foreground)
             {
+              if(e.payload.postid !== '')
+                {
+                    var postid = e.payload.postid;
+                    
+                  // window.location = "#/app/allreactions/:" + e.payload.postid;
+                  // $rootScope.postidfrompush = postid;
+                  // alert($rootScope.postidfrompush);
+
+                    var elem = angular.element(document.querySelector('[ng-app]'));
+                    var injector = elem.injector();
+                    var myService = injector.get('pushNotificationHandler');
+                    myService.postidFromPushNotification = postid;
+                    window.location = "#/app/allreactions";
+                    alert('uit de service: ' +e.payload.postid);
+                }
                 //we're using the app when a message is received.
                 console.log('--INLINE NOTIFICATION--' + '');
  
@@ -613,12 +636,18 @@ function onNotificationGCM(e, $state, $rootScope) {
 
                 if(e.payload.postid !== '')
                 {
-                  var postid = e.payload.postid;
-                  window.location = "#/app/allreactions/:" + e.payload.postid;
-                  // $rootScope.notificationPostid = e.payload.postid;
-                  // Modals.createAndShow('comments');
-                  $rootScope.postidfrompush = postid;
-                  
+                    var postid = e.payload.postid;
+                    
+                  // window.location = "#/app/allreactions/:" + e.payload.postid;
+                  // $rootScope.postidfrompush = postid;
+                  // alert($rootScope.postidfrompush);
+
+                    var elem = angular.element(document.querySelector('[ng-app]'));
+                    var injector = elem.injector();
+                    var myService = injector.get('pushNotificationHandler');
+                    myService.postidFromPushNotification = postid;
+                    window.location = "#/app/allreactions";
+                    alert('uit de service: ' +e.payload.postid);
                 }
                 else
                 {
