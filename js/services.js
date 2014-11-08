@@ -583,7 +583,7 @@ function transformRequest( data, getHeaders ) {
 
 
 // ALL GCM notifications come through here. 
-function onNotificationGCM(e, $state, $rootScope) {
+window.onNotificationGCM = function(e, $state, $rootScope) {
     switch( e.event )
     {
         case 'registered':
@@ -597,77 +597,19 @@ function onNotificationGCM(e, $state, $rootScope) {
             }
             break;
  
-        case 'message':
-            // if this flag is set, this notification happened while we were in the foreground.
-            // you might want to play a sound to get the user's attention, throw up a dialog, etc.
-            if (e.foreground)
-            {
-              if(e.payload.postid !== '')
-                {
-                    var postid = e.payload.postid;
-                    
-                  // window.location = "#/app/allreactions/:" + e.payload.postid;
-                  // $rootScope.postidfrompush = postid;
-                  // alert($rootScope.postidfrompush);
-
-                    var elem = angular.element(document.querySelector('[ng-app]'));
-                    var injector = elem.injector();
-                    var myService = injector.get('pushNotificationHandler');
-                    myService.postidFromPushNotification = postid;
-                    window.location = "#/app/allreactions";
-                    alert('uit de service: ' +e.payload.postid);
-                }
-                //we're using the app when a message is received.
-                console.log('--INLINE NOTIFICATION--' + '');
- 
-                // if the notification contains a soundname, play it.
-                //var my_media = new Media("/android_asset/www/"+e.soundname);
-                //my_media.play();
-
-                window.location = "#/app/prikls";
-            }
-            else
-            {   
-                // otherwise we were launched because the user touched a notification in the notification tray.
-                if (e.coldstart)
-                    console.log('--COLDSTART NOTIFICATION--' + '');
-                else
-                    console.log('--BACKGROUND NOTIFICATION--' + '');
-
-                if(e.payload.postid !== '')
-                {
-                    var postid = e.payload.postid;
-                    
-                  // window.location = "#/app/allreactions/:" + e.payload.postid;
-                  // $rootScope.postidfrompush = postid;
-                  // alert($rootScope.postidfrompush);
-
-                    var elem = angular.element(document.querySelector('[ng-app]'));
-                    var injector = elem.injector();
-                    var myService = injector.get('pushNotificationHandler');
-                    myService.postidFromPushNotification = postid;
-                    window.location = "#/app/allreactions";
-                    alert('uit de service: ' +e.payload.postid);
-                }
-                else
-                {
-                  window.location = "#/app/prikls";
-                }
-                
-
-            }
- 
-            console.log('MESSAGE -> MSG: ' + e.payload.message + '');
-            console.log('MESSAGE: '+ JSON.stringify(e.payload));
+         case 'message':
+              // this is the actual push notification. its format depends on the data model from the push server
+              // alert('message = '+e.message+' msgcnt = '+e.msgcnt);
+              alert(e.payload.postid);
             break;
  
-        case 'error':
-            console.log('ERROR -> MSG:' + e.msg + '');
+            case 'error':
+              alert('GCM error = '+e.msg);
             break;
  
-        default:
-            console.log('EVENT -> Unknown, an event was received and we do not know what it is');
-            break;
+            default:
+              alert('An unknown GCM event has occurred');
+              break;
     }
 }
 

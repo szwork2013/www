@@ -367,12 +367,12 @@ angular.module('prikl.controllers', ['youtube-embed'])
   $scope.posts.total = 0; 
   // alert(document.URL);
   
-  alert(pushNotificationHandler.postidFromPushNotification);
+  // alert(pushNotificationHandler.postidFromPushNotification);
 
-  if (pushNotificationHandler.postidFromPushNotification != "") 
-    {
-      alert('DIKKE PJOEP, HET LUKT: ' + pushNotificationHandler.postidFromPushNotification);
-    };
+  // if (pushNotificationHandler.postidFromPushNotification != "") 
+  //   {
+  //     alert('DIKKE PJOEP, HET LUKT: ' + pushNotificationHandler.postidFromPushNotification);
+  //   };
 
   $scope.$on('$stateChangeStart', 
     function(event, toState, toParams, fromState, fromParams){ 
@@ -679,7 +679,7 @@ $scope.deletepost =function(postid){
         PostService.changeSettings($scope.checkboxes.comm1, $scope.checkboxes.comm2, token)
                 .then(function(){
                   $ionicLoading.hide();
-                  alert("comm1:" + $scope.checkboxes.comm1 + " comm2:" + $scope.checkboxes.comm2);
+                  // alert("comm1:" + $scope.checkboxes.comm1 + " comm2:" + $scope.checkboxes.comm2);
                   $ionicLoading.show({template:"Je wijzigingen zijn opgeslagen!",
                     duration:1500});
                   $scope.settingsChanged = false;
