@@ -359,12 +359,20 @@ angular.module('prikl.controllers', ['youtube-embed'])
   
 })
 
-.controller('PinboardCtrl',function($scope,$state,$filter,$stateParams,$rootScope,$timeout,$ionicLoading,PostService,Cache,Message,Modals,pushNotificationHandler){
+.controller('PinboardCtrl',function($scope,$state,$filter,$stateParams,$rootScope,$timeout,$ionicLoading,PostService,Cache,Message,Modals,pushNotificationHandler, PushPayload){
   $scope.noMoreItemsAvailable = false;
   $scope.noConnection = false;
   $scope.posts = [];
   $scope.loading = false;
-  $scope.posts.total = 0; 
+  $scope.posts.total = 0;
+
+  var pushmsg = PushPayload.Pushdata;
+
+  if(pushmsg !== "" && pushmsg !== undefined && pushmsg !== null)
+  {
+    $scope.comments(pushmsg, true);
+  }
+
   // alert(document.URL);
   
   // alert(pushNotificationHandler.postidFromPushNotification);

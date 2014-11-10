@@ -225,6 +225,14 @@ angular.module('prikl.services', ['angular-md5'])
       })
     })
 
+    .factory('PushPayload', function(){
+     
+      var Pushdata = "";
+
+      return Pushdata;
+
+    })
+
 .factory('FileTransferService', function ($q,$rootScope) {
 
 
@@ -583,9 +591,7 @@ function transformRequest( data, getHeaders ) {
 
 
 // ALL GCM notifications come through here. 
-window.onNotificationGCM = function(e, $state, $rootScope) {
-    var postid = e.payload.postid + "";
-    window.localStorage.setItem('postid', postid);
+ var onNotificationGCM = function(e) {
 
     switch( e.event )
     {
@@ -613,9 +619,12 @@ window.onNotificationGCM = function(e, $state, $rootScope) {
                   // if the notification contains a soundname, play it.
                   // var my_media = new Media("/android_asset/www/"+ soundfile);
                   // my_media.play();
-                  // $state.go('app.allreactions');
-                  window.location = "#app/allrecactions";
-                  // alert('foreground');
+                  
+                    var elem = angular.element(document.querySelector('[ng-app]'));
+                    var injector = elem.injector();
+                    var myService = injector.get('PushPayload');
+                    myService.Pushdata=e.payload.postid;
+                  
                 }
                 else
                 {  // otherwise we were launched because the user touched a notification in the notification tray.
@@ -624,6 +633,13 @@ window.onNotificationGCM = function(e, $state, $rootScope) {
                     // $("#app-status-ul").append('<li>--COLDSTART NOTIFICATION--' + '</li>');
                     // $state.go('app.allreactions');
                     // alert('coldstart ' + e.payload.postid);
+                    // window.localStorage.setItem(e.payload.notificationType, e.payload.notificationData);
+
+                    var elem = angular.element(document.querySelector('[ng-app]'));
+                    var injector = elem.injector();
+                    var myService = injector.get('getPushData');
+                    myService.Pushdata=e.payload.postid;
+
                   }
                   else
                   {
@@ -647,7 +663,7 @@ window.onNotificationGCM = function(e, $state, $rootScope) {
 
 
 //Apple notificationevents
-function onNotificationAPN(event) {
+var onNotificationAPN = function (event) {
     window.location = "#/app/prikls";
 
     if ( event.alert )

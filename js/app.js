@@ -16,7 +16,7 @@ angular.module('prikl', ['ionic', 'ngCordova', 'prikl.controllers', 'prikl.servi
         }
 
         document.addEventListener("backbutton", function (event) {
-          event.preventDefault();
+          
 
           if($state.current !== 'app.allreactions')
           {
@@ -28,7 +28,7 @@ angular.module('prikl', ['ionic', 'ngCordova', 'prikl.controllers', 'prikl.servi
             if(yes){navigator.app.exitApp();}
            });
           }
-
+              event.preventDefault();
           }, false);
            
 
