@@ -16,10 +16,21 @@ angular.module('prikl', ['ionic', 'ngCordova', 'prikl.controllers', 'prikl.servi
         }
 
         document.addEventListener("backbutton", function (event) {
-   Message.question("Afsluiten","Wilt u de app afsluiten",function(yes){
-    if(yes){navigator.app.exitApp();}
-   });
-  }, false);
+          event.preventDefault();
+
+          if($state.current !== 'app.allreactions')
+          {
+            $state.go('app.allreactions');
+          }
+          else
+          {
+            Message.question("Afsluiten","Wilt u de app afsluiten",function(yes){
+            if(yes){navigator.app.exitApp();}
+           });
+          }
+
+          }, false);
+           
 
   //Register back button
   //  $ionicPlatform.registerBackButtonAction(function (event) {
