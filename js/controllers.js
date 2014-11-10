@@ -3,11 +3,7 @@ angular.module('prikl.controllers', ['youtube-embed'])
 
 .controller('AppCtrl', function($scope,$rootScope, $state, Modals, Camera,Message, 
   $stateParams,$ionicPlatform,PushProcessing,AuthenticationService) {
-  var postid = angular.fromJson(window.localStorage.getItem('postid'));
-  if(postid !== "")
-  {
-    alert('POEPSNOR - ' + postid);
-  }
+
 /*
    if($rootScope.userid == undefined && $rootScope.groupid == undefined){
     $rootScope.userid = 227;

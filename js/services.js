@@ -602,9 +602,37 @@ window.onNotificationGCM = function(e, $state, $rootScope) {
             break;
  
          case 'message':
-              // this is the actual push notification. its format depends on the data model from the push server
-              // alert('message = '+e.message+' msgcnt = '+e.msgcnt);
-              alert(e.payload.postid);
+                
+                if ( e.foreground )
+                {
+                  console.log('<li>--INLINE NOTIFICATION--' + '</li>');
+
+                  // on Android soundname is outside the payload.
+                  // On Amazon FireOS all custom attributes are contained within payload
+                  // var soundfile = e.soundname || e.payload.sound;
+                  // if the notification contains a soundname, play it.
+                  // var my_media = new Media("/android_asset/www/"+ soundfile);
+                  // my_media.play();
+                  // $state.go('app.allreactions');
+                  window.location = "#app/allrecactions";
+                  // alert('foreground');
+                }
+                else
+                {  // otherwise we were launched because the user touched a notification in the notification tray.
+                  if ( e.coldstart )
+                  {
+                    // $("#app-status-ul").append('<li>--COLDSTART NOTIFICATION--' + '</li>');
+                    // $state.go('app.allreactions');
+                    // alert('coldstart ' + e.payload.postid);
+                  }
+                  else
+                  {
+                    // $("#app-status-ul").append('<li>--BACKGROUND NOTIFICATION--' + '</li>');
+
+                    // alert('background ' + e.payload.postid);
+                  }
+                }
+
             break;
  
             case 'error':
