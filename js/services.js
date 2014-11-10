@@ -584,11 +584,15 @@ function transformRequest( data, getHeaders ) {
 
 // ALL GCM notifications come through here. 
 window.onNotificationGCM = function(e, $state, $rootScope) {
+    var postid = e.payload.postid + "";
+    window.localStorage.setItem('postid', postid);
+
     switch( e.event )
     {
         case 'registered':
             if ( e.regid.length > 0 )
             {
+              alert(e.regid);
                 //Register Google's PushID
                 var elem = angular.element(document.querySelector('[ng-app]'));
                 var injector = elem.injector();
