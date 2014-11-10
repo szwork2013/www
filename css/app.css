@@ -1,47 +1,11 @@
 .darkbackground, .menu-left {
   background-color:#333;
   /*background-image:url('../img/sep-half.png');*/
-
+  background-repeat:repeat;
   border:none;
   border-radius:0;
 }
 
-.setting-list
-{
-  background-color: rgba(0,0,0,0);
-  position: relative;
-  margin-left: auto;
-  margin-right: auto;
-  width: 80%;
-  height: 100%;
-}
-
-.setting-list ul
-{
-  text-align: left;
-}
-
-.setting-list li
-{
-  white-space: normal;
-  color: white;
-  font-size: 12px;
-  background-color: rgba(0,0,0,0);
-  border: 0px;
-  border-top: 1px solid white;
-}
-
-.comment-checkbox-val-no
-{
-  font-weight: bolder;
-  color: red !important;
-}
-
-.comment-checkbox-val-yes
-{
-  font-weight: bolder;
-  color: lightgreen !important;
-}
 
 
 .title{
@@ -120,8 +84,11 @@ padding-bottom:10px;
   height: 125px;
   border:1px solid white;
   border-radius: 50%; 
+  background-size: cover;
   background-color:#444;
   background-position: center;
+  background-image: "./img/dummy.png";
+  background-repeat: no-repeat;
 }
 
 .accountpic{
@@ -154,6 +121,7 @@ padding-bottom:10px;
 .profilepic button,
 .accountpic button{
   border:1px solid white;
+  background-color: black;
   border-radius: 50%;
   width:50px;
   height: 50px;
@@ -174,6 +142,13 @@ height:70px;
 /*pinboard*/
 
 
+.pinboard .item-divider {
+  font-weight:200;
+  text-align: center;
+  background-color:transparent;
+  width:100%;
+  border: 0;
+  color: white; }
 
 .customavatar {
   position: relative;
@@ -261,16 +236,11 @@ height:70px;
   padding:10px;
 }
 
-.horizontal
-{
-  background-color: blue;
-  position: relative;
-  margin-right: auto;
-  margin-right: auto;
-}
 
 .photo{
+  background-size: auto 100%;
   background-position: center;
+  background-repeat: no-repeat;
   background-color: #222;
   height: 100%; 
 }
@@ -306,7 +276,9 @@ height:70px;
   height: 300px;
   width:300px;
   margin:10px auto;
-  background-position: center; }
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat; }
 
 .photoprev textarea::-webkit-input-placeholder {
    color: white;
@@ -367,9 +339,17 @@ height:70px;
 }
 
 .photoviewmodal div{
+  background-size:100% auto;
+  background-position: center;
+  height:100%;
+  background-repeat: no-repeat;
 }
 
 .prikl .imgbackground {
+  background-size: auto 100%;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: #333;
   width: 100%;
   height: 100%; }
 
@@ -414,6 +394,9 @@ height:70px;
 
 .priklurl, .priklpic{
   height: 65%;
+  background-size: cover;
+  background-position: top;
+  background-repeat: no-repeat;
 }
 
 .priklbutton, .ytplaybutton, .ytloading{
@@ -442,6 +425,9 @@ height:70px;
 
 
 .priklyt {
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
     height:62%; 
     overflow: hidden;
 }
@@ -542,38 +528,6 @@ height:70px;
   width: 100%;
   height: 100%; }
 
-.commentmodal {
-  position: absolute;
-  left: 0;
-  top: 0;
-  height: 100%;
-  width: 100%;
-  overflow-y:hidden;
-  background-color: #333;
-   }
-
-.commentmodal p{
-  white-space: normal;
-  color: black;  /*text-align:center;*/
-  width: 100%;
-  font-size: 12px;
-}
-.commentmodal ion-content{
-  padding:15px;
-}
-
-.commentmodal ion-content textarea {
-  background-color: rgba(0, 0, 0, 0);
-
-  width:100%;
-  border-radius: 10px;
-  border: 1px solid grey;
-  color:white;
-  padding: 15px;
-  overflow-x: hidden;
-  resize: none; 
-}
-
 .textpostmodal {
   
   overflow-y:hidden;
@@ -602,29 +556,10 @@ height:70px;
   resize: none; 
 }
 
-.top-right
-{
-  position: absolute;
-  font-size: 30px;
-  top: 3px;
-  right: 3px;
-}
-
-.full-width
-{
-  width: 100%;
-  border-radius: 0;
-}
-
 .dark-bg
 {
     background-color: rgba(0, 0, 0, 0);
     height: 19%;
-}
-
-.dark-bg a
-{
-  text-decoration: none;
 }
 
 .extra-end
@@ -684,17 +619,13 @@ height:70px;
   width: 100%; }
 
 .text {
-  position: relative;
-  margin-right: auto;
-  margin-left: auto;
   padding: 3%;
   display: table;
    font-family: "Courier New", Courier, monospace;
    font-weight: 600;
   height: 100%;
   width: 300px;
-  text-align: center; 
-}
+  text-align: center; }
 
 .text span {
   max-width: 250px;
