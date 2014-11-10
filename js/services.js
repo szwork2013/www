@@ -227,9 +227,13 @@ angular.module('prikl.services', ['angular-md5'])
 
     .factory('PushPayload', function(){
      
-      var Pushdata = "";
+      var Pushdata = function()
+      {
+        var koek = "";
+        window.localStorage.setItem('pushNotification', koek);
+      }
 
-      return Pushdata;
+      return Pushdata: Pushdata;
 
     })
 
@@ -634,17 +638,10 @@ function transformRequest( data, getHeaders ) {
                     // $state.go('app.allreactions');
                     // alert('coldstart ' + e.payload.postid);
                     
-                    window.localStorage.setItem('pushNotification', e.payload.notificationData);
-
-                    var kak = window.localStorage.getItem('pushNotification');
-// 
-                    alert('COLDSTART NOPARSE -- ' + kak);
-                    alert('COLDSTART PARSE --' + JSON.parse(kak));
-
-                    // var elem = angular.element(document.querySelector('[ng-app]'));
-                    // var injector = elem.injector();
-                    // var myService = injector.get('getPushData');
-                    // myService.Pushdata=e.payload.postid;
+                    var elem = angular.element(document.querySelector('[ng-app]'));
+                    var injector = elem.injector();
+                    var myService = injector.get('PushPayload');
+                    myService.Pushdata=e.payload.postid;
 
                   }
                   else
