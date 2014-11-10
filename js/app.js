@@ -7,18 +7,26 @@ angular.module('prikl', ['ionic', 'ngCordova', 'prikl.controllers', 'prikl.servi
 
   $ionicPlatform.ready(function() {
     
+      PushProcessing.register();
+
       //Hide splashscreen
         if(navigator.splashcreen){
 
           navigator.splashscreen.hide();
         }
 
-  //Register back button
-   $ionicPlatform.registerBackButtonAction(function (event) {
+        document.addEventListener("backbutton", function (event) {
    Message.question("Afsluiten","Wilt u de app afsluiten",function(yes){
     if(yes){navigator.app.exitApp();}
    });
-  }, 100);
+  }, false);
+
+  //Register back button
+  //  $ionicPlatform.registerBackButtonAction(function (event) {
+  //  Message.question("Afsluiten","Wilt u de app afsluiten",function(yes){
+  //   if(yes){navigator.app.exitApp();}
+  //  });
+  // }, 100);
 
    //Get Appversion
     if(window.cordova){

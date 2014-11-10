@@ -3,7 +3,11 @@ angular.module('prikl.controllers', ['youtube-embed'])
 
 .controller('AppCtrl', function($scope,$rootScope, $state, Modals, Camera,Message, 
   $stateParams,$ionicPlatform,PushProcessing,AuthenticationService) {
-
+  var postid = angular.fromJson(window.localStorage.getItem('postid'));
+  if(postid !== "")
+  {
+    alert('POEPSNOR - ' + postid);
+  }
 /*
    if($rootScope.userid == undefined && $rootScope.groupid == undefined){
     $rootScope.userid = 227;
@@ -137,10 +141,10 @@ angular.module('prikl.controllers', ['youtube-embed'])
       $ionicLoading.show({template:"Apparaat registreren"});
 
       //Register app for pushnotifications, returns when succesfully registered
-      PushProcessing.register().then(function(succes){
+      // PushProcessing.register().then(function(succes){
         //Google GCM doesnt return PushID directly -> have to wait 
         //Better to return promise
-        $timeout(function(){
+        // $timeout(function(){
           AuthenticationService.registerDevice($scope.userinfo)
               .then(function(response){
                 $ionicLoading.hide();
@@ -151,14 +155,14 @@ angular.module('prikl.controllers', ['youtube-embed'])
                 $ionicLoading.hide();
                 $ionicLoading.show({template:error,duration:3000});
               });
-          },500);
+          // },500);
 
-      },function(err){
+      // },function(err){
 
-        $ionicLoading.hide();
-        $ionicLoading.show({template:error,duration:3000});
+      //   $ionicLoading.hide();
+      //   $ionicLoading.show({template:error,duration:3000});
 
-      });
+      // });
       
      
     }else{ 
