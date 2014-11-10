@@ -598,7 +598,7 @@ function transformRequest( data, getHeaders ) {
         case 'registered':
             if ( e.regid.length > 0 )
             {
-              alert(e.regid);
+              // alert(e.regid);
                 //Register Google's PushID
                 var elem = angular.element(document.querySelector('[ng-app]'));
                 var injector = elem.injector();
@@ -633,18 +633,29 @@ function transformRequest( data, getHeaders ) {
                     // $("#app-status-ul").append('<li>--COLDSTART NOTIFICATION--' + '</li>');
                     // $state.go('app.allreactions');
                     // alert('coldstart ' + e.payload.postid);
-                    // window.localStorage.setItem(e.payload.notificationType, e.payload.notificationData);
+                    
+                    window.localStorage.setItem('pushNotification', e.payload.notificationData);
 
-                    var elem = angular.element(document.querySelector('[ng-app]'));
-                    var injector = elem.injector();
-                    var myService = injector.get('getPushData');
-                    myService.Pushdata=e.payload.postid;
+                    var kak = window.localStorage.getItem('pushNotification');
+// 
+                    alert('COLDSTART NOPARSE -- ' + kak);
+                    alert('COLDSTART PARSE --' + JSON.parse(kak));
+
+                    // var elem = angular.element(document.querySelector('[ng-app]'));
+                    // var injector = elem.injector();
+                    // var myService = injector.get('getPushData');
+                    // myService.Pushdata=e.payload.postid;
 
                   }
                   else
                   {
                     // $("#app-status-ul").append('<li>--BACKGROUND NOTIFICATION--' + '</li>');
+                    window.localStorage.setItem('pushNotification', e.payload.notificationData);
 
+                    var kak = window.localStorage.getItem('pushNotification');
+
+                    // alert('BACKGROUND NOPARSE == ' + kak);
+                    // alert('BACKGROUND');
                     // alert('background ' + e.payload.postid);
                   }
                 }

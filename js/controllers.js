@@ -2,7 +2,14 @@ angular.module('prikl.controllers', ['youtube-embed'])
 
 
 .controller('AppCtrl', function($scope,$rootScope, $state, Modals, Camera,Message, 
-  $stateParams,$ionicPlatform,PushProcessing,AuthenticationService) {
+  $stateParams,$ionicPlatform,PushProcessing,AuthenticationService,PushPayload) {
+
+if(window.localStorage.getItem('pushNotification'))
+{
+   $rootScope.pushmsg = angular.fromJson(window.localStorage.getItem('pushNotification')).notificationType;
+   alert($rootScope.pushmsg);
+}
+
 
 /*
    if($rootScope.userid == undefined && $rootScope.groupid == undefined){
@@ -366,21 +373,39 @@ angular.module('prikl.controllers', ['youtube-embed'])
   $scope.loading = false;
   $scope.posts.total = 0;
 
-  var pushmsg = PushPayload.Pushdata;
+   
 
-  if(pushmsg !== "" && pushmsg !== undefined && pushmsg !== null)
-  {
-    $scope.comments(pushmsg, true);
-  }
+  // if(pushmsg)
+  // {
 
-  // alert(document.URL);
-  
-  // alert(pushNotificationHandler.postidFromPushNotification);
+  //   var pushData = pushmsg.split('|');
+  //   var pushType = pushData[0];
+  //   var pushContent = pushData[1];
+  //   if (pushType === 'comment') 
+  //     {
+  //       Message.loading("Reacties laden");
 
-  // if (pushNotificationHandler.postidFromPushNotification != "") 
-  //   {
-  //     alert('DIKKE PJOEP, HET LUKT: ' + pushNotificationHandler.postidFromPushNotification);
+  //       $scope.postIdForComment = pushContent;
+        
+  //       PostService.getComments(pushContent).then(function(comments){
+  //           Modals.createAndShow($scope,"comments");
+        
+  //       $scope.postComments = comments;
+  //       // Message.loadingHide();
+
+  //       },function(error){
+  //       Message.notify(error);
+  //      });  
+
+        
+  //         };
   //   };
+  //   if (pushType === 'prikl') 
+  //     {
+  //       $state.go('app.prikls');
+  //     };
+
+
 
   $scope.$on('$stateChangeStart', 
     function(event, toState, toParams, fromState, fromParams){ 
@@ -447,6 +472,7 @@ angular.module('prikl.controllers', ['youtube-embed'])
             console.log(error);
             
           });
+          window.localStorage.removeItem('pushNotification');
  }
 
   $scope.close_comment_modal = function()
@@ -455,6 +481,7 @@ angular.module('prikl.controllers', ['youtube-embed'])
   $scope.postComments = "";
   $scope.commentModal.remove(); 
   console.log($scope.postComments);
+  window.localStorage.removeItem('pushNotification');
  }
 
   //If there are posts in cache load them

@@ -17,18 +17,21 @@ angular.module('prikl', ['ionic', 'ngCordova', 'prikl.controllers', 'prikl.servi
 
         document.addEventListener("backbutton", function (event) {
           
-
-          if($state.current !== 'app.allreactions')
+          if($state.$current.toString() !== 'app.allreactions')
           {
             $state.go('app.allreactions');
+            var oeleboele = window.localStorage.getItem('pushNotification');
+            if (oeleboele) {window.localStorage.removeItem('pushNotification');};
           }
           else
           {
             Message.question("Afsluiten","Wilt u de app afsluiten",function(yes){
-            if(yes){navigator.app.exitApp();}
+            if(yes){
+              window.localStorage.removeItem('pushNotification');
+              navigator.app.exitApp();}
            });
           }
-              event.preventDefault();
+              // event.preventDefault();
           }, false);
            
 
