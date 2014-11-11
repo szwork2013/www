@@ -603,7 +603,7 @@ function transformRequest( data, getHeaders ) {
                 
                 if ( e.foreground )
                 {
-                  console.log('<li>--INLINE NOTIFICATION--' + '</li>');
+                  // console.log('<li>--INLINE NOTIFICATION--' + '</li>');
 
                   // on Android soundname is outside the payload.
                   // On Amazon FireOS all custom attributes are contained within payload
@@ -611,7 +611,7 @@ function transformRequest( data, getHeaders ) {
                   // if the notification contains a soundname, play it.
                   // var my_media = new Media("/android_asset/www/"+ soundfile);
                   // my_media.play();
-                  
+                    
                     var elem = angular.element(document.querySelector('[ng-app]'));
                     var injector = elem.injector();
                     var myService = injector.get('PushPayload');
