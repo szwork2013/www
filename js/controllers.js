@@ -4,11 +4,7 @@ angular.module('prikl.controllers', ['youtube-embed'])
 .controller('AppCtrl', function($scope,$rootScope, $state, Modals, Camera,Message, 
   $stateParams,$ionicPlatform,PushProcessing,AuthenticationService,PushPayload) {
 
-if(window.localStorage.getItem('pushNotification'))
-{
-   $rootScope.pushmsg = angular.fromJson(window.localStorage.getItem('pushNotification')).notificationType;
-   alert($rootScope.pushmsg);
-}
+// alert(PushPayload.drollenbak.notiData.notificationType);
 
 
 /*
@@ -366,14 +362,44 @@ if(window.localStorage.getItem('pushNotification'))
   
 })
 
-.controller('PinboardCtrl',function($scope,$state,$filter,$stateParams,$rootScope,$timeout,$ionicLoading,PostService,Cache,Message,Modals,pushNotificationHandler, PushPayload){
+.controller('PinboardCtrl',function($scope,$state,$filter,$stateParams,$rootScope,$timeout,$ionicLoading,PostService,Cache,Message,Modals, PushPayload){
   $scope.noMoreItemsAvailable = false;
   $scope.noConnection = false;
   $scope.posts = [];
   $scope.loading = false;
   $scope.posts.total = 0;
 
-   
+if(PushPayload.drollenbak.notiData.notificationType === undefined)
+{
+  console.log('');
+}
+else
+{
+  if(PushPayload.drollenbak.notiData.notificationType === 'comment')
+  {
+    // alert('COMMENTARIE: ' + PushPayload.drollenbak.notiData.notificationContent);
+    Message.loading("Reacties laden");
+
+        $scope.postIdForComment = PushPayload.drollenbak.notiData.notificationContent;
+        
+        PostService.getComments($scope.postIdForComment).then(function(comments){
+            Modals.createAndShow($scope,"comments");
+        
+        $scope.postComments = comments;
+        Message.loadingHide();
+
+        },function(error){
+        Message.notify(error);
+       });  
+
+  }
+
+  if(PushPayload.drollenbak.notiData.notificationType === 'prikl')
+  {
+    $state.go('app.prikls');
+  }
+}
+  
 
   // if(pushmsg)
   // {

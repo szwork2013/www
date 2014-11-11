@@ -189,7 +189,7 @@ angular.module('prikl.services', ['angular-md5'])
     if (comm2 === true) {comm2 = 'true';};
     if (comm2 === false) {comm2 = 'false';};
     var url = $rootScope.server + "index.php/serve/changeSettings?token="+token+"&comm1="+comm1+"&comm2="+comm2+"&callback=JSON_CALLBACK";
-    alert(url);
+    
     return jsonpRequest(url);
     }
 
@@ -227,13 +227,9 @@ angular.module('prikl.services', ['angular-md5'])
 
     .factory('PushPayload', function(){
      
-      var Pushdata = function()
-      {
-        var koek = "";
-        window.localStorage.setItem('pushNotification', koek);
-      }
+       var drollenbak = {notiData:''};
 
-      return Pushdata: Pushdata;
+      return {drollenbak:drollenbak};
 
     })
 
@@ -452,14 +448,6 @@ angular.module('prikl.services', ['angular-md5'])
    }
 })
 
-.factory('pushNotificationHandler', function (){
-
-  var postidFromPushNotification = "";
-
-  return {postidFromPushNotification: postidFromPushNotification};
-
-})
-
 //Camerafactory, asks user for source(camera or album) and returns the url of image
 .factory('Camera', function ($q, $ionicActionSheet) {
   return {
@@ -627,29 +615,26 @@ function transformRequest( data, getHeaders ) {
                     var elem = angular.element(document.querySelector('[ng-app]'));
                     var injector = elem.injector();
                     var myService = injector.get('PushPayload');
-                    myService.Pushdata=e.payload.postid;
+                    myService.drollenbak.notiData=e.payload.notificationData;
                   
                 }
                 else
                 {  // otherwise we were launched because the user touched a notification in the notification tray.
                   if ( e.coldstart )
                   {
-                    // $("#app-status-ul").append('<li>--COLDSTART NOTIFICATION--' + '</li>');
-                    // $state.go('app.allreactions');
-                    // alert('coldstart ' + e.payload.postid);
-                    
                     var elem = angular.element(document.querySelector('[ng-app]'));
                     var injector = elem.injector();
                     var myService = injector.get('PushPayload');
-                    myService.Pushdata=e.payload.postid;
+                    myService.drollenbak.notiData=e.payload.notificationData;
 
                   }
                   else
                   {
                     // $("#app-status-ul").append('<li>--BACKGROUND NOTIFICATION--' + '</li>');
-                    window.localStorage.setItem('pushNotification', e.payload.notificationData);
-
-                    var kak = window.localStorage.getItem('pushNotification');
+                    var elem = angular.element(document.querySelector('[ng-app]'));
+                    var injector = elem.injector();
+                    var myService = injector.get('PushPayload');
+                    myService.drollenbak.notiData=e.payload.notificationData;
 
                     // alert('BACKGROUND NOPARSE == ' + kak);
                     // alert('BACKGROUND');
