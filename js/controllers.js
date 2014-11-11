@@ -396,7 +396,8 @@ else
 
   if(PushPayload.drollenbak.notiData.notificationType === 'prikl')
   {
-    $state.go('app.prikls');
+    
+    window.location = "#app/prikls";
   }
 }
   
