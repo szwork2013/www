@@ -360,43 +360,8 @@ angular.module('prikl.controllers', ['youtube-embed'])
 })
 
 
-.directive('headerShrink', function($document) {
-  var fadeAmt;
 
-  var shrink = function(header, content, amt, max) {
-    amt = Math.min(44, amt);
-    fadeAmt = 1 - amt / 44;
-    ionic.requestAnimationFrame(function() {
-      header.style[ionic.CSS.TRANSFORM] = 'translate3d(0, -' + amt + 'px, 0)';
-      for(var i = 0, j = header.children.length; i < j; i++) {
-        header.children[i].style.opacity = fadeAmt;
-      }
-    });
-  };
-
-  return {
-    restrict: 'A',
-    link: function($scope, $element, $attr) {
-      var starty = $scope.$eval($attr.headerShrink) || 0;
-      var shrinkAmt;
-      
-      var header = $document[0].body.querySelector('.bar-header');
-      var headerHeight = header.offsetHeight;
-      
-      $element.bind('scroll', function(e) {
-        if(e.detail.scrollTop > starty) {
-          // Start shrinking
-          shrinkAmt = headerHeight - Math.max(0, (starty + headerHeight) - e.detail.scrollTop);
-          shrink(header, $element[0], shrinkAmt, headerHeight);
-        } else {
-          shrink(header, $element[0], 0, headerHeight);
-        }
-      });
-    }
-  }
-})
-
-.controller('PinboardCtrl2',function($scope,$ionicScrollDelegate,PostService){
+.controller('PinboardCtrl2',function($scope,$timeout,$ionicScrollDelegate,PostService){
 
 $scope.posts = [];
 $scope.itemsAvailable = true;
@@ -419,23 +384,31 @@ $scope.doRefresh = function(){
 
    PostService.getPosts(pinboard,$scope.posts.length,12)
    .then(function(posts){
-      if(posts == "NOPOSTS"){
-        $scope.itemsAvailable = false;
+
+    if(posts == "NOPOSTS"){
+      $scope.itemsAvailable = false;
+      $scope.loadingDone = true;
+      $timeout(function(){
+        $scope.loadingDone = false;
+      },3000);
+    }
+
+    else{ 
+      for (var i = 0; i < posts.length; i++)
+      {
+        $scope.posts.push(posts[i]);
       }
-      else{ 
-                for (var i = 0; i < posts.length; i++)
-                {
-                    $scope.posts.push(posts[i]);
-                }
-          }
-      },
-    function(error){
-      console.log(error);
+
+    }
+
+  },
+  function(error){
+    console.log(error);
   })
    .finally(function(){
-                        $scope.$broadcast('scroll.infiniteScrollComplete');
-                        $scope.$broadcast('scroll.resize');
-                      });
+    $scope.$broadcast('scroll.infiniteScrollComplete');
+    $scope.$broadcast('scroll.resize');
+  });
 
 }
 

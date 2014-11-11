@@ -3,6 +3,11 @@
     <button menu-toggle="left" class="button button-icon icon ion-navicon"></button>
   </ion-nav-buttons>
 
+
+ <div class="bar bar-loading bar-assertive" ng-if="loadingDone">
+   Er zijn geen oudere berichten beschikbaar
+ </div>
+
  <ion-content class="pinboard-bg" delegate-handle="pinScroll">
  
  <ion-refresher
@@ -64,9 +69,5 @@
 
  
 </ion-content>
-
-  <div class="bar bar-loading bar-assertive" ng-if="!itemsAvailable">
-      De posts zijn op
-    </div>
 
 </ion-view>

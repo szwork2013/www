@@ -759,7 +759,7 @@ height:70px;
 /*CUSTOMLOADINGBAR*/
 .bar.bar-loading {
   display: block;
-  height: 24px;
+  height: 30px;
   
   /* starts right below a normal header */
   top: 44px;
@@ -769,19 +769,9 @@ height:70px;
   padding: 0;
   line-height: 24px;
 
-  /* transition 'sliding down' (check below)*/
-  -webkit-transition: 200ms all;
 }
 
 
-/* 
- * make the content's top changes animate.
- * might not always look good, but looks
- * good when our loader is added & removed
- */
-.has-header {
-  -webkit-transition: 200ms top;
-}
 .has-header.has-loading {
   /* 44px (header) + 24px */
   top: 68px;
