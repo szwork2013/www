@@ -6,8 +6,8 @@ angular.module('prikl.controllers', ['youtube-embed'])
 
 
    if($rootScope.userid == undefined && $rootScope.groupid == undefined){
-    $rootScope.userid = 227;
-    $rootScope.groupid = 90;
+    $rootScope.userid = 239;
+    $rootScope.groupid = 93;
   }
 
 
@@ -361,54 +361,71 @@ angular.module('prikl.controllers', ['youtube-embed'])
 
 
 
-.controller('PinboardCtrl2',function($scope,$timeout,$ionicScrollDelegate,PostService){
+.controller('PinboardCtrl2',function($scope,$timeout,$ionicScrollDelegate,Modals,PostService){
 
 $scope.posts = [];
 $scope.itemsAvailable = true;
+$scope.loadingMessage = "";
 
-var scrollDelegate = $ionicScrollDelegate.$getByHandle('pinScroll');
-scrollDelegate.rememberScrollPosition('my-scroll-id');
-scrollDelegate.scrollToRememberedPosition();
+$scope.$watch('loadingMessage', function() {
+      if($scope.loadingMessage != ""){
+         $timeout(function(){
+            $scope.loadingMessage = "";
+         },5000);   
+      }
+   });
 
-$scope.doRefresh = function(){
-      var post = {date:'',item:'',image:'',text:'',type:'text'};
-      post.text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Excepteur sint occaecat cupidatat non proident, sunt i";
-          post.date = new Date();
-          post.item = $scope.items[0].item -1;
-      $scope.items.unshift(post); 
+//Refresh
+$scope.doRefresh = function(pinboard){
 
+      if($scope.posts.length==0){var lastpostid=0;}else{var lastpostid = $scope.posts[0].idposts;}
+  
+      PostService.getNewPosts(pinboard,lastpostid)
+      .then(function(posts){   
+        if(posts == "NOPOSTS"){
+          $scope.loadingMessage = "Er zijn geen nieuwe posts beschikbaar";
+        }else{
+          $scope.loadingMessage = posts.length + " nieuw";
+          for(var i = 0;i<posts.length;i++){
+            $scope.posts.unshift(posts[i]);
+          }
+        }
+      },function(error){
+        $scope.loadingMessage = error;
+      })
+      .finally(function(){
        $scope.$broadcast('scroll.refreshComplete');
+      })
+
 }
 
+  //Infinite Scrolling
   $scope.loadMore = function(pinboard) { 
 
-   PostService.getPosts(pinboard,$scope.posts.length,12)
-   .then(function(posts){
+         PostService.getPosts(pinboard,$scope.posts.length,12)
+         .then(function(posts){
 
-    if(posts == "NOPOSTS"){
-      $scope.itemsAvailable = false;
-      $scope.loadingDone = true;
-      $timeout(function(){
-        $scope.loadingDone = false;
-      },3000);
-    }
+          if(posts == "NOPOSTS"){
+            $scope.itemsAvailable = false;
+            $scope.loadingMessage = "Er zijn geen oudere berichten beschikbaar";
+          }
 
-    else{ 
-      for (var i = 0; i < posts.length; i++)
-      {
-        $scope.posts.push(posts[i]);
-      }
+          else{ 
+            for (var i = 0; i < posts.length; i++)
+            {
+              $scope.posts.push(posts[i]);
+            }
 
-    }
+          }
 
-  },
-  function(error){
-    console.log(error);
-  })
-   .finally(function(){
-    $scope.$broadcast('scroll.infiniteScrollComplete');
-    $scope.$broadcast('scroll.resize');
-  });
+        },
+        function(error){
+          $scope.loadingMessage = error;
+        })
+         .finally(function(){
+          $scope.$broadcast('scroll.infiniteScrollComplete');
+          $scope.$broadcast('scroll.resize');
+        });
 
 }
 
@@ -431,8 +448,9 @@ $scope.doRefresh = function(){
 
  }
 
- $scope.photoprev = function(){
-    $ionicLoading.show({template:"Fotopreview",duration:1000});
+ $scope.photoprev = function(photo){
+    $scope.photofile = photo;
+    Modals.createAndShow($scope,"photoview");
  }
 
  $scope.priklprev = function(){

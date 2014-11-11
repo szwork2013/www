@@ -757,36 +757,13 @@ height:70px;
 }
 
 /*CUSTOMLOADINGBAR*/
-.bar.bar-loading {
-  display: block;
-  height: 30px;
+.bar-loading {
+  text-align:center;
+  height:30px;
   
-  /* starts right below a normal header */
-  top: 44px;
-  
-  /* make the text centered vertically and horizontally */
-  text-align: center;
-  padding: 0;
-  line-height: 24px;
 
 }
 
 
-.has-header.has-loading {
-  /* 44px (header) + 24px */
-  top: 68px;
-}
-
-/* make loading bar slide up/down */
-.bar-loading.ng-enter,
-.bar-loading.ng-leave.ng-leave-active {
-  height: 0;
-  border-width: 0px;
-}
-.bar-loading.ng-enter.ng-enter-active,
-.bar-loading.ng-leave {
-  height: 24px;
-  border-width: 1px;
-}
 
 /*# sourceMappingURL=app.css.map */

@@ -409,6 +409,7 @@ angular.module('prikl.services', ['angular-md5'])
                                       scope: scope, focusFirstInput: true, animation: 'reverse'
                                     }).then(function(modal) {
                                       scope.photoviewmodal = modal;
+                                      scope.photoviewmodal.photofile = scope.photofile;
                                       scope.photoviewmodal.show();
                                     });
                               

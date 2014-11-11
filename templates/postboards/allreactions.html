@@ -1,24 +1,23 @@
-<ion-view title="Groep" ng-controller="PinboardCtrl2">
+<ion-view title="Groep" ng-controller="PinboardCtrl2" hide-Back-Button="true">
  <ion-nav-buttons side="left">
     <button menu-toggle="left" class="button button-icon icon ion-navicon"></button>
   </ion-nav-buttons>
 
-
- <div class="bar bar-loading bar-assertive" ng-if="loadingDone">
-   Er zijn geen oudere berichten beschikbaar
+  <div class="bar bar-subheader bar-royal bar-loading" ng-if="loadingMessage != ''">
+   {{loadingMessage}}
  </div>
 
- <ion-content class="pinboard-bg" delegate-handle="pinScroll">
+ <ion-content class="pinboard-bg">
  
  <ion-refresher
   pulling-icon="ion-ios7-arrow-up"
   refreshing-icon="ion-ios7-reloading"
-    on-refresh="doRefresh()">
+    on-refresh="doRefresh('group')">
   </ion-refresher>
 
 <div class="pinboard list">
   <div class="pinboard-cardcontainer card-container"
-        collection-repeat="post in posts"
+        collection-repeat="post in posts track by $index"
         collection-item-width="getDynamicWidth()"
         collection-item-height="450">
      
@@ -28,7 +27,7 @@
           <img class="pinboard-avatar" ng-src="{{$root.server}}/images/users/{{post.user_pic}}">
       
           <div class="item item-avatar">
-            <h2>{{post.user_firstname}} {{post.user_lastname}} {{item.item}}</h2>
+            <h2>{{post.user_firstname}} {{post.user_lastname}}</h2>
             <p>{{post.post_date | timeAgo}}</p>
           </div>
 
@@ -42,11 +41,11 @@
 
           <!--IMAGEPOST-->
           <div class="item item-image" ng-if="post.post_type == 'pic'" >
-              <div class="pinboard-priklreaction" ng-click="priklprev()">
+              <div class="pinboard-priklreaction" ng-if="post.prikl_id > 0" ng-click="priklprev()">
                 <i class="icon ion-ios7-lightbulb-outline"></i>
               </div>
 
-              <div class="pinboard-cardimage" data-ng-style="{'background-image':'url({{$root.server}}/posts/images/thumbs/{{post.post_pic}})'}" ng-click="photoprev()">
+              <div class="pinboard-cardimage" data-ng-style="{'background-image':'url({{$root.server}}/posts/images/thumbs/{{post.post_pic}})'}" ng-click="photoprev(post.post_pic)">
                  <span class="wordbreak" ng-if="post.post_text != ''">{{post.post_text}}</span>
               </div>
           </div>      
@@ -63,7 +62,7 @@
      ng-if="itemsAvailable"
      icon="ion-loading-d"
      on-infinite="loadMore('group')"
-     distance="30%">
+     distance="10%">
 </ion-infinite-scroll>
 
 

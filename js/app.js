@@ -76,17 +76,16 @@ angular.module('prikl', ['ionic', 'ngCordova', 'prikl.controllers', 'prikl.servi
        views: {
         'menuContent' :{
           templateUrl: "templates/postboards/myreactions.html",
-          controller: 'PinboardCtrl'
+          controller: 'PinboardCtrl2'
         }
       }
     })
     .state('app.allreactions', {
-      url: "/allreactions/:idpost",
+      url: "/allreactions",
       views: {
         'menuContent' :{
           templateUrl: "templates/postboards/allreactions.html",
-          controller: 'PinboardCtrl',
-          params: ['idpost']
+          controller: 'PinboardCtrl2'
         }
       }
     }) 
