@@ -88,6 +88,7 @@ angular.module('prikl.services', ['angular-md5'])
 .factory('PostService', function ($q, $http, $rootScope){
 
   var jsonpRequest = function(url){
+    console.log(url);
     var deferred = $q.defer();
           $http.jsonp(url,{timeout:5000})
                 .success(function(data) {

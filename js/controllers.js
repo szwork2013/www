@@ -5,10 +5,10 @@ angular.module('prikl.controllers', ['youtube-embed'])
   $stateParams,$ionicPlatform,PushProcessing,AuthenticationService) {
 
 
-  //  if($rootScope.userid == undefined && $rootScope.groupid == undefined){
-  //   $rootScope.userid = 227;
-  //   $rootScope.groupid = 90;
-  // }
+   if($rootScope.userid == undefined && $rootScope.groupid == undefined){
+    $rootScope.userid = 227;
+    $rootScope.groupid = 90;
+  }
 
 
     //Logoutfunction for logout in menu
@@ -359,7 +359,126 @@ angular.module('prikl.controllers', ['youtube-embed'])
   
 })
 
-.controller('PinboardCtrl',function($scope,$state,$filter,$stateParams,$rootScope,$timeout,$ionicLoading,PostService,Cache,Message,Modals){
+
+.directive('headerShrink', function($document) {
+  var fadeAmt;
+
+  var shrink = function(header, content, amt, max) {
+    amt = Math.min(44, amt);
+    fadeAmt = 1 - amt / 44;
+    ionic.requestAnimationFrame(function() {
+      header.style[ionic.CSS.TRANSFORM] = 'translate3d(0, -' + amt + 'px, 0)';
+      for(var i = 0, j = header.children.length; i < j; i++) {
+        header.children[i].style.opacity = fadeAmt;
+      }
+    });
+  };
+
+  return {
+    restrict: 'A',
+    link: function($scope, $element, $attr) {
+      var starty = $scope.$eval($attr.headerShrink) || 0;
+      var shrinkAmt;
+      
+      var header = $document[0].body.querySelector('.bar-header');
+      var headerHeight = header.offsetHeight;
+      
+      $element.bind('scroll', function(e) {
+        if(e.detail.scrollTop > starty) {
+          // Start shrinking
+          shrinkAmt = headerHeight - Math.max(0, (starty + headerHeight) - e.detail.scrollTop);
+          shrink(header, $element[0], shrinkAmt, headerHeight);
+        } else {
+          shrink(header, $element[0], 0, headerHeight);
+        }
+      });
+    }
+  }
+})
+
+.controller('PinboardCtrl2',function($scope,$ionicScrollDelegate,PostService){
+
+$scope.posts = [];
+$scope.itemsAvailable = true;
+
+var scrollDelegate = $ionicScrollDelegate.$getByHandle('pinScroll');
+scrollDelegate.rememberScrollPosition('my-scroll-id');
+scrollDelegate.scrollToRememberedPosition();
+
+$scope.doRefresh = function(){
+      var post = {date:'',item:'',image:'',text:'',type:'text'};
+      post.text = "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Excepteur sint occaecat cupidatat non proident, sunt i";
+          post.date = new Date();
+          post.item = $scope.items[0].item -1;
+      $scope.items.unshift(post); 
+
+       $scope.$broadcast('scroll.refreshComplete');
+}
+
+  $scope.loadMore = function(pinboard) { 
+
+   PostService.getPosts(pinboard,$scope.posts.length,12)
+   .then(function(posts){
+      if(posts == "NOPOSTS"){
+        $scope.itemsAvailable = false;
+      }
+      else{ 
+                for (var i = 0; i < posts.length; i++)
+                {
+                    $scope.posts.push(posts[i]);
+                }
+          }
+      },
+    function(error){
+      console.log(error);
+  })
+   .finally(function(){
+                        $scope.$broadcast('scroll.infiniteScrollComplete');
+                        $scope.$broadcast('scroll.resize');
+                      });
+
+}
+
+
+ $scope.getDynamicWidth = function(){
+
+  if(window.innerWidth <= 650){
+    return "100%";
+  }
+  else if(window.innerWidth <= 950){
+    
+    return "50%";
+  }else if (window.innerWidth <= 1250){
+      
+    return "33%";
+  }else{
+    
+    return "25%";
+  }
+
+ }
+
+ $scope.photoprev = function(){
+    $ionicLoading.show({template:"Fotopreview",duration:1000});
+ }
+
+ $scope.priklprev = function(){
+    $ionicLoading.show({template:"PrikLpreview",duration:1000});
+ }
+
+ $scope.react = function(){
+    $ionicLoading.show({template:"Reageren(Modal)",duration:1000});
+ }
+
+ $scope.delete = function(){
+    $ionicLoading.show({template:"Verwijderen",duration:1000});
+ }
+
+})
+
+.controller('PinboardCtrl',function($scope,$state,$filter,
+  $stateParams,$rootScope,$timeout,$ionicLoading,PostService,Cache,Message,Modals){
+ 
   $scope.noMoreItemsAvailable = false;
   $scope.noConnection = false;
   $scope.posts = [];
@@ -396,52 +515,7 @@ angular.module('prikl.controllers', ['youtube-embed'])
    });  
  }
 
- $scope.deleteComment = function(commentid)
- {
-    Message.question("Reactie verwijderen","Weet je zeker dat je je reactie wilt verwijderen?",function(answer){
-  if(answer){
-    PostService.deleteComment(commentid)
-    .then(function(){
-        //Delete from posts
-        // $scope.commentModal.remove(); 
 
-            $scope.postComments = [];
-            $scope.comments($scope.postIdForComment, false);
-      },function(error){
-        Message.notify(error);
-      });
-  }
-});
-
-
- }
-
- $scope.comment_on_post = function()
- {
-    Message.loading("Reactie versturen");
-    console.log($scope.commentModal.commenttext);
-    console.log($scope.commentModal.postid);
-        PostService.addComment($scope.commentModal.postid, $scope.commentModal.commenttext)
-          .then(function(){
-            // $scope.commentModal.remove(); 
-            $scope.postComments = [];
-            $scope.comments($scope.postIdForComment, false);
-            $scope.commentModal.commenttext = "";
-            
-            Message.loadingHide();
-          },function(error){
-            console.log(error);
-            
-          });
- }
-
-  $scope.close_comment_modal = function()
- {
-  $scope.postIdForComment = "";
-  $scope.postComments = "";
-  $scope.commentModal.remove(); 
-  console.log($scope.postComments);
- }
 
   //If there are posts in cache load them
   $scope.load = function(pinboard){
@@ -515,14 +589,7 @@ $scope.loadMore = function(pinboard) {
 
    PostService.getPosts(pinboard,$scope.posts.total,5)
    .then(function(posts){
-
-
-
-                        //Divide posts per date, for every post create new dateobject with time 00:00:00, check
-                        //if there is no other post with the same date -> create an object with an array for this date
-                        //"posts":[ { date : "12 october 2014" , posts : [post,post,post,post] },
-                        // { date : "13 october 2014" , posts : [post,post] }, { date : "14 october 2014" , posts : [post,post,post] } ]
-                        if(posts == "NOPOSTS"){
+        if(posts == "NOPOSTS"){
                           $scope.noMoreItemsAvailable = true;
                         }
                         else{
@@ -610,6 +677,56 @@ $scope.deletepost =function(postid){
        $ionicLoading.show({template:error,duration:3000});
     });
   }
+})
+
+.controller('CommentCtrl',function($scope){
+
+   $scope.deleteComment = function(commentid)
+ {
+    Message.question("Reactie verwijderen","Weet je zeker dat je je reactie wilt verwijderen?",function(answer){
+  if(answer){
+    PostService.deleteComment(commentid)
+    .then(function(){
+        //Delete from posts
+        // $scope.commentModal.remove(); 
+
+            $scope.postComments = [];
+            $scope.comments($scope.postIdForComment, false);
+      },function(error){
+        Message.notify(error);
+      });
+  }
+});
+
+
+ }
+
+ $scope.comment_on_post = function()
+ {
+    Message.loading("Reactie versturen");
+    console.log($scope.commentModal.commenttext);
+    console.log($scope.commentModal.postid);
+        PostService.addComment($scope.commentModal.postid, $scope.commentModal.commenttext)
+          .then(function(){
+            // $scope.commentModal.remove(); 
+            $scope.postComments = [];
+            $scope.comments($scope.postIdForComment, false);
+            $scope.commentModal.commenttext = "";
+            
+            Message.loadingHide();
+          },function(error){
+            console.log(error);
+            
+          });
+ }
+
+  $scope.close_comment_modal = function()
+ {
+  $scope.postIdForComment = "";
+  $scope.postComments = "";
+  $scope.commentModal.remove(); 
+  console.log($scope.postComments);
+ }
 })
 
 .controller('AccountCtrl',function($scope,$rootScope,PostService,FileTransferService,$ionicLoading,PostService,Message,Camera){

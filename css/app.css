@@ -6,12 +6,6 @@
   border-radius:0;
 }
 
-
-
-.title{
-  font-weight:300;
-}
-
 /*login*/
 .loadingscreen{
 background-color:#222;
@@ -141,141 +135,129 @@ height:70px;
 
 /*pinboard*/
 
+.pinboard-bg{
+  background-color:#333;
+}
 
-.pinboard .item-divider {
-  font-weight:200;
-  text-align: center;
-  background-color:transparent;
+.pinboard-cardcontainer{
   width:100%;
-  border: 0;
-  color: white; }
+  height:450px;
+  padding:15px;
+  padding-top:30px;
+}
 
-.customavatar {
+.pinboard-card{
+  width:100%;
+  max-width:400px;
+  margin:0 auto;
+  padding:0;
+  overflow: visible;
+    background-color:#d7d7d7;
+}
+
+.pinboard-avatar {
   position: relative;
   display: block;
-  z-index: 3;
+  z-index: 5;
   width: 100px;
+  background-color:#d7d7d7;
   height:100px;
-  top: -45px;
-  left: 8px;
-  background-color:#444;
-  border:1px solid #aaa;
-  border-radius: 50%; }
-
-.pinboard .item-avatar, .pinboard .item-avatar .item-content, 
-.pinboard .item-avatar-left, .pinboard .item-avatar-left .item-content {
-  background-color: #d7d7d7;
-  text-align: right;
-  margin-top: -130px;
-  height: 10px;
-  border-bottom:1px solid #aaa;
-}
-
-.pinboard .item-avatar  h2, .pinboard .item-avatar p{
-  font-weight: 300;
-}
-
-
-
-.privatetime {
-  width: 100%;
-  height: 50px;
-  background-color: #d7d7d7;
-  padding:5px;
-  margin: 0; }
-
-.privatetime div{
-  text-align: center;
-  line-height: 40px;
-  font-weight: 300;
-}
-
-.privatetime i{
-  float:left;
-  line-height: 40px;
-  font-size: 30px;
-}
-
-.privatetime span {
-  float: right;
-  line-height: 40px }
-
-.card {
-  margin: 70px 3.5% 30px 3.5%;
-  background-color: #ebebeb;
-  overflow: hidden;
-  border-radius:0;
-  min-height: 0;
-  padding: 0;
-  display: block;
-  overflow: visible; }
-
-  .privatecard{
-    margin:10px 3.5% 20px 3.5%;
-}
-
-
-.bugcard{
-    margin-top:5px;
+  top: -15px;
+  left: 6px;
+  border-radius:50%;
   }
 
-.card-body {
-  height: 300px;
-  width: 100%; }
+.pinboard .item-avatar, 
+.pinboard .item-avatar-left {
+  background-color: inherit;
+  text-align: right;
+  margin-top: -100px;
+  height: 10px;
+}
 
-.card-body i{
+.pinboard .privatecard .item-avatar, 
+.pinboard .privatecard .item-avatar-left {
+  margin-top:0;
+  text-align:center;
+  padding-left:30px;
+}
+
+.pinboard .item-image{
+  overflow: visible;
+}
+
+.pinboard-priklreaction{
   position:absolute;
-  font-size:30px;
+  top:0;
+  right:0;
+  z-index: 3;
+  font-size:45px;
   line-height:40px;
-  width:60px;
+  height: 50px;
+  width:50px;
   color:white;
-  border-bottom-right-radius: 100%;
-  background-color:#111;
-  border:1px solid #aaa;
-  border-left:none;
-  padding:10px;
+  padding-top:10px;
 }
 
-.horizontal
-{
-  background-color: blue;
-  position: relative;
-  margin-right: auto;
-  margin-right: auto;
-}
-
-.photo{
-  background-size: auto 100%;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-color: #222;
-  height: 100%; 
-}
-
-.photoview{
-  width:100%;
+.pinboard-cardimage{
+  width: 100%;
   height:300px;
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
-.photoview div{
-  width:5000px;
-  height:5000px;
+.pinboard-cardimage span{
+  position: absolute;
+  left:-10px;
+  bottom:10px;
+    border-radius:0;
+    resize:none;
+    padding: 5px;
+    font-weight: 300;
+    max-width: 80%;
+    text-align: left;
+    background-color: rgba(0, 0, 0, 0.75);
+    color: white;
 }
 
-.photo span, .photoprev textarea {
-  display: inline-block;
-  margin-top: 200px;
-  margin-left: -10px;
-  border-radius:0;
-  resize:none;
+.pinboard-cardtext {
+  position: relative;
   padding: 5px;
-  max-width: 90%;
-  text-align: left;
-  background-color: rgba(0, 0, 0, 0.8);
-  color: white; }
-
-.deletepost{
+  display: table;
+  font-weight: 400;
+  height: 302px;
+  background-color:#222;
+  color:white;
+  width: 100%;
+  text-align: center; 
 }
+
+.pinboard-cardtext span {
+  display: table-cell;
+ font-size: 0.9em;
+  vertical-align: middle; }
+
+.pinboard-cardbutton{
+  font-weight: 300;
+  color:black;
+  text-align: center;
+  background-color:inherit;
+  line-height: 7px;
+}
+
+.pinboard-end{
+  width:100%;
+  height: 30px;
+  position: absolute;
+  bottom:0;
+  font-size:150px;
+  z-index: 100;
+
+  color:white;
+  text-align: center;
+}
+
 
 /*Photomodal*/
 
@@ -732,59 +714,89 @@ height:70px;
   }
 }
 
-@media only screen and (min-width: 600px) {
+@media only screen and (min-width: 650px) {
+  
   .photo img {
     margin: 0; }
 
-.priklpic, .priklurl, .priklyt{
-  height:80%;
-}
-
-
+  .priklpic, .priklurl, .priklyt{
+    height:80%;
+  }
 
   .priklcontent{
     height: 20%;
     min-height: 100px;
   }
-   
 
   .photoprev {
-    height: 57vh; }
+    height: 57vh; 
+  }
+
+  .textpostmodal {
+    margin-top: 0; 
+  } 
+
+  .card-container{
+    width:50%;
+  }
+
+}
+
+@media only screen and (min-width: 950px) {
+  .card-container{
+    width:33%;
+  }
 
 
+}
+@media only screen and (min-width: 1250px) {
+  .card-container{
+    width:25%;
+  }
 
-  .card {
-    width: 46.6%;
-    margin: 50px 1.6%;
-    float: left;
-    display: block; }
+}
 
-    .privatecard{
-    margin:20px 1.6%;
+/*CUSTOMLOADINGBAR*/
+.bar.bar-loading {
+  display: block;
+  height: 24px;
+  
+  /* starts right below a normal header */
+  top: 44px;
+  
+  /* make the text centered vertically and horizontally */
+  text-align: center;
+  padding: 0;
+  line-height: 24px;
+
+  /* transition 'sliding down' (check below)*/
+  -webkit-transition: 200ms all;
 }
 
 
-  
+/* 
+ * make the content's top changes animate.
+ * might not always look good, but looks
+ * good when our loader is added & removed
+ */
+.has-header {
+  -webkit-transition: 200ms top;
+}
+.has-header.has-loading {
+  /* 44px (header) + 24px */
+  top: 68px;
+}
 
-  .textpostmodal {
-    margin-top: 0; } }
-@media only screen and (min-width: 900px) {
-  .card {
-    width: 30%; 
-  } 
-
-  
-
-
-  }
-@media only screen and (min-width: 1200px) {
-  .card {
-    width: 21.6%; 
-  } 
-
- 
-
-
-  }
+/* make loading bar slide up/down */
+.bar-loading.ng-enter,
+.bar-loading.ng-leave.ng-leave-active {
+  height: 0;
+  border-width: 0px;
+}
+.bar-loading.ng-enter.ng-enter-active,
+.bar-loading.ng-leave {
+  height: 24px;
+  border-width: 1px;
+}
 
 /*# sourceMappingURL=app.css.map */
