@@ -5,6 +5,8 @@
         </ion-header-bar>
         <ion-content>
 
+          <span ng-if="postComments.length==0">Nog geen commentaar</span>
+
           <ion-list ng-init="loadComments()">
               <div class="item" ng-repeat = "commentie in postComments">
                 <h2>{{commentie.user_firstname}} {{commentie.user_lastname}}</h2>

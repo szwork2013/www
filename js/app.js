@@ -21,9 +21,9 @@ angular.module('prikl', ['ionic', 'ngCordova', 'prikl.controllers', 'prikl.servi
         //     preventDefault();
         //   }, false);
            
-  $ionicPlatform.on('resume', function(){
+  /*$ionicPlatform.on('resume', function(){
     $state.go('app.allreactions');
-  });
+  });*/
 
 
   //Register back button
@@ -106,14 +106,15 @@ angular.module('prikl', ['ionic', 'ngCordova', 'prikl.controllers', 'prikl.servi
       }
     })
     .state('app.allreactions', {
-      url: "/allreactions",
+      url: "/allreactions?type?postid?commentid",
       views: {
         'menuContent' :{
           templateUrl: "templates/postboards/allreactions.html",
-          controller: 'PinboardCtrl'
+          controller: 'PinboardCtrl',
+          params: ['type','postid','commentid']
         }
       }
-    }) 
+    })
     .state('app.bugs', {
       url: "/bugs",
        views: {

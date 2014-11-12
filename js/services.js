@@ -1,3 +1,4 @@
+
 angular.module('prikl.services', ['angular-md5'])
 
 .factory('AuthenticationService', function ($q,$http,$rootScope,transformAsPost,md5,$cordovaDevice) {
@@ -5,7 +6,6 @@ angular.module('prikl.services', ['angular-md5'])
       var credentials = {};
 
       var postrequest = function(data,url){
-        console.log(data);
         return $http({
                 url: url,
                 method: "POST",
@@ -88,7 +88,6 @@ angular.module('prikl.services', ['angular-md5'])
 .factory('PostService', function ($q, $http, $rootScope){
 
   var jsonpRequest = function(url){
-    console.log(url);
     var deferred = $q.defer();
           $http.jsonp(url,{timeout:5000})
                 .success(function(data) {
@@ -226,13 +225,6 @@ angular.module('prikl.services', ['angular-md5'])
       })
     })
 
-    .factory('PushPayload', function(){
-     
-       var drollenbak = {notiData:''};
-
-      return {drollenbak:drollenbak};
-
-    })
 
 .factory('FileTransferService', function ($q,$rootScope) {
 
@@ -434,7 +426,7 @@ angular.module('prikl.services', ['angular-md5'])
                         break;
                         case "comments":
                               $ionicModal.fromTemplateUrl('templates/modals/comments.html', {
-                                      scope: scope, focusFirstInput: true
+                                      scope: scope
                                     }).then(function(modal) {
                                       scope.commentModal = modal;
                                       scope.commentModal.show();
@@ -541,8 +533,9 @@ function transformRequest( data, getHeaders ) {
   }
 })
 
-.factory("PushProcessing",function($q,$cordovaPush,AuthenticationService) {
-  return {
+.factory("PushProcessing",function($q,$cordovaPush,AuthenticationService,
+  $state,$timeout,Modals) {
+  return {  
     register : function(){
         //Register android GCM with senderID
         if(ionic.Platform.isAndroid()){
@@ -568,7 +561,6 @@ function transformRequest( data, getHeaders ) {
               });
         }
       },
-
     unregister: function(){
         $cordovaPush.unregister().then(function(result) {
             // Success!
@@ -577,73 +569,60 @@ function transformRequest( data, getHeaders ) {
           console.log(err);
             // An error occured. Show a message to the user
         });
+    },
+    onNotification: function(notificationData,refreshState){
+        if(refreshState){$state.reload()};
+
+        switch(notificationData.notificationType)  {
+          case 'comment':
+              //PostID & CommentID meegeven
+              $state.go('app.allreactions',{type:'comment',postid:'',commentid:notificationData.notificationContent});
+          break;
+          case 'prikl':
+              $state.go('app.prikls');
+          break;
+          default:
+              $state.go('app.allreactions');
+          break;
+        } 
+  
     }
     }
-  });
-
-
+  })
 
 // ALL GCM notifications come through here. 
- var onNotificationGCM = function(e) {
+ var onNotificationGCM = function(e,$state) {
+
+  var zehe = JSON.stringify(e);
+  console.log("NOTIFICATIE");
+  console.log(zehe);
+  console.log("NOTIFICATIEEIND");
 
     switch( e.event )
     {
         case 'registered':
             if ( e.regid.length > 0 )
             {
-              // alert(e.regid);
-                //Register Google's PushID
                 var elem = angular.element(document.querySelector('[ng-app]'));
-                var injector = elem.injector();
-                var myService = injector.get('AuthenticationService');
-                myService.device.pushID=e.regid;
+                var authService = elem.injector().get('AuthenticationService');
+                authService.device.pushID=e.regid;
             }
             break;
  
          case 'message':
                 
-                if ( e.foreground )
-                {
-                  console.log('<li>--INLINE NOTIFICATION--' + '</li>');
-
-                  // on Android soundname is outside the payload.
-                  // On Amazon FireOS all custom attributes are contained within payload
-                  // var soundfile = e.soundname || e.payload.sound;
-                  // if the notification contains a soundname, play it.
-                  var my_media = new Media("/android_asset/www/foreground-noti.wav");
-                  my_media.play();
+                //COLDSTART & FOREGROUND
+                    var elem = angular.element(document.querySelector('[ng-app]'));
+                    var pushService = elem.injector().get('PushProcessing');
+                    var refreshState = false;
+                    if(e.foreground && e.coldstart){
+                      refreshState = true;
+                    }
+                    pushService.onNotification(e.payload.notificationData,refreshState);
                   
-                    var elem = angular.element(document.querySelector('[ng-app]'));
-                    var injector = elem.injector();
-                    var myService = injector.get('PushPayload');
-                    myService.drollenbak.notiData=e.payload.notificationData;
+              // if(e.foreground){}
+
                   
-                }
-                else
-                {  // otherwise we were launched because the user touched a notification in the notification tray.
-                  if ( e.coldstart )
-                  {
-                    alert('coldstart');
-                    var elem = angular.element(document.querySelector('[ng-app]'));
-                    var injector = elem.injector();
-                    var myService = injector.get('PushPayload');
-                    myService.drollenbak.notiData=e.payload.notificationData;
-
-                  }
-                  else
-                  {
-                    alert('background');
-                    // $("#app-status-ul").append('<li>--BACKGROUND NOTIFICATION--' + '</li>');
-                    var elem = angular.element(document.querySelector('[ng-app]'));
-                    var injector = elem.injector();
-                    var myService = injector.get('PushPayload');
-                    myService.drollenbak.notiData=e.payload.notificationData;
-
-                    // alert('BACKGROUND NOPARSE == ' + kak);
-                    // alert('BACKGROUND');
-                    // alert('background ' + e.payload.postid);
-                  }
-                }
 
             break;
  

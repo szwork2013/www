@@ -579,6 +579,13 @@ height:70px;
   font-size: 10px;
 }
 
+.commentmodal span{
+  width:100%;
+  display: block;
+  margin-top:50%;
+  text-align: center;
+}
+
 .commentmodal p{
   white-space: normal;
   color: black;  /*text-align:center;*/

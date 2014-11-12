@@ -2,10 +2,7 @@ angular.module('prikl.controllers', ['youtube-embed'])
 
 
 .controller('AppCtrl', function($scope,$rootScope, $state, Modals, Camera,Message, 
-  $stateParams,$ionicPlatform,PushProcessing,AuthenticationService,PushPayload) {
-
-alert(PushPayload.drollenbak.notiData.notificationType);
-
+  $stateParams,$ionicPlatform,PushProcessing,AuthenticationService) {
 /*
    if($rootScope.userid == undefined && $rootScope.groupid == undefined){
     $rootScope.userid = 227;
@@ -140,11 +137,6 @@ alert(PushPayload.drollenbak.notiData.notificationType);
       //server generates token, device stores this token in localstorage
       $ionicLoading.show({template:"Apparaat registreren"});
 
-      //Register app for pushnotifications, returns when succesfully registered
-      // PushProcessing.register().then(function(succes){
-        //Google GCM doesnt return PushID directly -> have to wait 
-        //Better to return promise
-        // $timeout(function(){
           AuthenticationService.registerDevice($scope.userinfo)
               .then(function(response){
                 $ionicLoading.hide();
@@ -155,20 +147,13 @@ alert(PushPayload.drollenbak.notiData.notificationType);
                 $ionicLoading.hide();
                 $ionicLoading.show({template:error,duration:3000});
               });
-          // },500);
-
-      // },function(err){
-
-      //   $ionicLoading.hide();
-      //   $ionicLoading.show({template:error,duration:3000});
-
-      // });
-      
      
     }else{ 
       //Browsers and devices won't get a DeviceID
       $ionicLoading.show({template:"Geen Android of iOS",duration:1000});
-      $state.go('app.allreactions');
+      
+      //$state.go('app.allreactions');
+      $state.go('app.allreactions', { 'type':'comment','commentid':'500','postid':'0' });
     }
   }
 
@@ -361,80 +346,22 @@ alert(PushPayload.drollenbak.notiData.notificationType);
   
 })
 
-.controller('PinboardCtrl',function($scope,$timeout,$ionicScrollDelegate,Modals,PostService,PushPayload){
+.controller('PinboardCtrl',function($scope,$stateParams,
+  $timeout,$ionicScrollDelegate,Modals,PostService,PushProcessing){
+
 $scope.posts = [];
 $scope.itemsAvailable = true;
 $scope.loadingMessage = "";
+console.log($stateParams.type);
 
-//PUSH
-if(PushPayload.drollenbak.notiData.notificationType === undefined || PushPayload.drollenbak.notiData.notificationType === '')
-{
-  console.log('');
+if($stateParams.type == "comment"){
+  $scope.commentPostID = $stateParams.commentid;
+    Modals.createAndShow($scope,"comments");
 }
-else
-{
-  if(PushPayload.drollenbak.notiData.notificationType === 'comment')
-  {
-    alert('comment');
-    // alert('COMMENTARIE: ' + PushPayload.drollenbak.notiData.notificationContent);
-    Message.loading("Reacties laden");
-
-        $scope.postIdForComment = PushPayload.drollenbak.notiData.notificationContent;
-        
-        PostService.getComments($scope.postIdForComment).then(function(comments){
-            Modals.createAndShow($scope,"comments");
-        
-        $scope.postComments = comments;
-        Message.loadingHide();
-
-        },function(error){
-        Message.notify(error);
-       });  
-    PushPayload.drollenbak.notiData.notificationType = '';
-  }
-
-  else if(PushPayload.drollenbak.notiData.notificationType === 'prikl')
-  {
-    window.location = "#/app/prikls";
-    PushPayload.drollenbak.notiData.notificationType = '';
-  }
-
-  else
-  {
-    console.log('geen notificatie');
-  }
-}
-  // if(pushmsg)
-  // {
-
-  //   var pushData = pushmsg.split('|');
-  //   var pushType = pushData[0];
-  //   var pushContent = pushData[1];
-  //   if (pushType === 'comment') 
-  //     {
-  //       Message.loading("Reacties laden");
-
-  //       $scope.postIdForComment = pushContent;
-        
-  //       PostService.getComments(pushContent).then(function(comments){
-  //           Modals.createAndShow($scope,"comments");
-        
-  //       $scope.postComments = comments;
-  //       // Message.loadingHide();
-
-  //       },function(error){
-  //       Message.notify(error);
-  //      });  
-
-        
-  //         };
-  //   };
-  //   if (pushType === 'prikl') 
-  //     {
-  //       $state.go('app.prikls');
-  //     };
-//
-
+  
+console.log("STATEPARAMSFROMPINBOARD");
+console.log(JSON.stringify($stateParams));
+console.log("ENDSTATEPARAMS");
 
 $scope.$watch('loadingMessage', function() {
       if($scope.loadingMessage != ""){
