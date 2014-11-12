@@ -571,6 +571,7 @@ function transformRequest( data, getHeaders ) {
         });
     },
     onNotification: function(notificationData,refreshState){
+        console.log("REFRESHSTATE:"+refreshState);
         if(refreshState){$state.reload()};
 
         switch(notificationData.notificationType)  {
@@ -594,9 +595,9 @@ function transformRequest( data, getHeaders ) {
  var onNotificationGCM = function(e,$state) {
 
   var zehe = JSON.stringify(e);
-  console.log("NOTIFICATIE");
+  /*console.log("NOTIFICATIE");
   console.log(zehe);
-  console.log("NOTIFICATIEEIND");
+  console.log("NOTIFICATIEEIND");*/
 
     switch( e.event )
     {
@@ -610,17 +611,19 @@ function transformRequest( data, getHeaders ) {
             break;
  
          case 'message':
-                
-                //COLDSTART & FOREGROUND
+                console.log("Coldstart:"+e.coldstart+",Foreground"+e.foreground);
+                    //COLDSTART & FOREGROUND
                     var elem = angular.element(document.querySelector('[ng-app]'));
                     var pushService = elem.injector().get('PushProcessing');
+                    
                     var refreshState = false;
-                    if(e.foreground && e.coldstart){
+                    if(!e.coldstart && !e.foreground){
                       refreshState = true;
                     }
+
                     pushService.onNotification(e.payload.notificationData,refreshState);
                   
-              // if(e.foreground){}
+                    // if(e.foreground){}
 
                   
 

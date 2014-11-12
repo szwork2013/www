@@ -21,9 +21,13 @@ angular.module('prikl', ['ionic', 'ngCordova', 'prikl.controllers', 'prikl.servi
         //     preventDefault();
         //   }, false);
            
-  /*$ionicPlatform.on('resume', function(){
-    $state.go('app.allreactions');
-  });*/
+  $ionicPlatform.on('resume', function(){
+    $state.transitionTo($state.current, $stateParams, {
+        reload: true,
+        inherit: false,
+        notify: true
+    });
+  });
 
 
   //Register back button
