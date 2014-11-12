@@ -1,7 +1,7 @@
 angular.module('prikl', ['ionic', 'ngCordova', 'prikl.controllers', 'prikl.services'])
 
 .run(function($ionicPlatform,$cordovaDevice,
-  $rootScope,Message,$state,$timeout,PushProcessing) {
+  $rootScope,Message,$state,$timeout,PushProcessing,$ionicNavBarDelegate) {
    //URL to servers' root
   $rootScope.server = "http://winspire01.windesheim.nl/";
 
@@ -15,32 +15,33 @@ angular.module('prikl', ['ionic', 'ngCordova', 'prikl.controllers', 'prikl.servi
           navigator.splashscreen.hide();
         }
 
-        document.addEventListener("backbutton", function (event) {
+        // window.addEventListener("backbutton", function (event) {
           
-          if($state.$current.toString() !== 'app.allreactions')
-          {
-            $state.go('app.allreactions');
-            var oeleboele = window.localStorage.getItem('pushNotification');
-            if (oeleboele) {window.localStorage.removeItem('pushNotification');};
-          }
-          else
-          {
-            Message.question("Afsluiten","Wilt u de app afsluiten",function(yes){
-            if(yes){
-              window.localStorage.removeItem('pushNotification');
-              navigator.app.exitApp();}
-           });
-          }
-              // event.preventDefault();
-          }, false);
+            
+        //     preventDefault();
+        //   }, false);
            
+  $ionicPlatform.on('resume', function(){
+    $state.go('app.allreactions');
+  });
+
 
   //Register back button
-  //  $ionicPlatform.registerBackButtonAction(function (event) {
-  //  Message.question("Afsluiten","Wilt u de app afsluiten",function(yes){
-  //   if(yes){navigator.app.exitApp();}
-  //  });
-  // }, 100);
+   $ionicPlatform.onHardwareBackButton(function (event) {
+   var prev = $ionicNavBarDelegate.getPreviousTitle();
+   alert(prev);
+            if(prev != '' && prev != undefined && prev != 'Inloggen')
+            {
+              $ionicNavBarDelegate.back();
+              event.preventDefault();
+            }
+            else
+            {
+              Message.question("Afsluiten","Wilt u de app afsluiten",function(yes){
+                if(yes){navigator.app.exitApp();}
+               });
+            }
+  }, 100);
 
    //Get Appversion
     if(window.cordova){

@@ -7,12 +7,16 @@ angular.module('prikl.controllers', ['youtube-embed'])
 alert(PushPayload.drollenbak.notiData.notificationType);
 
 
+
 /*
    if($rootScope.userid == undefined && $rootScope.groupid == undefined){
     $rootScope.userid = 227;
     $rootScope.groupid = 90;
   }*/
-
+  $scope.go = function(string)
+  {
+    $state.go(string);
+  }
 
     //Logoutfunction for logout in menu
     $scope.logout = function(){
@@ -369,7 +373,7 @@ alert(PushPayload.drollenbak.notiData.notificationType);
   $scope.loading = false;
   $scope.posts.total = 0;
 
-if(PushPayload.drollenbak.notiData.notificationType === undefined)
+if(PushPayload.drollenbak.notiData.notificationType === undefined || PushPayload.drollenbak.notiData.notificationType === '')
 {
   console.log('');
 }
@@ -392,13 +396,18 @@ else
         },function(error){
         Message.notify(error);
        });  
-
+    PushPayload.drollenbak.notiData.notificationType = '';
   }
 
-  if(PushPayload.drollenbak.notiData.notificationType === 'prikl')
+  else if(PushPayload.drollenbak.notiData.notificationType === 'prikl')
   {
-    
-    window.location = "#app/prikls";
+    window.location = "#/app/prikls";
+    PushPayload.drollenbak.notiData.notificationType = '';
+  }
+
+  else
+  {
+    console.log('geen notificatie');
   }
 }
   
