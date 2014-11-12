@@ -359,7 +359,7 @@ angular.module('prikl.controllers', ['youtube-embed'])
 
 
 
-.controller('PinboardCtrl2',function($scope,$timeout,$ionicScrollDelegate,Modals,PostService){
+.controller('PinboardCtrl',function($scope,$timeout,$ionicScrollDelegate,Modals,PostService){
 
 $scope.posts = [];
 $scope.itemsAvailable = true;
@@ -424,26 +424,19 @@ $scope.doRefresh = function(pinboard){
           $scope.$broadcast('scroll.infiniteScrollComplete');
           $scope.$broadcast('scroll.resize');
         });
-
 }
 
-
  $scope.getDynamicWidth = function(){
-
-  if(window.innerWidth <= 650){
-    return "100%";
-  }
-  else if(window.innerWidth <= 950){
-    
-    return "50%";
-  }else if (window.innerWidth <= 1250){
-      
-    return "33%";
-  }else{
-    
-    return "25%";
-  }
-
+    if(window.innerWidth <= 650){
+      return "100%";
+    }
+    else if(window.innerWidth <= 950){
+      return "50%";
+    }else if (window.innerWidth <= 1250){
+      return "33%";
+    }else{
+      return "25%";
+    }
  }
 
  $scope.photoprev = function(photo){

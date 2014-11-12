@@ -76,7 +76,7 @@ angular.module('prikl', ['ionic', 'ngCordova', 'prikl.controllers', 'prikl.servi
        views: {
         'menuContent' :{
           templateUrl: "templates/postboards/myreactions.html",
-          controller: 'PinboardCtrl2'
+          controller: 'PinboardCtrl'
         }
       }
     })
@@ -85,7 +85,7 @@ angular.module('prikl', ['ionic', 'ngCordova', 'prikl.controllers', 'prikl.servi
       views: {
         'menuContent' :{
           templateUrl: "templates/postboards/allreactions.html",
-          controller: 'PinboardCtrl2'
+          controller: 'PinboardCtrl'
         }
       }
     }) 
