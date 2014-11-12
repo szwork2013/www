@@ -419,7 +419,6 @@ angular.module('prikl.services', ['angular-md5'])
                                       scope: scope, focusFirstInput: true
                                     }).then(function(modal) {
                                       scope.commentModal = modal;
-                                      scope.commentModal.postid = scope.postIdForComment;
                                       scope.commentModal.show();
                                     });
                               

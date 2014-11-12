@@ -1,29 +1,28 @@
 <ion-modal-view class="commentmodal" ng-controller="CommentCtrl">
         <ion-header-bar class="bar bar-header bar-dark">
-         <button class="button button-primary button-clear" ng-click="close_comment_modal()">Sluiten</button>
+         <button class="button button-primary button-clear" ng-click="commentModal.remove()">Sluiten</button>
           <h1 class="title">Reacties</h1>
-          <button class="button button-primary button-clear" ng-click="comment_on_post()" ng-disabled="commentModal.commenttext==undefined||commentModal.commenttext.length<2">Reageer</button>
         </ion-header-bar>
         <ion-content>
 
-<div class="list">
-
-    <div class="item item-avatar margin-extra" ng-repeat = "commentie in postComments">
-      <img src="http://winspire01.windesheim.nl/images/users/{{commentie.user_pic}}">
-      <i ng-if = "commentie.user_iduser==userid" ng-click = "deleteComment(commentie.idpost_comments)" class = "ion-close-circled top-right"></i> 
-      <inut type = "hidden" ng-model = "commentid" value = "commentie" />
-      <h2 style = "color: black;">{{commentie.user_firstname}} {{commentie.user_lastname}}</h2>
-      <p style = "color: #333; text-align: left">{{commentie.post_comment_date | timeAgo}}</p>
-      <p>{{commentie.post_comment_content}}</p>
-
-    </div>
-    <div class = "extra-end dark-bg"></div>
-</div>
+          <ion-list ng-init="loadComments()">
+              <div class="item" ng-repeat = "commentie in postComments">
+                <h2>{{commentie.user_firstname}} {{commentie.user_lastname}}</h2>
+                <p class="date">{{commentie.post_comment_date | timeAgo}}</p>
+                <p>{{commentie.post_comment_content}}</p>
+                <i ng-if = "commentie.user_iduser==userid" ng-click = "deleteComment(commentie.idpost_comments)" class = "ion-close-circled"></i>
+              </div>
+          </ion-list>
 
 
       </ion-content>
-<div class="bar bar-footer dark-bg">
-  <textarea class = "comment-text-area" placeholder="Typ hier je tekst" rows="3" maxlength="150" ng-model="commentModal.commenttext">
-        </textarea>
-</div>      
+
+      <ion-footer-bar keyboard-attach class="bar-royal item-input-inset">
+            <label class="item-input-wrapper">
+              <input type="text" ng-model="commentModal.commenttext">
+            </label>
+            <button class="button button-clear" ng-click="comment_on_post()" ng-disabled="commentModal.commenttext==undefined||commentModal.commenttext.length<2">
+              Verzend
+            </button>
+       </ion-footer-bar>
 </ion-modal-view>
