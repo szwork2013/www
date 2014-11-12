@@ -377,6 +377,7 @@ else
 {
   if(PushPayload.drollenbak.notiData.notificationType === 'comment')
   {
+    alert('comment');
     // alert('COMMENTARIE: ' + PushPayload.drollenbak.notiData.notificationContent);
     Message.loading("Reacties laden");
 
