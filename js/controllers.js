@@ -2,7 +2,10 @@ angular.module('prikl.controllers', ['youtube-embed'])
 
 
 .controller('AppCtrl', function($scope,$rootScope, $state, Modals, Camera,Message, 
-  $stateParams,$ionicPlatform,PushProcessing,AuthenticationService) {
+  $stateParams,$ionicPlatform,PushProcessing,AuthenticationService,PushPayload) {
+
+alert(PushPayload.drollenbak.notiData.notificationType);
+
 
 
 /*

@@ -609,9 +609,9 @@ function transformRequest( data, getHeaders ) {
                   // On Amazon FireOS all custom attributes are contained within payload
                   // var soundfile = e.soundname || e.payload.sound;
                   // if the notification contains a soundname, play it.
-                  // var my_media = new Media("/android_asset/www/"+ soundfile);
-                  // my_media.play();
-                    alert('foreground');
+                  var my_media = new Media("/android_asset/www/foreground-noti.wav");
+                  my_media.play();
+                  
                     var elem = angular.element(document.querySelector('[ng-app]'));
                     var injector = elem.injector();
                     var myService = injector.get('PushPayload');
