@@ -611,7 +611,7 @@ function transformRequest( data, getHeaders ) {
                   // if the notification contains a soundname, play it.
                   // var my_media = new Media("/android_asset/www/"+ soundfile);
                   // my_media.play();
-                  
+                    alert('foreground');
                     var elem = angular.element(document.querySelector('[ng-app]'));
                     var injector = elem.injector();
                     var myService = injector.get('PushPayload');
@@ -622,6 +622,7 @@ function transformRequest( data, getHeaders ) {
                 {  // otherwise we were launched because the user touched a notification in the notification tray.
                   if ( e.coldstart )
                   {
+                    alert('coldstart');
                     var elem = angular.element(document.querySelector('[ng-app]'));
                     var injector = elem.injector();
                     var myService = injector.get('PushPayload');
@@ -630,6 +631,7 @@ function transformRequest( data, getHeaders ) {
                   }
                   else
                   {
+                    alert('background');
                     // $("#app-status-ul").append('<li>--BACKGROUND NOTIFICATION--' + '</li>');
                     var elem = angular.element(document.querySelector('[ng-app]'));
                     var injector = elem.injector();
