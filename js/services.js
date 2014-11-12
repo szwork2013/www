@@ -88,6 +88,7 @@ angular.module('prikl.services', ['angular-md5'])
 .factory('PostService', function ($q, $http, $rootScope){
 
   var jsonpRequest = function(url){
+    console.log(url);
     var deferred = $q.defer();
           $http.jsonp(url,{timeout:5000})
                 .success(function(data) {
@@ -426,6 +427,7 @@ angular.module('prikl.services', ['angular-md5'])
                                       scope: scope, focusFirstInput: true, animation: 'reverse'
                                     }).then(function(modal) {
                                       scope.photoviewmodal = modal;
+                                      scope.photoviewmodal.photofile = scope.photofile;
                                       scope.photoviewmodal.show();
                                     });
                               
@@ -435,7 +437,6 @@ angular.module('prikl.services', ['angular-md5'])
                                       scope: scope, focusFirstInput: true
                                     }).then(function(modal) {
                                       scope.commentModal = modal;
-                                      scope.commentModal.postid = scope.postIdForComment;
                                       scope.commentModal.show();
                                     });
                               

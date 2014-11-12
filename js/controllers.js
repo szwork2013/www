@@ -6,13 +6,12 @@ angular.module('prikl.controllers', ['youtube-embed'])
 
 alert(PushPayload.drollenbak.notiData.notificationType);
 
-
-
 /*
    if($rootScope.userid == undefined && $rootScope.groupid == undefined){
     $rootScope.userid = 227;
     $rootScope.groupid = 90;
   }*/
+
   $scope.go = function(string)
   {
     $state.go(string);
@@ -31,8 +30,6 @@ alert(PushPayload.drollenbak.notiData.notificationType);
 
                   //Unregister Push
                   PushProcessing.unregister();
-
-
 
                   //Remove Cache
                   window.localStorage.removeItem('userdevice');
@@ -340,8 +337,6 @@ alert(PushPayload.drollenbak.notiData.notificationType);
     );
   }
 
-
-
   
   $scope.react = function(reacttype,priklid){
     try{
@@ -366,13 +361,12 @@ alert(PushPayload.drollenbak.notiData.notificationType);
   
 })
 
-.controller('PinboardCtrl',function($scope,$state,$filter,$stateParams,$rootScope,$timeout,$ionicLoading,PostService,Cache,Message,Modals, PushPayload){
-  $scope.noMoreItemsAvailable = false;
-  $scope.noConnection = false;
-  $scope.posts = [];
-  $scope.loading = false;
-  $scope.posts.total = 0;
+.controller('PinboardCtrl',function($scope,$timeout,$ionicScrollDelegate,Modals,PostService,PushPayload){
+$scope.posts = [];
+$scope.itemsAvailable = true;
+$scope.loadingMessage = "";
 
+//PUSH
 if(PushPayload.drollenbak.notiData.notificationType === undefined || PushPayload.drollenbak.notiData.notificationType === '')
 {
   console.log('');
@@ -410,8 +404,6 @@ else
     console.log('geen notificatie');
   }
 }
-  
-
   // if(pushmsg)
   // {
 
@@ -441,253 +433,146 @@ else
   //     {
   //       $state.go('app.prikls');
   //     };
+//
 
 
-
-  $scope.$on('$stateChangeStart', 
-    function(event, toState, toParams, fromState, fromParams){ 
-      if(fromState.name == "app.myreactions"){
-       Cache.put("private",$scope.posts);
-     }else if(fromState.name == "app.allreactions"){
-
-       Cache.put("group",$scope.posts);
-     }
+$scope.$watch('loadingMessage', function() {
+      if($scope.loadingMessage != ""){
+         $timeout(function(){
+            $scope.loadingMessage = "";
+         },5000);   
+      }
    });
 
-  $scope.comments = function(postid, show){
-    Message.loading("Reacties laden");
+//Refresh
+$scope.doRefresh = function(pinboard){
 
-    $scope.postIdForComment = postid;
-    
-    PostService.getComments(postid).then(function(comments){
-      if (show) {
-        Modals.createAndShow($scope,"comments");
-      };
-    
-    $scope.postComments = comments;
-    Message.loadingHide();
+      if($scope.posts.length==0){var lastpostid=0;}else{var lastpostid = $scope.posts[0].idposts;}
+  
+      PostService.getNewPosts(pinboard,lastpostid)
+      .then(function(posts){   
+        if(posts == "NOPOSTS"){
+          $scope.loadingMessage = "Er zijn geen nieuwe posts beschikbaar";
+        }else{
+          $scope.loadingMessage = posts.length + " nieuw";
+          for(var i = 0;i<posts.length;i++){
+            $scope.posts.unshift(posts[i]);
+          }
+        }
+      },function(error){
+        $scope.loadingMessage = error;
+      })
+      .finally(function(){
+       $scope.$broadcast('scroll.refreshComplete');
+      })
 
-    },function(error){
-    Message.notify(error);
-   });  
+}
+
+  //Infinite Scrolling
+  $scope.loadMore = function(pinboard) { 
+
+         PostService.getPosts(pinboard,$scope.posts.length,12)
+         .then(function(posts){
+
+          if(posts == "NOPOSTS"){
+            $scope.itemsAvailable = false;
+            $scope.loadingMessage = "Er zijn geen oudere berichten beschikbaar";
+          }
+
+          else{ 
+            for (var i = 0; i < posts.length; i++)
+            {
+              $scope.posts.push(posts[i]);
+            }
+
+          }
+
+        },
+        function(error){
+          $scope.loadingMessage = error;
+        })
+         .finally(function(){
+          $scope.$broadcast('scroll.infiniteScrollComplete');
+          $scope.$broadcast('scroll.resize');
+        });
+}
+
+ $scope.getDynamicWidth = function(){
+    if(window.innerWidth <= 650){
+      return "100%";
+    }
+    else if(window.innerWidth <= 950){
+      return "50%";
+    }else if (window.innerWidth <= 1250){
+      return "33%";
+    }else{
+      return "25%";
+    }
  }
+
+ $scope.photoprev = function(photo){
+    $scope.photofile = photo;
+    Modals.createAndShow($scope,"photoview");
+ }
+
+ $scope.priklprev = function(){
+    $ionicLoading.show({template:"PrikLpreview",duration:1000});
+ }
+
+ $scope.react = function(postid){
+    $scope.commentPostID = postid;
+    Modals.createAndShow($scope,"comments");
+ }
+
+ $scope.delete = function(){
+    $ionicLoading.show({template:"Verwijderen",duration:1000});
+ }
+
+})
+
+.controller('CommentCtrl',function($scope,PostService,Message){
+
+$scope.data = {showDelete:false};
+
+  $scope.loadComments = function(){
+      PostService.getComments($scope.commentPostID).then(function(comments){
+        $scope.postComments = comments;
+      },function(error){
+        Message.notify(error);
+     }); 
+  }
 
  $scope.deleteComment = function(commentid)
  {
     Message.question("Reactie verwijderen","Weet je zeker dat je je reactie wilt verwijderen?",function(answer){
-  if(answer){
-    PostService.deleteComment(commentid)
-    .then(function(){
-        //Delete from posts
-        // $scope.commentModal.remove(); 
+      if(answer){
+        PostService.deleteComment(commentid)
+        .then(function(){
 
-            $scope.postComments = [];
-            $scope.comments($scope.postIdForComment, false);
-      },function(error){
-        Message.notify(error);
-      });
-  }
-});
+          $scope.loadComments();
 
-
+          },function(error){
+            Message.notify(error);
+          });
+      }
+    });
  }
 
  $scope.comment_on_post = function()
  {
-    Message.loading("Reactie versturen");
-    console.log($scope.commentModal.commenttext);
-    console.log($scope.commentModal.postid);
-        PostService.addComment($scope.commentModal.postid, $scope.commentModal.commenttext)
+        Message.loading("Reactie versturen");
+        PostService.addComment($scope.commentPostID, $scope.commentModal.commenttext)
           .then(function(){
-            // $scope.commentModal.remove(); 
-            $scope.postComments = [];
-            $scope.comments($scope.postIdForComment, false);
+
+            $scope.loadComments();
             $scope.commentModal.commenttext = "";
             
             Message.loadingHide();
           },function(error){
-            console.log(error);
-            
+            Message.notify(error);
           });
-          window.localStorage.removeItem('pushNotification');
  }
 
-  $scope.close_comment_modal = function()
- {
-  $scope.postIdForComment = "";
-  $scope.postComments = "";
-  $scope.commentModal.remove(); 
-  console.log($scope.postComments);
-  window.localStorage.removeItem('pushNotification');
- }
-
-  //If there are posts in cache load them
-  $scope.load = function(pinboard){
-
-   if(Cache.get(pinboard) != null) {
-    $scope.loading = true;
-    $scope.posts = Cache.get(pinboard);
-    for (var i = $scope.posts.length - 1; i >= 0; i--) {
-      $scope.totalposts += $scope.posts[i].posts.length;
-    };
-      $scope.loading = false;
-  } 
-
-//refreshpinboard
-$scope.refresh(pinboard);
-}
-    /*Refreshfunction(when user pulls to refresh) check if there are new posts with postid from the newest post, 
-    if there are create new date object with date-month-year and check if an array exists with this date, if not
-      create an new array for these or this post and put it in front of the array(unshift)*/
-    $scope.refresh = function(pinboard){
-      //Moet anders
-      if($scope.posts[0] == undefined){
-        $scope.$broadcast('scroll.refreshComplete');
-      }{
-      
-      var lastpostid = $scope.posts[0].posts[0].idposts;
-      $scope.loading = true;
-    
-      PostService.getNewPosts(pinboard,lastpostid)
-      .then(function(posts){
-         $scope.loading = false;
-       if(posts == "NOPOSTS"){ 
-      // $ionicLoading.show({template:"Geen nieuwe posts",duration:500});
-      }else{
-        for (var i = 0; i < posts.length; i++){
-          var date = new Date(posts[i].post_date);
-          date = new Date(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate(), 0, 0, 0, 0);
-          var firstdate = $scope.posts[0].date;
-
-
-          
-          if(firstdate.toString() == date.toString()){
-            $scope.posts[0].posts.unshift(posts[i]);
-          }else{
-            var newarr = [posts[i]];
-            var datePosts = {'date':date,'posts':newarr};
-            $scope.posts.unshift(datePosts);    
-          }
-          $scope.totalposts++; 
-        }
-      }
-      $scope.$broadcast('scroll.refreshComplete');
-    },function(error){
-       $scope.loading = false;
-       $scope.noConnection = true;
-       $ionicLoading.show({template:error,duration:3000});
-    });
-
-}
-    
-}
-
-$scope.retry = function(pinboard){
-  $scope.noConnection = false;
-  $scope.loadMore(pinboard);
-}
-
-$scope.loadMore = function(pinboard) { 
-  if(!$scope.noMoreItemsAvailable && !$scope.loading && !$scope.noConnection){
-   $scope.loading = true;
-
-   PostService.getPosts(pinboard,$scope.posts.total,5)
-   .then(function(posts){
-
-
-
-                        //Divide posts per date, for every post create new dateobject with time 00:00:00, check
-                        //if there is no other post with the same date -> create an object with an array for this date
-                        //"posts":[ { date : "12 october 2014" , posts : [post,post,post,post] },
-                        // { date : "13 october 2014" , posts : [post,post] }, { date : "14 october 2014" , posts : [post,post,post] } ]
-                        if(posts == "NOPOSTS"){
-                          $scope.noMoreItemsAvailable = true;
-                        }
-                        else{
-
-                          //iterate trough all received posts
-                          for (var i = 0; i < posts.length; i++){
-
-                            $scope.posts.push(posts[i]);
-
-                            $scope.posts.total++;
-                          }
-                        }
-                        $scope.loading = false;
-                        $scope.$broadcast('scroll.infiniteScrollComplete');
-                        $scope.$broadcast('scroll.resize');
-                      },function(error){
-                        $scope.loading = false;
-                        $scope.noConnection = true;
-                        $ionicLoading.show({template:error,duration:3000});
-                      });
-}
-}
-
-$scope.deletepost =function(postid){
- Message.question("Bericht verwijderen","Weet je zeker dat je je bericht wilt verwijderen?",function(answer){
-  if(answer){
-    PostService.deletePost(postid)
-    .then(function(){
-        //Delete from posts
-        $timeout(function(){
-          for (var i = $scope.posts.length - 1; i >= 0; i--) {
-            for (var j = $scope.posts[i].posts.length - 1; j >= 0; j--) {
-              if($scope.posts[i].posts[j].idposts == postid){
-                $scope.posts[i].posts.splice(j, 1);
-              }
-            };
-          };
-
-        //Delete from groupposts in cache 
-        var groupposts = Cache.get("group");
-        for (var i = groupposts.length - 1; i >= 0; i--) {
-          for (var j = groupposts[i].posts.length - 1; j >= 0; j--) {
-            if(groupposts[i].posts[j].idposts == postid){
-              groupposts[i].posts.splice(j, 1);
-            }
-          };
-        };
-        Cache.put("group",groupposts);
-      },500);
-      },function(error){
-        $ionicLoading.show({template:error,duration:3000});
-      });
-  }
-});
-}
-
-
-  //Count chars for fontsize
-  $scope.countchars = function(textlength) {
-    var s = 70 - (textlength*2);
-    return s + "px";
-  };
-
-  $scope.viewPhoto = function(serverpath,filename){
-    Modals.createAndShow($scope,"photoview");
-   // console.log($rootScope.server + serverpath + filename);
-    $scope.photourl = $rootScope.server + serverpath + filename;
-  }
-
-  $scope.getComments = function(postid){
-    Modals.createAndShow($scope,"comments");
-   // console.log($rootScope.server + serverpath + filename);
-    $scope.photourl = $rootScope.server + serverpath + filename;
-  }
-
-  $scope.showPrikl = function(priklid){
-    //Uitgebreider maken?
-    PostService.getSinglePrikl(priklid)
-    .then(function(prikl){
-
-      var priklinfo = "PrikL van "+$filter('date')(prikl[0].prikl_date,'EEEE d MMMM')+ 
-      ":<br><b>" +prikl[0].prikl_title + "</b><br>" + prikl[0].prikl_content;
-        $ionicLoading.show({template:priklinfo,duration:3000});
-    },function(error){
-       $ionicLoading.show({template:error,duration:3000});
-    });
-  }
 })
 
 .controller('AccountCtrl',function($scope,$rootScope,PostService,FileTransferService,$ionicLoading,PostService,Message,Camera){
