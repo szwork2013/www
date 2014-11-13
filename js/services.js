@@ -613,15 +613,20 @@ function transformRequest( data, getHeaders ) {
          case 'message':
                 console.log("Coldstart:"+e.coldstart+",Foreground"+e.foreground);
                     //COLDSTART & FOREGROUND
-                    var elem = angular.element(document.querySelector('[ng-app]'));
-                    var pushService = elem.injector().get('PushProcessing');
-                    
-                    var refreshState = false;
-                    if(!e.coldstart && !e.foreground){
-                      refreshState = true;
-                    }
 
-                    pushService.onNotification(e.payload.notificationData,refreshState);
+                    if(!e.foreground){
+                      var elem = angular.element(document.querySelector('[ng-app]'));
+                      var pushService = elem.injector().get('PushProcessing');
+                      
+                      var refreshState = false;
+                      if(!e.coldstart){
+                        refreshState = true;
+                      }
+
+                      pushService.onNotification(e.payload.notificationData,refreshState);
+                    }else{
+                      
+                    }
                   
                     // if(e.foreground){}
 

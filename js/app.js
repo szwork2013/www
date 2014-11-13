@@ -1,6 +1,6 @@
 angular.module('prikl', ['ionic', 'ngCordova', 'prikl.controllers', 'prikl.services'])
 
-.run(function($ionicPlatform,$cordovaDevice,
+.run(function($ionicPlatform,$cordovaDevice,$stateParams,
   $rootScope,Message,$state,$timeout,PushProcessing,$ionicNavBarDelegate) {
    //URL to servers' root
   $rootScope.server = "http://winspire01.windesheim.nl/";
