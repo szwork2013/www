@@ -612,6 +612,11 @@ function transformRequest( data, getHeaders ) {
             case 'message':
                       //if(e.foreground || e.coldstart) Handle onNotification in PushProcessingservice
                       //to use angular
+                      if(e.foreground)
+                      {
+                        var dingie = document.getElementById('loadingMessage');
+                        dingie.innerHTML = "NIEUWE COMMENT: " + e.payload.notificationData;
+                      }
                       var elem = angular.element(document.querySelector('[ng-app]'));
                       var pushService = elem.injector().get('PushProcessing');
                       pushService.onNotification(e.payload.notificationData);
