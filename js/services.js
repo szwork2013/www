@@ -577,6 +577,8 @@ function transformRequest( data, getHeaders ) {
         switch(notificationData.notificationType)  {
           case 'comment':
 
+             
+              notification.commentid = notificationData.notificationContent;
               //Make sure notificationcheck is triggered in PinboardCtrl
               if($state.current.name == 'app.allreactions'){
                  $state.transitionTo($state.current, $stateParams, {
@@ -587,8 +589,6 @@ function transformRequest( data, getHeaders ) {
                }else{
                  $state.go('app.allreactions');
                }
-             
-              notification.commentid = notificationData.notificationContent;
 
               //PostID & CommentID meegeven
               //console.log("FROMPUSHPROCESSING"+JSON.stringify(notification));
@@ -623,8 +623,6 @@ function transformRequest( data, getHeaders ) {
             case 'message':
                       //if(e.foreground || e.coldstart) Handle onNotification in PushProcessingservice
                       //to use angular
-                        var dingie = document.getElementById('loadingMessage');
-                        dingie.innerHTML = "NIEUWE COMMENT: " + e.payload.notificationData;
                       var elem = angular.element(document.querySelector('[ng-app]'));
                       var pushService = elem.injector().get('PushProcessing');
                       pushService.onNotification(e.payload.notificationData);
