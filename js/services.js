@@ -87,19 +87,20 @@ angular.module('prikl.services', ['angular-md5'])
 .factory('PostService', function ($q, $http, $rootScope){
 
   var jsonpRequest = function(url){
-    console.log(url);
+   
     var deferred = $q.defer();
           $http.jsonp(url,{timeout:5000})
                 .success(function(data) {
+                   console.log(data);
                   deferred.resolve(data);
                 })
                 .error(function(data, status, headers, config){
                   console.log(data,status,headers);
                    if(status == 0){
-                     deferred.reject("Kan niet verbinden met server");
+                     deferred.reject("Geen verbinding met server mogelijk");
                     }
                     else{
-                     deferred.reject("Kan niet verbinden met server<br>Status:"+status);
+                     deferred.reject("Serverfout");
                     }
                 });
                 return deferred.promise;
@@ -141,7 +142,8 @@ angular.module('prikl.services', ['angular-md5'])
           url = $rootScope.server + "index.php/serve/getGroupPosts?start="+start+"&limit="+limit+"&groupid="+$rootScope.groupid+"&callback=JSON_CALLBACK";  
           break;
           case 'prikl':
-          url = $rootScope.server + "index.php/serve/getLimitedPrikls?start="+start+"&limit="+limit+"&groupid="+$rootScope.groupid+"&callback=JSON_CALLBACK";
+          url = $rootScope.server + "index.php/serve/getLimitedPrikls?start="+start+"&limit="+limit+"&groupid="+$rootScope.groupid+
+          "&userid="+$rootScope.userid+"&callback=JSON_CALLBACK";
           break;
         }
         return jsonpRequest(url);
