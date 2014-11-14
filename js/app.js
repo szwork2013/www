@@ -22,11 +22,14 @@ angular.module('prikl', ['ionic', 'ngCordova', 'prikl.controllers', 'prikl.servi
         //   }, false);
            
   $ionicPlatform.on('resume', function(){
-    $state.transitionTo($state.current, $stateParams, {
+    //Reload state on resume when notification is received
+    if(PushProcessing.notification.commentid != '' || PushProcessing.notification.postid != ''){
+        $state.transitionTo($state.current, $stateParams, {
         reload: true,
         inherit: false,
         notify: true
-    });
+      });
+    }
   });
 
 

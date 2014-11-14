@@ -535,6 +535,7 @@ function transformRequest( data, getHeaders ) {
 
 .factory("PushProcessing",function($q,$cordovaPush,AuthenticationService,
   $state,$timeout,Modals) {
+  var notification = {type:'',postid:'',commentid:''};
   return {  
     register : function(){
         //Register android GCM with senderID
@@ -570,14 +571,17 @@ function transformRequest( data, getHeaders ) {
             // An error occured. Show a message to the user
         });
     },
-    onNotification: function(notificationData,refreshState){
-        console.log("REFRESHSTATE:"+refreshState);
-        if(refreshState){$state.reload()};
+    notification:notification,
+    onNotification: function(notificationData){
+        notification.type = notificationData.notificationType;
 
         switch(notificationData.notificationType)  {
           case 'comment':
+              notification.commentid = notificationData.notificationContent;
+
               //PostID & CommentID meegeven
-              $state.go('app.allreactions',{type:'comment',postid:'',commentid:notificationData.notificationContent});
+              //console.log("FROMPUSHPROCESSING"+JSON.stringify(notification));
+             // $state.go('app.allreactions',notification);
           break;
           case 'prikl':
               $state.go('app.prikls');
@@ -594,11 +598,6 @@ function transformRequest( data, getHeaders ) {
 // ALL GCM notifications come through here. 
  var onNotificationGCM = function(e,$state) {
 
-  var zehe = JSON.stringify(e);
-  /*console.log("NOTIFICATIE");
-  console.log(zehe);
-  console.log("NOTIFICATIEEIND");*/
-
     switch( e.event )
     {
         case 'registered':
@@ -610,28 +609,12 @@ function transformRequest( data, getHeaders ) {
             }
             break;
  
-         case 'message':
-                console.log("Coldstart:"+e.coldstart+",Foreground"+e.foreground);
-                    //COLDSTART & FOREGROUND
-
-                    if(!e.foreground){
+            case 'message':
+                      //if(e.foreground || e.coldstart) Handle onNotification in PushProcessingservice
+                      //to use angular
                       var elem = angular.element(document.querySelector('[ng-app]'));
                       var pushService = elem.injector().get('PushProcessing');
-                      
-                      var refreshState = false;
-                      if(!e.coldstart){
-                        refreshState = true;
-                      }
-
-                      pushService.onNotification(e.payload.notificationData,refreshState);
-                    }else{
-                      
-                    }
-                  
-                    // if(e.foreground){}
-
-                  
-
+                      pushService.onNotification(e.payload.notificationData);
             break;
  
             case 'error':

@@ -352,16 +352,19 @@ angular.module('prikl.controllers', ['youtube-embed'])
 $scope.posts = [];
 $scope.itemsAvailable = true;
 $scope.loadingMessage = "";
-console.log($stateParams.type);
 
-if($stateParams.type == "comment"){
-  $scope.commentPostID = $stateParams.commentid;
+//When app opens from notification in coldstart, pinboardctrl is loaded before PushProcessing.notification is set
+$timeout(function(){
+
+  if(PushProcessing.notification.commentid != '')
+  {
+    $scope.commentPostID = PushProcessing.notification.commentid;
+    PushProcessing.notification.commentid = '';
+    PushProcessing.notification.type = '';
     Modals.createAndShow($scope,"comments");
-}
-  
-console.log("STATEPARAMSFROMPINBOARD");
-console.log(JSON.stringify($stateParams));
-console.log("ENDSTATEPARAMS");
+  }
+
+},750);
 
 $scope.$watch('loadingMessage', function() {
       if($scope.loadingMessage != ""){
