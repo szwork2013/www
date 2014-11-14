@@ -533,7 +533,7 @@ function transformRequest( data, getHeaders ) {
 })
 
 .factory("PushProcessing",function($q,$cordovaPush,AuthenticationService,
-  $state,$stateParams,$timeout,Modals) {
+  $state,$stateParams,$timeout,Modals,$rootScope) {
   var notification = {type:'',postid:'',commentid:''};
   return {  
     register : function(){
@@ -571,10 +571,11 @@ function transformRequest( data, getHeaders ) {
         });
     },
     notification:notification,
-    onNotification: function(notificationData){
+    onNotification: function(notificationData, foreground){
         notification.type = notificationData.notificationType;
-
-        switch(notificationData.notificationType)  {
+        if (foreground === false) 
+        {
+          switch(notificationData.notificationType)  {
           case 'comment':
 
              
@@ -601,6 +602,12 @@ function transformRequest( data, getHeaders ) {
               $state.go('app.allreactions');
           break;
         } 
+        }
+        else
+        {
+          $rootScope.loadMSG = "Je hebt een nieuw bericht ontvangen!";
+        }
+        
   
     }
     }
@@ -623,9 +630,18 @@ function transformRequest( data, getHeaders ) {
             case 'message':
                       //if(e.foreground || e.coldstart) Handle onNotification in PushProcessingservice
                       //to use angular
-                      var elem = angular.element(document.querySelector('[ng-app]'));
-                      var pushService = elem.injector().get('PushProcessing');
-                      pushService.onNotification(e.payload.notificationData);
+                      if (e.foreground) {
+                        var elem = angular.element(document.querySelector('[ng-app]'));
+                        var pushService = elem.injector().get('PushProcessing');
+                        pushService.onNotification(e.payload.notificationData, true);
+                      }
+                      else
+                      {
+                        var elem = angular.element(document.querySelector('[ng-app]'));
+                        var pushService = elem.injector().get('PushProcessing');
+                        pushService.onNotification(e.payload.notificationData, false);
+                      }
+                      
             break;
  
             case 'error':
