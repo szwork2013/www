@@ -347,7 +347,7 @@ angular.module('prikl.controllers', ['youtube-embed'])
 })
 
 .controller('PinboardCtrl',function($scope,$stateParams,
-  $timeout,$ionicScrollDelegate,Modals,PostService,PushProcessing){
+  $timeout,$ionicScrollDelegate,Modals,PostService,PushProcessing,$ionicPlatform){
 
 $scope.posts = [];
 $scope.itemsAvailable = true;
