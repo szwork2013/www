@@ -27,20 +27,19 @@ angular.module('prikl', ['ionic', 'ngCordova', 'prikl.controllers', 'prikl.servi
 
 
   //Register back button
-   $ionicPlatform.onHardwareBackButton(function (event) {
-   var prev = $ionicNavBarDelegate.getPreviousTitle();
-   alert(prev);
-            if(prev != '' && prev != undefined && prev != 'Inloggen')
-            {
-              $ionicNavBarDelegate.back();
-              event.preventDefault();
-            }
-            else
-            {
-              Message.question("Afsluiten","Wilt u de app afsluiten",function(yes){
-                if(yes){navigator.app.exitApp();}
-               });
-            }
+   $ionicPlatform.registerBackButtonAction(function (event) {
+
+      if($state.current.name=="app.allreactions"){
+        Message.question("Afsluiten","Wilt u de app afsluiten",function(yes){
+          if(yes){navigator.app.exitApp();}
+      });
+    }
+    else {
+      navigator.app.backHistory();
+    }
+            
+              
+            
   }, 100);
 
    //Get Appversion
