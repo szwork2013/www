@@ -14,7 +14,6 @@ angular.module('prikl.services', ['angular-md5'])
                 timeout: 5000
               })
                   .then(function(response) {
-                    console.log(response);
                     return response;
 
                   }, function(response) {
@@ -362,7 +361,7 @@ angular.module('prikl.services', ['angular-md5'])
       };
   })
 
-.service('Modals',function($ionicModal){
+.service('Modals',function($ionicModal,$timeout){
 
   this.createAndShow = function(scope,modal){
     //Create modals from template put them in a scope
@@ -534,7 +533,7 @@ function transformRequest( data, getHeaders ) {
 })
 
 .factory("PushProcessing",function($q,$cordovaPush,AuthenticationService,
-  $state,$timeout,Modals) {
+  $state,$stateParams,$timeout,Modals) {
   var notification = {type:'',postid:'',commentid:''};
   return {  
     register : function(){
@@ -577,6 +576,18 @@ function transformRequest( data, getHeaders ) {
 
         switch(notificationData.notificationType)  {
           case 'comment':
+
+              //Make sure notificationcheck is triggered in PinboardCtrl
+              if($state.current.name == 'app.allreactions'){
+                 $state.transitionTo($state.current, $stateParams, {
+                    reload: true,
+                    inherit: false,
+                    notify: true
+                  });
+               }else{
+                 $state.go('app.allreactions');
+               }
+             
               notification.commentid = notificationData.notificationContent;
 
               //PostID & CommentID meegeven
