@@ -1,0 +1,59 @@
+<ion-view title="PrikL" hide-Back-Button="true">
+ <ion-nav-buttons side="left">
+    <button menu-toggle="left" class="button button-icon icon ion-navicon"></button>
+  </ion-nav-buttons>
+
+  <div class="bar bar-subheader bar-royal bar-loading" ng-if="loadingMessage != ''" id = "loadingMessage">
+   {{loadingMessage}}
+ </div>
+
+ <ion-content class="pinboard-bg">
+ 
+ <ion-refresher
+  pulling-icon="ion-ios7-arrow-up"
+  refreshing-icon="ion-ios7-reloading"
+    on-refresh="doRefresh('prikl')">
+  </ion-refresher>
+
+<div class="list">
+  <div class="pinboard-cardcontainer card-container"
+        collection-repeat="prikl in posts track by $index"
+        collection-item-width="getDynamicWidth()"
+        collection-item-height="455">
+     
+       <div class="pinboard-card card" >
+
+            <!--TEXTPRIKL-->
+            <div class="drol">
+              <div class="pinboard-cardtext wordbreak" ng-if="prikl.prikl_type == 'text'"><span>asfadsfas{{prikl.prikl_content}}</span>
+              </div>
+
+              <!--PRIKLS WITH IMAGES-->
+              <div class="item item-image">
+                <div ng-if="prikl.prikl_type == 'pic'" class="prikl-image" ng-style="{'background-image':'url({{$root.server}}/images/prikls/{{prikl.prikl_file}})'}"></div>
+                <div ng-if="prikl.prikl_type == 'url'" class="prikl-image" ng-style="{'background-image':'url({{$root.server}}/images/prikls/{{prikl.prikl_file}})'}"></div>
+                <div ng-if="prikl.prikl_type == 'youtube'" class="prikl-image" ng-style="{'background-image':'url(http://img.youtube.com/vi/{{prikl.prikl_url}}/0.jpg)'}"></div>
+              </div>
+            </div>
+
+            <div class="prikl-divvie">
+              <i class="icon ion-image"></i>
+              <h2>{{prikl.prikl_title}}</h2>
+              <p>{{prikl.prikl_date | momentDate}}</p>
+            </div>
+       </div>
+  </div>
+</div>
+
+<ion-infinite-scroll
+     ng-if="itemsAvailable"
+     icon="ion-loading-d"
+     on-infinite="loadMore('prikl')"
+     distance="10%">
+</ion-infinite-scroll>
+
+
+ 
+</ion-content>
+
+</ion-view>

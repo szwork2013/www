@@ -3,11 +3,11 @@ angular.module('prikl.controllers', ['youtube-embed'])
 
 .controller('AppCtrl', function($scope,$rootScope, $state, Modals, Camera,Message, 
   $stateParams,$ionicPlatform,PushProcessing,AuthenticationService) {
-/*
+
    if($rootScope.userid == undefined && $rootScope.groupid == undefined){
-    $rootScope.userid = 227;
-    $rootScope.groupid = 90;
-  }*/
+    $rootScope.userid = 213;
+    $rootScope.groupid = 86;
+  }
 
   $scope.go = function(string)
   {
@@ -355,11 +355,6 @@ $scope.loadingMessage = "";
 
 //When app opens from notification in coldstart, pinboardctrl is loaded before PushProcessing.notification is set
 
-  //Close commentmodal
-  $ionicPlatform.on('pause', function(){
-    commentmodal.remove();
-  });
-
   if(PushProcessing.notification.commentid != '')
   {
     $scope.commentPostID = PushProcessing.notification.commentid;
@@ -410,6 +405,8 @@ $scope.doRefresh = function(pinboard){
          PostService.getPosts(pinboard,$scope.posts.length,12)
          .then(function(posts){
 
+
+          console.log(posts);
           if(posts == "NOPOSTS"){
             $scope.itemsAvailable = false;
             $scope.loadingMessage = "Er zijn geen oudere berichten beschikbaar";
@@ -765,6 +762,12 @@ $scope.data = {showDelete:false};
 .filter('timeAgo', function() {
       return function(date) {
         return moment(date).fromNow(); 
+      };
+})
+
+.filter('momentDate', function() {
+      return function(date) {
+        return moment(date).format("dddd D MMMM"); 
       };
 })
 

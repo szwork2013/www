@@ -87,6 +87,7 @@ angular.module('prikl.services', ['angular-md5'])
 .factory('PostService', function ($q, $http, $rootScope){
 
   var jsonpRequest = function(url){
+    console.log(url);
     var deferred = $q.defer();
           $http.jsonp(url,{timeout:5000})
                 .success(function(data) {
@@ -130,13 +131,20 @@ angular.module('prikl.services', ['angular-md5'])
     }
 
     var getPosts = function(pinboard,start,limit) {
-      if(pinboard == "user"){
-        var url = $rootScope.server + "index.php/serve/getUserPosts?start="+start+"&limit="+limit+"&userid="+$rootScope.userid+"&callback=JSON_CALLBACK";
+      var url;
+      switch(pinboard)
+        {
+          case 'user':
+          url = $rootScope.server + "index.php/serve/getUserPosts?start="+start+"&limit="+limit+"&userid="+$rootScope.userid+"&callback=JSON_CALLBACK";
+          break;
+          case 'group':
+          url = $rootScope.server + "index.php/serve/getGroupPosts?start="+start+"&limit="+limit+"&groupid="+$rootScope.groupid+"&callback=JSON_CALLBACK";  
+          break;
+          case 'prikl':
+          url = $rootScope.server + "index.php/serve/getLimitedPrikls?start="+start+"&limit="+limit+"&groupid="+$rootScope.groupid+"&callback=JSON_CALLBACK";
+          break;
+        }
         return jsonpRequest(url);
-      }else if(pinboard == "group"){
-        var url = $rootScope.server + "index.php/serve/getGroupPosts?start="+start+"&limit="+limit+"&groupid="+$rootScope.groupid+"&callback=JSON_CALLBACK";    
-        return jsonpRequest(url);
-      }
     }
 
     var getNewPosts = function (pinboard,lastpostid) {

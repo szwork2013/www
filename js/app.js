@@ -96,6 +96,15 @@ angular.module('prikl', ['ionic', 'ngCordova', 'prikl.controllers', 'prikl.servi
         }
       }
     }) 
+    .state('app.prikls2', {
+      url: "/prikls2", 
+      views: {
+        'menuContent' :{
+          templateUrl: "templates/postboards/prikls1.html",
+          controller: 'PinboardCtrl'
+        }
+      }
+    }) 
     .state('app.myreactions', {
       url: "/myreactions",
        views: {
