@@ -382,9 +382,9 @@ height:70px;
 }
 
 .drol{
-    box-shadow: 0px 15px 20px -5px;
-    -moz-box-shadow: 0px 15px 20px -5px;
-    -webkit-box-shadow: 0px 15px 20px -5px;
+    box-shadow: 0px 15px 20px -5px !important;
+    -moz-box-shadow: 0px 15px 20px -5px !important;
+    -webkit-box-shadow: 0px 15px 20px -5px !important;
 
 }
 
