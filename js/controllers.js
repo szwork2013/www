@@ -356,7 +356,7 @@ $scope.loadingMessage = "";
 
   //Close commentmodal
   $ionicPlatform.on('pause', function(){
-   
+    commentmodal.remove();
   });
 
   if(PushProcessing.notification.commentid != '')
