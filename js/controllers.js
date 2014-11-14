@@ -347,27 +347,23 @@ angular.module('prikl.controllers', ['youtube-embed'])
 })
 
 .controller('PinboardCtrl',function($scope,$stateParams,
-  $timeout,$ionicScrollDelegate,Modals,PostService,PushProcessing,$ionicPlatform){
+  $timeout,$ionicScrollDelegate,Modals,PostService,PushProcessing){
 
 $scope.posts = [];
 $scope.itemsAvailable = true;
 $scope.loadingMessage = "";
 
+//When app opens from notification in coldstart, pinboardctrl is loaded before PushProcessing.notification is set
 
-  //Close commentmodal
-  $ionicPlatform.on('pause', function(){
-   
-  });
 
   if(PushProcessing.notification.commentid != '')
   {
     $scope.commentPostID = PushProcessing.notification.commentid;
     PushProcessing.notification.commentid = '';
     PushProcessing.notification.type = '';
-    //When app opens from notification in coldstart, pinboardctrl is loaded before PushProcessing.notification is set
     $timeout(function(){
-        Modals.createAndShow($scope,"comments");
-    },1500);
+      Modals.createAndShow($scope,"comments");
+    },500);
   }
 
 
