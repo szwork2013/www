@@ -365,7 +365,7 @@ $rootScope.$watch('newMSG', function() {
             $scope.koeksnor = false;
             $rootScope.actualNewMessage = "";
 
-         }, 3000);
+         }, 10000);
       }
     
       

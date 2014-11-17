@@ -533,7 +533,7 @@ function transformRequest( data, getHeaders ) {
 })
 
 .factory("PushProcessing",function($q,$cordovaPush,AuthenticationService,
-  $state,$stateParams,$timeout,Modals,$rootScope) {
+  $state,$stateParams,$timeout,Modals,$rootScope,$ionicLoading) {
   var notification = {type:'',postid:'',commentid:''};
   return {  
     register : function(){
@@ -610,7 +610,14 @@ function transformRequest( data, getHeaders ) {
           var cont = notificationData.notificationContent;
           $rootScope.newMSG = true;
           $rootScope.actualNewMessage = cont;
+          // $state.transitionTo($state.current, $stateParams, {
+          //           reload: true,
+          //           inherit: false,
+          //           notify: true
+          //         });
+          $state.reload();
         }
+
         
   
     }
