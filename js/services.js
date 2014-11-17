@@ -605,7 +605,11 @@ function transformRequest( data, getHeaders ) {
         }
         else
         {
-          $rootScope.loadMSG = "Je hebt een nieuw bericht ontvangen!";
+          // $rootScope.loadMSG = "Je hebt een nieuw bericht ontvangen!";
+          // element.find('newMessageBar').append('Je ontving een nieuw bericht');
+          var cont = notificationData.notificationContent;
+          $rootScope.newMSG = true;
+          $rootScope.actualNewMessage = cont;
         }
         
   

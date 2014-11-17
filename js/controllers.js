@@ -3,10 +3,10 @@ angular.module('prikl.controllers', ['youtube-embed'])
 
 .controller('AppCtrl', function($scope,$rootScope, $state, Modals, Camera,Message, 
   $stateParams,$ionicPlatform,PushProcessing,AuthenticationService) {
-/*
-   if($rootScope.userid == undefined && $rootScope.groupid == undefined){
-    $rootScope.userid = 227;
-    $rootScope.groupid = 90;
+
+   /*if($rootScope.userid == undefined && $rootScope.groupid == undefined){
+    $rootScope.userid = 213;
+    $rootScope.groupid = 86;
   }*/
 
   $scope.go = function(string)
@@ -346,24 +346,32 @@ angular.module('prikl.controllers', ['youtube-embed'])
   
 })
 
-.controller('PinboardCtrl',function($scope,$stateParams,$rootScope,
+.controller('PinboardCtrl',function($scope,$rootScope,$stateParams,
   $timeout,$ionicScrollDelegate,Modals,PostService,PushProcessing,$ionicPlatform){
-
 $scope.posts = [];
 $scope.itemsAvailable = true;
 $scope.loadingMessage = "";
-$rootScope.loadMSG = "";
 
+$rootScope.$watch('newMSG', function() {
+    
+      if($rootScope.newMSG === true){
+
+         $scope.koeksnor = true;
+         $scope.snorkoek = $rootScope.actualNewMessage;
+
+         $timeout(function() {
+
+            $rootScope.newMSG = false;
+            $scope.koeksnor = false;
+            $rootScope.actualNewMessage = "";
+
+         }, 3000);
+      }
+    
+      
+   }, true);
 
 //When app opens from notification in coldstart, pinboardctrl is loaded before PushProcessing.notification is set
-
-  //Close commentmodal
-  $ionicPlatform.on('pause', function(){
-    if(commentModal)
-    {
-      commentModal.remove();
-    }    
-  });
 
   if(PushProcessing.notification.commentid != '')
   {
@@ -375,22 +383,11 @@ $rootScope.loadMSG = "";
     },500);
   }
 
-$rootScope.$watch('loadMSG', function() {
-      if($rootScope.loadMSG != undefined && $rootScope.loadMSG != ""){
-        console.log('hij is wel geset: ' + $rootScope.loadMSG);
-        $scope.loadingMessage = $rootScope.loadMSG;
-         $timeout(function(){
-            $scope.loadingMessage = "";
-            $rootScope.loadMSG = "";
-         },5000);   
-      }
-   });
 
 $scope.$watch('loadingMessage', function() {
       if($scope.loadingMessage != ""){
          $timeout(function(){
             $scope.loadingMessage = "";
-            $rootScope.loadMSG = "";
          },5000);   
       }
    });
@@ -425,6 +422,8 @@ $scope.doRefresh = function(pinboard){
          PostService.getPosts(pinboard,$scope.posts.length,12)
          .then(function(posts){
 
+
+          console.log(posts);
           if(posts == "NOPOSTS"){
             $scope.itemsAvailable = false;
             $scope.loadingMessage = "Er zijn geen oudere berichten beschikbaar";
@@ -462,8 +461,27 @@ $scope.doRefresh = function(pinboard){
  }
 
  $scope.photoprev = function(photo){
-    $scope.photofile = photo;
+    $scope.photofile = $rootScope.server+"/posts/images/"+photo;
     Modals.createAndShow($scope,"photoview");
+ }
+
+ $scope.openprikl = function(prikl){
+    $scope.prikl = prikl;
+    switch(prikl.prikl_type){
+      case "pic":
+        $scope.photofile = $rootScope.server+"/images/prikls/"+prikl.prikl_file;
+         Modals.createAndShow($scope,"photoview");
+      break;
+      case "youtube":
+          $scope.youtubeid = prikl.prikl_url + "?rel=0";
+          Modals.createAndShow($scope,"youtube");
+      break;
+      case "url":
+          window.open(prikl.prikl_url, '_blank', 'location=yes');
+      break;
+      case "text":
+      break;
+    }
  }
 
  $scope.priklprev = function(){
@@ -475,8 +493,36 @@ $scope.doRefresh = function(pinboard){
     Modals.createAndShow($scope,"comments");
  }
 
- $scope.delete = function(){
-    $ionicLoading.show({template:"Verwijderen",duration:1000});
+ $scope.reactprikl = function(prikl){
+
+   try{
+    if($scope.youtubemodal){
+      $scope.youtubemodal.youtube.player.pauseVideo();
+    }}catch(ex){console.log(ex);}
+
+    switch(prikl.prikl_react_type)
+    {
+      case "pic":
+        Camera.getPicture(0)
+        .then(function(imageURI){ 
+          $scope.imageURI = imageURI;
+          Modals.createAndShow($scope,"photo");
+        },function(error){
+          console.log("Camera probleem:</br>"+error);
+        });
+      break;
+      case "text":
+        Modals.createAndShow($scope,"text");
+      break;
+    }
+ }
+
+ $scope.delete = function(post){
+    PostService.deletePost(post.idposts).then(function(posts){
+      
+    },function(error){
+      $scope.loadingMessage = error;
+    });
  }
 
 })
@@ -780,6 +826,12 @@ $scope.data = {showDelete:false};
 .filter('timeAgo', function() {
       return function(date) {
         return moment(date).fromNow(); 
+      };
+})
+
+.filter('momentDate', function() {
+      return function(date) {
+        return moment(date).format("dddd D MMMM"); 
       };
 })
 
