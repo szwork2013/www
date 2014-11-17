@@ -372,6 +372,61 @@ height:70px;
   height:100%;
   background-repeat: no-repeat;
 }
+/*PRIKLMODALVIEW*/
+.priklmodal{
+  background-color:transparent;
+}
+
+.priklmodal-bg{
+  background-color:rgba(0,0,0,0.7);
+  background-size: cover;
+  background-position: center;
+  border-radius: 30px;
+  top:5%;
+  left:5%;
+  height: 90%;
+  width: 90%;
+  position: absolute;
+  z-index: -2;
+}
+
+.priklmodal ion-content{
+  padding:50px;
+  padding-top:100px;
+  color:white;
+}
+
+.priklmodal i{
+  position: absolute;
+  color:white;
+  font-size: 30px;
+  top:7%;
+  right:7%;
+  z-index: 4;
+  background-color: rgba(0,0,0,0.5);
+  border-radius:50%;
+  width:30px;
+  height: 30px;
+  padding-left:2px;
+}
+
+.priklmodal-contentblock{
+  border-radius: 30px;
+  padding:10px;
+  text-align: center;
+  background-color:rgba(0,0,0,0.6);
+}
+
+.priklmodal span{
+  background-color:;
+}
+
+.priklmodal h1{
+  color:white;
+
+}
+
+
 
 /*PRIKLS*/
 

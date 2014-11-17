@@ -120,7 +120,7 @@ angular.module('prikl.services', ['angular-md5'])
 
     var getSinglePrikl = function(priklid){
       var url = $rootScope.server + "index.php/serve/getSinglePrikl?priklid="+priklid+"&callback=JSON_CALLBACK";
-       return jsonpRequest(url)
+       return jsonpRequest(url);
     }
 
     var getBugs = function (){
@@ -432,9 +432,19 @@ angular.module('prikl.services', ['angular-md5'])
                                 scope.feedbackmodal.show();
                               });
                         break;
+                        case "priklview":
+                          $ionicModal.fromTemplateUrl('templates/modals/priklview.html', {
+                                scope: scope,
+                                animation: 'fade-in'
+                              }).then(function(modal) {
+                                scope.priklviewmodal = modal;
+                                scope.priklviewmodal.show();
+                              });
+                        break;
                         case "photoview":
                               $ionicModal.fromTemplateUrl('templates/modals/photoview.html', {
-                                      scope: scope, focusFirstInput: true, animation: 'reverse'
+                                      scope: scope, focusFirstInput: true,
+                                animation: 'fade-in'
                                     }).then(function(modal) {
                                       scope.photoviewmodal = modal;
                                       scope.photoviewmodal.photofile = scope.photofile;

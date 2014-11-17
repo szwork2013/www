@@ -4,10 +4,10 @@ angular.module('prikl.controllers', ['youtube-embed'])
 .controller('AppCtrl', function($scope,$rootScope, $state, Modals, Camera,Message, 
   $stateParams,$ionicPlatform,PushProcessing,AuthenticationService) {
 
-  /* if($rootScope.userid == undefined && $rootScope.groupid == undefined){
+   if($rootScope.userid == undefined && $rootScope.groupid == undefined){
     $rootScope.userid = 213;
     $rootScope.groupid = 86;
-  }*/
+  }
 
   $scope.go = function(string)
   {
@@ -355,8 +355,15 @@ $scope.doRefresh = function(pinboard){
     }
  }
 
- $scope.priklprev = function(){
-    $ionicLoading.show({template:"PrikLpreview",duration:1000});
+ $scope.priklprev = function(priklid){
+  PostService.getSinglePrikl(priklid)
+  .then(function(prikl){
+    console.log(prikl);
+  Modals.createAndShow($scope,"priklview");
+    $scope.prikl = prikl[0];
+  },function(err){
+    alert(err);
+  });
  }
 
  $scope.react = function(postid){
@@ -370,6 +377,8 @@ $scope.doRefresh = function(pinboard){
     if($scope.youtubemodal){
       $scope.youtubemodal.youtube.player.pauseVideo();
     }}catch(ex){console.log(ex);}
+
+    $scope.priklid = prikl.idprikl;
 
     switch(prikl.prikl_react_type)
     {
@@ -577,17 +586,15 @@ $scope.data = {showDelete:false};
            Message.loading("Fotobericht uploaden");
         $state.go('app.allreactions');
           $timeout(function(){
-             Message.loading("Fotobericht uploaden");
             $state.go('app.account');
                $timeout(function(){
-                 Message.loading("Fotobericht uploaden");
-        $state.go('app.allreactions');
+                      $state.go('app.allreactions');
 
-       Message.loadingHide();
-          
+                     Message.loadingHide();
+                        
 
-      $scope.photomodal.remove();
-       Message.notify("Fotobericht opgeslagen");
+                    $scope.photomodal.remove();
+                     Message.notify("Fotobericht opgeslagen");
 
                 },300);
           },300);

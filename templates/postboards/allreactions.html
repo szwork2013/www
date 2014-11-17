@@ -33,7 +33,7 @@
 
           <!--TEXTPOST-->
           <div class="item pinboard-cardtext wordbreak" ng-if="post.post_type == 'text'">
-              <div class="pinboard-priklreaction" ng-click="priklprev()">
+              <div class="pinboard-priklreaction" ng-if="post.prikl_id >0" ng-click="priklprev(post.prikl_id)">
                 <i class="icon ion-ios7-lightbulb-outline"></i>
               </div>
               <span>{{post.post_text}}</span>
@@ -41,7 +41,8 @@
 
           <!--IMAGEPOST-->
           <div class="item item-image" ng-if="post.post_type == 'pic'" >
-              <div class="pinboard-priklreaction" ng-if="post.prikl_id > 0" ng-click="priklprev()">
+
+              <div class="pinboard-priklreaction" ng-if="post.prikl_id >0" ng-click="priklprev(post.prikl_id)">
                 <i class="icon ion-ios7-lightbulb-outline"></i>
               </div>
 
