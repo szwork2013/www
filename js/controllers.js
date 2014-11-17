@@ -4,7 +4,7 @@ angular.module('prikl.controllers', ['youtube-embed'])
 .controller('AppCtrl', function($scope,$rootScope, $state, Modals, Camera,Message, 
   $stateParams,$ionicPlatform,PushProcessing,AuthenticationService) {
 
-   /*if($rootScope.userid == undefined && $rootScope.groupid == undefined){
+  /* if($rootScope.userid == undefined && $rootScope.groupid == undefined){
     $rootScope.userid = 213;
     $rootScope.groupid = 86;
   }*/
@@ -231,122 +231,7 @@ angular.module('prikl.controllers', ['youtube-embed'])
  } 
 })
 
-.controller('PrikLCtrl', function($state, $scope, Cache, Camera, Modals,$timeout,PostService,
-  $rootScope,Message, $ionicLoading, $ionicSideMenuDelegate,$ionicSlideBoxDelegate) {
-   
-   $scope.loading = false;
-   $scope.prikls = [];
-
-   $ionicSideMenuDelegate.canDragContent(false);
-   $scope.$on('$stateChangeStart', 
-    function(event, toState, toParams, fromState, fromParams){ 
-      if(fromState.name == "app.prikls"){
-         // Cache.put("prikls",$scope.prikls);
-          $ionicSideMenuDelegate.canDragContent(true);
-     }
-   });
-
-
-  $scope.slideHasChanged = function(index){
-   $rootScope.prikldate =  $scope.prikls[index].prikl_date;
-      for (var i = $scope.prikls.length - 1; i >= 0; i--) {
-        if($scope.prikls[i].prikl_type == "youtube"){
-          try{
-          $scope.prikls[i].youtube.player.pauseVideo();
-          }catch(ex){
-          //console.log(ex);
-          }
-        }
-      };
-  }
-
-             $scope.nextSlide = function(){
-                $ionicSlideBoxDelegate.next();
-              }
-
-               $scope.previousSlide = function(){
-                $ionicSlideBoxDelegate.previous();
-              }
-
-  $scope.viewPhoto = function(serverpath,filename){
-      Modals.createAndShow($scope,"photoview");
-      //console.log($rootScope.server + serverpath + filename);
-      $scope.photourl = $rootScope.server + serverpath + filename;
-}
-
-   $scope.openlink = function(link){
-    window.open(link, '_blank', 'location=yes');
-  }
-
-  $scope.openyoutube = function(ytprikl){
-      $scope.currentprikl = ytprikl;
-      $scope.youtubeid = ytprikl.prikl_url + "?rel=0";
-      Modals.createAndShow($scope,"youtube");
-  }
-
-
-  $scope.playerVars = {
-    controls: 1,
-    autoplay: 1,
-    modestbranding: 1,
-    showinfo: 0,
-    iv_load_policy: 3,
-    cc_load_policy:0
-};
-
-
-            
-
-  $scope.loadPrikls = function(){
-
-
-      //If there are prikls in cache load them
-  /* if(Cache.get('prikls') != null) {
-    $scope.prikls = Cache.get('prikls');
-   } */
-
-
-  $scope.loading = true;
-    PostService.getPrikls().then(
-      function(prikls){
-       $scope.loading = false;
-       $scope.prikls = prikls;
-           if($scope.prikls[0] != undefined){
-            $rootScope.prikldate =  $scope.prikls[0].prikl_date;
-           }
-       $ionicSlideBoxDelegate.update();
-      },function(error){
-       $scope.loading = false;
-       $ionicLoading.show({template:error,duration:3000});
-      }
-    );
-  }
-
-  
-  $scope.react = function(reacttype,priklid){
-    try{
-    if($scope.youtubemodal){
-      $scope.youtubemodal.youtube.player.pauseVideo();
-    }}catch(ex){console.log(ex);}
-
-    $scope.priklid = priklid;
-    if(reacttype == "pic"){
-        Camera.getPicture(0)
-        .then(function(imageURI){ 
-          $scope.imageURI = imageURI;
-          Modals.createAndShow($scope,"photo");
-        },function(error){
-          console.log("Camera probleem:</br>"+error);
-        });
-      }
-    else if(reacttype =="text"){
-        Modals.createAndShow($scope,"text");
-    }
-    }
-  
-})
-
-.controller('PinboardCtrl',function($scope,$rootScope,$stateParams,
+.controller('PinboardCtrl',function($scope,$rootScope,$stateParams,Camera,
   $timeout,$ionicScrollDelegate,Modals,PostService,PushProcessing,$ionicPlatform){
 
 $scope.posts = [];
@@ -354,7 +239,6 @@ $scope.itemsAvailable = true;
 $scope.loadingMessage = "";
 
 //When app opens from notification in coldstart, pinboardctrl is loaded before PushProcessing.notification is set
-
   if(PushProcessing.notification.commentid != '')
   {
     $scope.commentPostID = PushProcessing.notification.commentid;
@@ -375,13 +259,19 @@ $scope.$watch('loadingMessage', function() {
 
 //Refresh
 $scope.doRefresh = function(pinboard){
-
-      if($scope.posts.length==0){var lastpostid=0;}else{var lastpostid = $scope.posts[0].idposts;}
-  
+    
+      if($scope.posts.length==0){var lastpostid=0;}
+      else if(pinboard == 'prikl'){
+        var lastpostid = $scope.posts[0].idprikl;
+      }else{
+        var lastpostid = $scope.posts[0].idposts;
+      }
+      
       PostService.getNewPosts(pinboard,lastpostid)
       .then(function(posts){   
         if(posts == "NOPOSTS"){
-          $scope.loadingMessage = "Er zijn geen nieuwe posts beschikbaar";
+          if(pinboard == 'prikl'){$scope.loadingMessage = "Er zijn geen nieuwe PrikLs beschikbaar";}
+          else{$scope.loadingMessage = "Er zijn geen nieuwe posts beschikbaar";}
         }else{
           $scope.loadingMessage = posts.length + " nieuw";
           for(var i = 0;i<posts.length;i++){
@@ -402,12 +292,12 @@ $scope.doRefresh = function(pinboard){
 
          PostService.getPosts(pinboard,$scope.posts.length,12)
          .then(function(posts){
-
-
           console.log(posts);
+
           if(posts == "NOPOSTS"){
             $scope.itemsAvailable = false;
-            $scope.loadingMessage = "Er zijn geen oudere berichten beschikbaar";
+            if(pinboard == 'prikl'){$scope.loadingMessage = "Er zijn geen oudere PrikLs beschikbaar";}
+            else{$scope.loadingMessage = "Er zijn geen oudere berichten beschikbaar";}
           }
 
           else{ 

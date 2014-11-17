@@ -91,15 +91,6 @@ angular.module('prikl', ['ionic', 'ngCordova', 'prikl.controllers', 'prikl.servi
       views: {
         'menuContent' :{
           templateUrl: "templates/postboards/prikls.html",
-          controller: 'PrikLCtrl'
-        }
-      }
-    }) 
-    .state('app.prikls2', {
-      url: "/prikls2", 
-      views: {
-        'menuContent' :{
-          templateUrl: "templates/postboards/prikls1.html",
           controller: 'PinboardCtrl'
         }
       }

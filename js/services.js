@@ -87,6 +87,8 @@ angular.module('prikl.services', ['angular-md5'])
 .factory('PostService', function ($q, $http, $rootScope){
 
   var jsonpRequest = function(url){
+
+    console.log(url);
    
     var deferred = $q.defer();
           $http.jsonp(url,{timeout:5000})
@@ -150,13 +152,20 @@ angular.module('prikl.services', ['angular-md5'])
     }
 
     var getNewPosts = function (pinboard,lastpostid) {
-      if(pinboard == "user"){
+      var url;
+      switch(pinboard)
+      {
+        case 'user':
         var url = $rootScope.server + "index.php/serve/getNewUserPosts?lastpostid="+lastpostid+"&userid="+$rootScope.userid+"&callback=JSON_CALLBACK";    
-        return jsonpRequest(url);
-      }else if(pinboard == "group"){
-        var url = $rootScope.server + "index.php/serve/getNewGroupPosts?lastpostid="+lastpostid+"&groupid="+$rootScope.groupid+"&callback=JSON_CALLBACK";    
-        return jsonpRequest(url);
+        break;
+        case 'group':
+        var url = $rootScope.server + "index.php/serve/getNewGroupPosts?lastpostid="+lastpostid+"&groupid="+$rootScope.groupid+"&callback=JSON_CALLBACK"; 
+        break;
+        case 'prikl':
+        var url = $rootScope.server + "index.php/serve/getNewPrikls?lastpostid="+lastpostid+"&groupid="+$rootScope.groupid+"&callback=JSON_CALLBACK";
+        break; 
       }
+      return jsonpRequest(url);
     }
 
     var addProfilePic = function(filename){
