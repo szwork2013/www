@@ -237,6 +237,7 @@ angular.module('prikl.controllers', ['youtube-embed'])
 $scope.posts = [];
 $scope.itemsAvailable = true;
 $scope.loadingMessage = "";
+$rootScope.newMessage = "";
 
 //When app opens from notification in coldstart, pinboardctrl is loaded before PushProcessing.notification is set
   if(PushProcessing.notification.commentid != '')
@@ -248,6 +249,14 @@ $scope.loadingMessage = "";
       Modals.createAndShow($scope,"comments");
     },500);
   }
+
+$rootScope.$watch('newMessage', function(){
+   if($rootScope.newMessage != ""){
+         $timeout(function(){
+           $rootScope.newMessage = "";
+         },7000);   
+      }
+});
 
 $scope.$watch('loadingMessage', function() {
       if($scope.loadingMessage != ""){
@@ -292,7 +301,6 @@ $scope.doRefresh = function(pinboard){
 
          PostService.getPosts(pinboard,$scope.posts.length,12)
          .then(function(posts){
-          console.log(posts);
 
           if(posts == "NOPOSTS"){
             $scope.itemsAvailable = false;
@@ -368,6 +376,7 @@ $scope.doRefresh = function(pinboard){
 
  $scope.react = function(postid){
     $scope.commentPostID = postid;
+    $rootScope.newMessage = "";
     Modals.createAndShow($scope,"comments");
  }
 

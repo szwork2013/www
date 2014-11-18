@@ -3,8 +3,12 @@
     <button menu-toggle="left" class="button button-icon icon ion-navicon"></button>
   </ion-nav-buttons>
 
-  <div class="bar bar-subheader bar-royal bar-loading" ng-if="loadingMessage != ''" id = "loadingMessage">
+  <div class="bar bar-subheader bar-loading" ng-if="loadingMessage != ''">
    {{loadingMessage}}
+ </div>
+
+   <div class="bar bar-subheader bar-loading bar-message" ng-if="$root.newMessage != ''" ng-click="react($root.postID)">
+   {{$root.newMessage}}
  </div>
 
  <ion-content class="pinboard-bg">

@@ -561,9 +561,9 @@ function transformRequest( data, getHeaders ) {
   }
 })
 
-.factory("PushProcessing",function($q,$cordovaPush,AuthenticationService,
+.factory("PushProcessing",function($q,$rootScope,$cordovaPush,AuthenticationService,
   $state,$stateParams,$timeout,Modals) {
-  var notification = {type:'',postid:'',commentid:''};
+  var notification = {type:'',senderfirstname:'',postid:'',commentid:'',loadingMes:''};
   return {  
     register : function(){
         //Register android GCM with senderID
@@ -600,9 +600,16 @@ function transformRequest( data, getHeaders ) {
         });
     },
     notification:notification,
-    onNotification: function(notificationData){
-        notification.type = notificationData.notificationType;
+    onNotificationForeground: function(notification){
+      console.log("UIT PUSHPROCESSING");
+      console.log(JSON.stringify(notification));
 
+        $rootScope.postID = notification.notificationData.notificationContent;
+        $rootScope.newMessage = notification.notificationData.senderFirstName + ": " + notification.message;
+         $state.reload();
+    },
+    onNotificationBackground: function(notificationData){
+        notification.type = notificationData.notificationType;
         switch(notificationData.notificationType)  {
           case 'comment':
 
@@ -614,7 +621,7 @@ function transformRequest( data, getHeaders ) {
                     reload: true,
                     inherit: false,
                     notify: true
-                  });
+                  }); 
                }else{
                  $state.go('app.allreactions');
                }
@@ -654,7 +661,11 @@ function transformRequest( data, getHeaders ) {
                       //to use angular
                       var elem = angular.element(document.querySelector('[ng-app]'));
                       var pushService = elem.injector().get('PushProcessing');
-                      pushService.onNotification(e.payload.notificationData);
+                      if(e.foreground){
+                        pushService.onNotificationForeground(e.payload);
+                      }else{
+                        pushService.onNotificationBackground(e.payload.notificationData);    
+                      }
             break;
  
             case 'error':

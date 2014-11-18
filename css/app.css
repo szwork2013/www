@@ -374,58 +374,23 @@ height:70px;
 }
 /*PRIKLMODALVIEW*/
 .priklmodal{
-  background-color:transparent;
-}
-
-.priklmodal-bg{
-  background-color:rgba(0,0,0,0.7);
-  background-size: cover;
-  background-position: center;
-  border-radius: 30px;
-  top:5%;
-  left:5%;
-  height: 90%;
-  width: 90%;
   position: absolute;
-  z-index: -2;
+  top:50%;
+  margin:-200px 0 0 0;
+  width:100%;
 }
 
-.priklmodal ion-content{
-  padding:50px;
-  padding-top:100px;
-  color:white;
+.priklmodal .ion-close-circled{
+position: absolute;
+top:2px;
+right:5px;
+font-size:40px;
 }
 
-.priklmodal i{
-  position: absolute;
-  color:white;
-  font-size: 30px;
-  top:7%;
-  right:7%;
-  z-index: 4;
-  background-color: rgba(0,0,0,0.5);
-  border-radius:50%;
-  width:30px;
-  height: 30px;
-  padding-left:2px;
+.priklmodal .prikl-divvie{
+  border-top:none;
+  background-repeat: repeat-x;
 }
-
-.priklmodal-contentblock{
-  border-radius: 30px;
-  padding:10px;
-  text-align: center;
-  background-color:rgba(0,0,0,0.6);
-}
-
-.priklmodal span{
-  background-color:;
-}
-
-.priklmodal h1{
-  color:white;
-
-}
-
 
 
 /*PRIKLS*/
@@ -901,9 +866,16 @@ height:70px;
 /*CUSTOMLOADINGBAR*/
 .bar-loading {
   text-align:center;
-  height:30px;
-  
+  height:40px;
+  line-height: 30px;
+  border-bottom:1px solid black;
+  background-color:#444;
+  color:white;
+}
 
+.bar-message{
+  background-color:lightblue;
+  color:black;
 }
 
 

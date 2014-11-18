@@ -1,27 +1,35 @@
-<ion-modal-view class="priklmodal" >
 
-<i class="icon ion-close-circled" ng-click="priklviewmodal.remove()"></i>
-
-     <div ng-if="prikl.prikl_type == 'pic' || prikl.prikl_type == 'url'" class="priklmodal-bg" ng-style="{'background-image':'url({{$root.server}}/images/prikls/{{prikl.prikl_file}})'}"> </div>
-      <div ng-if="prikl.prikl_type == 'youtube'" class="priklmodal-bg" ng-style="{'background-image':'url(http://img.youtube.com/vi/{{prikl.prikl_url}}/0.jpg)'}">
-   		</div>
+<div class="priklmodal">
+     <div class="pinboard-card prikl-card card">
 
 
-   		<ion-content>
-   			<div class="priklmodal-contentblock">
-	     	<h1>{{prikl.prikl_title}}</h1>
-	     	<span class="priklmodal-date">{{prikl.prikl_date | momentDate}}</span></br>
-	     	<span class="priklmodal-content">{{prikl.prikl_content}}</span>
-	     	</div>
-	     	
-	     	<div class="priklmodal-image" ng-if="prikl.prikl_type == 'pic' || prikl.prikl_type == 'url'"  >
-	     	</div>
+              <div class="item item-image">
 
-	     	<div class="youtube-container" ng-if="prikl.prikl_type == 'youtube'" >
-	        	  <youtube-video video-id="youtubemodal.youtubeid" player="youtubemodal.youtube.player" player-vars="playerVars">
-	              </youtube-video>
-	        </div> 
+	<i class="icon ion-close-circled" ng-click="priklviewmodal.remove()"></i>
+                 <div class="card-curl" style="background-image: url('./img/curl.png');" ng-if="prikl.reacted_on == 'false'" ng-click="reactprikl(prikl)">
+                  <i ng-if="prikl.prikl_react_type == 'pic'" class="icon ion-camera" ></i>
+                  <i ng-if="prikl.prikl_react_type == 'text'" class="icon ion-compose"></i>
+                </div>
+           
+                <!--TEXTPRIKL-->
+                <div class="pinboard-cardtext wordbreak" ng-if="prikl.prikl_type == 'text'">
+                  <span>asfadsfas{{prikl.prikl_content}}</span>
+                </div>
 
-        </ion-content>
-  
-</ion-modal-view>
+                <div ng-click="openprikl(prikl)">
+                <div ng-if="prikl.prikl_type == 'pic'" class="prikl-image" ng-style="{'background-image':'url({{$root.server}}/images/prikls/{{prikl.prikl_file}})'}"></div>
+                <div ng-if="prikl.prikl_type == 'url'" class="prikl-image" ng-style="{'background-image':'url({{$root.server}}/images/prikls/{{prikl.prikl_file}})'}"></div>
+                <div ng-if="prikl.prikl_type == 'youtube'" class="prikl-image" ng-style="{'background-image':'url(http://img.youtube.com/vi/{{prikl.prikl_url}}/0.jpg)'}"></div>
+                </div>
+              </div>
+
+            <div class="item item-icon-left prikl-divvie" style="background-image: url('./img/shadow.png');">
+              <i ng-if="prikl.prikl_type == 'pic'" class="icon ion-image"></i>
+              <i ng-if="prikl.prikl_type == 'youtube'" class="icon ion-ios7-play"></i>
+              <i ng-if="prikl.prikl_type == 'text'" class="icon ion-edit"></i>
+              <i ng-if="prikl.prikl_type == 'url'" class="icon ion-earth"></i>
+              <h2>{{prikl.prikl_title}}</h2>
+              <p>{{prikl.prikl_date | momentDate}}</p>
+            </div>
+       </div>
+       </div>
