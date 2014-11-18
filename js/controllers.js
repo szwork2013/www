@@ -232,12 +232,13 @@ angular.module('prikl.controllers', ['youtube-embed'])
 })
 
 .controller('PinboardCtrl',function($scope,$rootScope,$stateParams,Camera,
-  $timeout,$ionicScrollDelegate,Modals,PostService,PushProcessing,$ionicPlatform){
+  $timeout,$ionicScrollDelegate,Modals,PostService,PushProcessing,$ionicPlatform,$state){
 
 $scope.posts = [];
 $scope.itemsAvailable = true;
 $scope.loadingMessage = "";
 $rootScope.newMessage = "";
+$scope.loadMoreCounter = 0;
 
 //When app opens from notification in coldstart, pinboardctrl is loaded before PushProcessing.notification is set
   if(PushProcessing.notification.commentid != '')
@@ -298,8 +299,11 @@ $scope.doRefresh = function(pinboard){
 
   //Infinite Scrolling
   $scope.loadMore = function(pinboard) { 
-
-         PostService.getPosts(pinboard,$scope.posts.length,12)
+    if($scope.loadMoreCounter === 0)
+    {
+      $scope.loadMoreCounter = 1;
+      console.log('counter is 1');
+      PostService.getPosts(pinboard,$scope.posts.length,12)
          .then(function(posts){
 
           if(posts == "NOPOSTS"){
@@ -309,11 +313,20 @@ $scope.doRefresh = function(pinboard){
           }
 
           else{ 
+            var koek = $scope.posts;
+            $scope.posts = "";
             for (var i = 0; i < posts.length; i++)
-            {
-              $scope.posts.push(posts[i]);
+            {              
+              koek.push(posts[i]);
             }
+              $scope.posts = koek;
+              console.log('LAADMEER:');
+              console.log($scope.posts);
+              $timeout(function(){
+              $scope.loadMoreCounter = 0;
 
+            },600);
+            
           }
 
         },
@@ -324,6 +337,8 @@ $scope.doRefresh = function(pinboard){
           $scope.$broadcast('scroll.infiniteScrollComplete');
           $scope.$broadcast('scroll.resize');
         });
+    }
+         
 }
 
  $scope.getDynamicWidth = function(){

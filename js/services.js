@@ -84,7 +84,7 @@ angular.module('prikl.services', ['angular-md5'])
       };
   })
 
-.factory('PostService', function ($q, $http, $rootScope){
+.factory('PostService', function ($q, $http, $rootScope, $state){
 
   var jsonpRequest = function(url){
 
