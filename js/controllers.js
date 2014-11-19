@@ -299,10 +299,6 @@ $scope.doRefresh = function(pinboard){
 
   //Infinite Scrolling
   $scope.loadMore = function(pinboard) { 
-    if($scope.loadMoreCounter === 0)
-    {
-      $scope.loadMoreCounter = 1;
-      console.log('counter is 1');
       PostService.getPosts(pinboard,$scope.posts.length,12)
          .then(function(posts){
 
@@ -313,20 +309,12 @@ $scope.doRefresh = function(pinboard){
           }
 
           else{ 
-            var koek = $scope.posts;
-            $scope.posts = "";
+
             for (var i = 0; i < posts.length; i++)
             {              
-              koek.push(posts[i]);
+              $scope.posts.push(posts[i]);
             }
-              $scope.posts = koek;
               console.log('LAADMEER:');
-              console.log($scope.posts);
-              $timeout(function(){
-              $scope.loadMoreCounter = 0;
-
-            },600);
-            
           }
 
         },
@@ -336,9 +324,7 @@ $scope.doRefresh = function(pinboard){
          .finally(function(){
           $scope.$broadcast('scroll.infiniteScrollComplete');
           $scope.$broadcast('scroll.resize');
-        });
-    }
-         
+        });        
 }
 
  $scope.getDynamicWidth = function(){
