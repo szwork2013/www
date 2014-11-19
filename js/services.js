@@ -88,12 +88,10 @@ angular.module('prikl.services', ['angular-md5'])
 
   var jsonpRequest = function(url){
 
-    console.log(url);
    
     var deferred = $q.defer();
           $http.jsonp(url,{timeout:5000})
                 .success(function(data) {
-                   console.log(data);
                   deferred.resolve(data);
                 })
                 .error(function(data, status, headers, config){
@@ -185,7 +183,7 @@ angular.module('prikl.services', ['angular-md5'])
 
     var addComment = function(postid,text) {
     var url = $rootScope.server + "index.php/serve/addPostComment?userid="+$rootScope.userid+"&postid="+postid+"&text="+text+"&callback=JSON_CALLBACK";
-    console.log(url);
+
     return jsonpRequest(url);
     }
 
@@ -601,8 +599,6 @@ function transformRequest( data, getHeaders ) {
     },
     notification:notification,
     onNotificationForeground: function(notification){
-      console.log("UIT PUSHPROCESSING");
-      console.log(JSON.stringify(notification));
 
         $rootScope.postID = notification.notificationData.notificationContent;
         $rootScope.newMessage = notification.notificationData.senderFirstName + ": " + notification.message;
@@ -680,12 +676,13 @@ function transformRequest( data, getHeaders ) {
 
 
 //Apple notificationevents
-var onNotificationAPN = function (event) {
+onNotificationAPN = function (event) {
+    console.log("NOTIFICAZIE"+event);
     window.location = "#/app/prikls";
 
     if ( event.alert )
     {
-       // navigator.notification.alert(event.alert);
+        navigator.notification.alert(event.alert);
     };
 
     if ( event.sound )

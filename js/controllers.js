@@ -381,7 +381,6 @@ $scope.doRefresh = function(pinboard){
  $scope.priklprev = function(priklid){
   PostService.getSinglePrikl(priklid)
   .then(function(prikl){
-    console.log(prikl);
   Modals.createAndShow($scope,"priklview");
     $scope.prikl = prikl[0];
   },function(err){

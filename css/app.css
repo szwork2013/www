@@ -1,3 +1,50 @@
+@import url(http://fonts.googleapis.com/css?family=Pacifico);
+@import url(http://fonts.googleapis.com/css?family=Gloria+Hallelujah);
+@import url(http://fonts.googleapis.com/css?family=Handlee);
+
+/*
+
+ion-side-menu ion-item{
+  font-family: 'Handlee', cursive;
+  font-weight: bolder;
+}
+
+ion-side-menu .item-divider{
+  font-family: 'Handlee', cursive;
+  font-weight: bolder;
+}
+
+.title{
+  font-family: 'Pacifico', cursive;
+  font-weight: bolder;
+}
+
+.item-avatar h2{
+  font-family: 'Handlee', cursive;
+  font-weight: bolder;
+}
+
+.item-avatar p{
+  font-family: 'Handlee', cursive;
+  font-weight: bolder;
+}
+
+.pinboard-cardtext{
+  font-family: 'Handlee', cursive;
+  font-weight: bolder;
+}
+
+.pinboard-cardimage span{
+  font-family: 'Handlee', cursive;
+  font-weight: bolder;
+}
+
+.pinboard-cardbutton{
+  font-family: 'Handlee', cursive;
+  font-weight: bolder;
+}
+*/
+
 .darkbackground, .menu-left {
   background-color:#333;
   /*background-image:url('../img/sep-half.png');*/
@@ -244,6 +291,11 @@ height:70px;
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+}
+
+
+.pinboard-card img{
+  height: 100%;
 }
 
 .pinboard-cardimage span, .photoprev-cardimage textarea{

@@ -45,7 +45,7 @@
 
  <platform name="android">
   <preference name="orientation" value="portrait" />
-  <preference name="Fullscreen" value="true" />
+  <preference name="Fullscreen" value="false" />
   <icon src="res/drawable/icon.png" />
   <icon src="res/drawable-ldpi/icon.png" density="ldpi"/>
   <icon src="res/drawable-mdpi/icon.png" density="mdpi" />
